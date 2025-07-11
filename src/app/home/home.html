@@ -1,1 +1,8 @@
 <p>home page!</p>
+<div *ngIf="!data">Loading...</div>
+<pre>{{ data | json }}</pre>
+<div *ngIf="data">
+    <h2>Data from the server:</h2>
+    <p>{{ data.message }}</p>
+    <p>{{ data.status }}</p>
+</div>
