@@ -1,8 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DataService } from '../data.service';
-import { ChangeDetectorRef } from '@angular/core';
-import { NgZone } from '@angular/core';
 
 @Component({
   selector: 'app-home',
@@ -15,19 +13,14 @@ export class Home {
     status: string;
     message: string;
   } | any = { status: "loading", message: "No data" };
-  constructor(
-    private dataService: DataService, 
-    private cdr: ChangeDetectorRef,
-    private zone: NgZone
-  ) {}
+  
+  constructor(private dataService: DataService) {}
+  
   ngOnInit() {
     this.dataService.getData('home/test').subscribe({
       next: (response) => {
-        //this.zone.run(() => {
         this.data = response;
         console.log('Data fetched successfully:', this.data);
-        this.cdr.detectChanges();
-        //});
       },
       error: (error) => {
         console.error('Error fetching data:', error);

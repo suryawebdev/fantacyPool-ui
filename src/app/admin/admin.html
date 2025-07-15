@@ -1,0 +1,40 @@
+<h2>Admin Page</h2>
+
+<form [formGroup]="matchForm" (ngSubmit)="onCreateMatch()">
+    <input type="text" formControlName="teamA" placeholder="Team A" />
+    <input type="text" formControlName="teamB" placeholder="Team B" />
+    <input formControlName="startDateTime" type="datetime-local" placeholder="Start Date Time" />
+    <button type="submit">Create Match</button>
+</form>
+
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Team A</th>
+            <th>Team B</th>
+            <th>Start Date Time</th>
+            <th>Status</th>
+            <th>Winner</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let match of matches">
+            <td>{{ match.id }}</td>
+            <td>{{ match.teamA }}</td>
+            <td>{{ match.teamB }}</td>
+            <td>{{ match.startDateTime | date:'short' }}</td>
+            <!-- | date:'short' -->
+            <td>{{ match.status }}</td>
+            <td>{{ match.winner }}</td>
+            <td>
+                <button *ngIf="!match.winner" (click)="setWinner(match, 'A')">Set Team A Winner</button>
+                <button *ngIf="!match.winner" (click)="setWinner(match, 'B')">Set Team B Winner</button>
+                <button (click)="startEdit(match)">Edit Match</button>
+                <button (click)="deleteMatch(match.id)">Delete Match</button>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<button *ngIf="editMatchId" (click)="cancelEdit()">Cancel Edit</button>

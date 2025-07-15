@@ -1,0 +1,31 @@
+    flowchart TD
+        A1[Signup Page]
+        A2[Signin Page]
+        A3[User Dashboard]
+        A4[Admin Dashboard]
+        A5[Auth Service]
+        B1[Auth Controller]
+        B2[User Service]
+        B3[User Repository]
+        B4[JWT Provider]
+        B5[User DB]
+
+        A1 -- POST /api/auth/signup --> B1
+        A2 -- POST /api/auth/signin --> B1
+        A3 -- Authenticated Requests (JWT) --> B1
+        A4 -- Authenticated Requests (JWT) --> B1
+        B1 -- Calls --> B2
+        B2 -- CRUD --> B3
+        B3 -- Stores/Retrieves --> B5
+        B1 -- Issues/Validates --> B4
+        B4 -- Signs/Verifies --> A3
+        B4 -- Signs/Verifies --> A4
+        A5 -- Handles HTTP/JWT --> A1
+        A5 -- Handles HTTP/JWT --> A2
+        A5 -- Handles HTTP/JWT --> A3
+        A5 -- Handles HTTP/JWT --> A4
+
+        
+
+
+   https://mermaid.live/edit#pako:eNqVkkuP0zAUhf-K5RVIbdMkTvNYIPWxGNhQtRmQSFiYxk0tEjvYTmGm6n_n5jGSoYNUvIpzvnt97rEv-CALhhOMYB0r-fNwosqgdJMLNK6lm-15KdoGbWnJvlqC1wtc3Ah-9qiZQhuqT98kVYWtkWxZ1FDzqhhky9ac0J6pMz_YLVfuoKylMEpWFVO26A3nvVI2OtmxRmpupHqyRZJ9-JyirZJnXvzZMBgHWMFPOwk0naLtx32KHNpwh4IjRw_ZTKfvwKQdzj9YGP2G9Tu2m48Jww_UsAIc_2iZNhq9AY9vb0vIf5esevdrWlV60Dw7wV7bPW4Gybcj7KQ9ZMe0s2NGcXZmY4fg7-7vtQYLzida8QI8jRixM--7QQ5AMcWPfISW_j0Qsd9KBz1QUVSgPqTp1ulus8fc-zDvPsy_DyN4gkvFC5wY1bIJrpmqabfFl65BjuGuapbjBD4Lqr7nOBdXqGmo-CJl_VKmZFueXjZt08W44bRUFIgjrXSHMAHvdS1bYXAS9B1wcsG_cOL58Swm8zBcLPyIuFEcTfATThbhzI1cN46iICK-G4XXCX7uz5zPgkUQz4N5TFyyCL0ouP4GlW0cZA
