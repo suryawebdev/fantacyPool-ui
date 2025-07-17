@@ -5,6 +5,8 @@ import { Signin } from './signin/signin';
 import { authGuard } from './auth.guard';
 import { Admin } from './admin/admin';
 import { adminGuard } from './admin.guard';
+import { UserDashboard } from './user-dashboard/user-dashboard';
+import { Leaderboard } from './leaderboard/leaderboard';
 
 export const routes: Routes = [
     // {path: '', component: Home},
@@ -16,6 +18,7 @@ export const routes: Routes = [
         canActivate: [authGuard]
     },
     {path: 'admin', component: Admin, canActivate: [adminGuard]},
-
+    {path: 'user-dashboard', component: UserDashboard, canActivate: [authGuard]},
+    {path: 'leaderboard', component: Leaderboard, canActivate: [authGuard]},
     {path: '**', redirectTo: '/signin', pathMatch: 'full'}//Default route
 ];

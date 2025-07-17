@@ -11,7 +11,7 @@ export class MatchService {
 
   constructor(private http: HttpClient) {}
 
-  createMatch(data: { teamA: string; teamB: string; startTime: string }): Observable<any> {
+  createMatch(data: { teamA: string; teamB: string; startDateTime: string }): Observable<any> {
     return this.http.post(`${this.baseUrl}/api/matches`, data);
   }
 
@@ -29,5 +29,21 @@ export class MatchService {
 
   updateMatch(matchId: number, data: any): Observable<any> {
     return this.http.put(`${this.baseUrl}/api/matches/${matchId}`, data);
+  }
+
+  savePrediction(matchId: number, team: 'A' | 'B'): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/predictions`, { matchId, team });
+  }
+
+  getUserPicks(): Observable<{ matchId: number; team: 'A' | 'B' }[]> {
+    return this.http.get<{ matchId: number; team: 'A' | 'B' }[]>(`${this.baseUrl}/api/predictions/mine`);
+  }
+
+  getUserHistory(): Observable<{totalPoints: number; matches: any[]}> {
+    return this.http.get<{totalPoints: number; matches: any[]}>(`${this.baseUrl}/api/predictions/me/history`);
+  }
+
+  getLeaderboard(): Observable<{username: string; points: number}[]> {
+    return this.http.get<{username: string; points: number}[]>(`${this.baseUrl}/api/predictions/users/leaderboard`);
   }
 }

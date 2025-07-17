@@ -2,12 +2,12 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../auth.service';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-signin',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, RouterModule],
   templateUrl: './signin.html',
   styleUrl: './signin.scss'
 })
@@ -42,7 +42,7 @@ export class Signin {
         if (role === 'ADMIN') {
           this.router.navigate(['/admin']);
         } else if (role === 'USER') {
-          this.router.navigate(['/home']);
+          this.router.navigate(['/user-dashboard']);
         } else {
           this.router.navigate(['/signin']);
         }

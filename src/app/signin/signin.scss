@@ -8,17 +8,25 @@ form {
 label {
   font-weight: bold;
 }
-input {
-  padding: 0.5rem;
-  font-size: 1rem;
+input, select {
+  font-size: 1.15rem;
+  padding: 0.8rem 1rem;
+  border-radius: var(--border-radius);
+  margin-bottom: 1.2rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 small {
   color: red;
 }
 button {
-  padding: 0.5rem;
   font-size: 1rem;
-  cursor: pointer;
+  padding: 0.5rem;
+  // border-radius: var(--border-radius);
+  // width: auto;
+  // // min-width: 120px;
+  // margin: 0 auto;
+  // display: block;
 }
 
 .error-message {
@@ -28,4 +36,33 @@ button {
   border: 1px solid red;
   border-radius: 4px;
   background-color: #ffe3e3;
+}
+
+.signup-link {
+  margin-top: 1rem;
+  text-align: center;
+
+  a {
+    color: blue;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.signin-title {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.signin-form label {
+  display: block;
+  margin-bottom: 0.3rem;
+}
+
+.signin-form input,
+.signin-form select {
+  margin-bottom: 1rem;
 }

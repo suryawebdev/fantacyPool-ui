@@ -2,12 +2,12 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../auth.service';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-signup',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, RouterModule],
   templateUrl: './signup.html',
   styleUrl: './signup.scss'
 })
@@ -22,9 +22,12 @@ export class Signup {
     private router: Router
   ) {
     this.signupForm = this.fb.group({
+      firstName: ['', Validators.required],
+      lastName: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
       username: ['', Validators.required],
       password: ['', [Validators.required, Validators.minLength(6)]],
-      role: ['user', Validators.required] // default to 'user', can be 'admin'
+      role: ['USER', Validators.required] // default to 'user', can be 'admin'
     });
   }
 

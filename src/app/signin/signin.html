@@ -1,21 +1,23 @@
-<h2>Sign In</h2>
+
 <div *ngIf="errorMessage" class="error-message">
   {{ errorMessage }}
 </div>
-<form [formGroup]="signinForm" (ngSubmit)="onSubmit()">
+<form class="signin-form" [formGroup]="signinForm" (ngSubmit)="onSubmit()">
+  <h2 class="signin-title">Sign In</h2>
   <div>
-    <label for="username">Username</label>
-    <input id="username" formControlName="username" />
+    <input id="username" formControlName="username" placeholder="username"/>
     <div *ngIf="submitted && signinForm.controls['username'].errors">
       <small *ngIf="signinForm.controls['username'].errors['required']">Username is required</small>
     </div>
   </div>
   <div>
-    <label for="password">Password</label>
-    <input id="password" type="password" formControlName="password" />
+    <input id="password" type="password" formControlName="password" placeholder="password"/>
     <div *ngIf="submitted && signinForm.controls['password'].errors">
       <small *ngIf="signinForm.controls['password'].errors['required']">Password is required</small>
     </div>
   </div>
   <button type="submit">Sign In</button>
 </form>
+<div class="signup-link">
+  <p>Don't have an account? <a routerLink="/signup">Sign up</a></p>
+</div>

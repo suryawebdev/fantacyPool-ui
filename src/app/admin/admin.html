@@ -1,40 +1,44 @@
-<h2>Admin Page</h2>
-
-<form [formGroup]="matchForm" (ngSubmit)="onCreateMatch()">
-    <input type="text" formControlName="teamA" placeholder="Team A" />
-    <input type="text" formControlName="teamB" placeholder="Team B" />
+<div class="admin-panel">
+  <form [formGroup]="matchForm" (ngSubmit)="onCreateMatch()">
+    <h2 class="admin-title">{{ editMatchId ? 'Edit Match' : 'Create Match' }}</h2>
+    <div class="admin-form-row">
+      <input formControlName="teamA" placeholder="Team A" />
+      <input formControlName="teamB" placeholder="Team B" />
+    </div>
     <input formControlName="startDateTime" type="datetime-local" placeholder="Start Date Time" />
-    <button type="submit">Create Match</button>
-</form>
+    <div class="admin-form-actions">
+      <button type="submit">{{ editMatchId ? 'Update Match' : 'Create Match' }}</button>
+      <button *ngIf="editMatchId" type="button" (click)="cancelEdit()" class="danger">Cancel</button>
+    </div>
+  </form>
 
-<table>
+  <table *ngIf="matches.length > 0">
     <thead>
-        <tr>
-            <th>ID</th>
-            <th>Team A</th>
-            <th>Team B</th>
-            <th>Start Date Time</th>
-            <th>Status</th>
-            <th>Winner</th>
-            <th>Actions</th>
-        </tr>
+      <tr>
+        <th>#</th>
+        <th>Team A</th>
+        <th>Team B</th>
+        <th>Start Date Time</th>
+        <th>Status</th>
+        <th>Winner</th>
+        <th>Actions</th>
+      </tr>
     </thead>
     <tbody>
-        <tr *ngFor="let match of matches">
-            <td>{{ match.id }}</td>
-            <td>{{ match.teamA }}</td>
-            <td>{{ match.teamB }}</td>
-            <td>{{ match.startDateTime | date:'short' }}</td>
-            <!-- | date:'short' -->
-            <td>{{ match.status }}</td>
-            <td>{{ match.winner }}</td>
-            <td>
-                <button *ngIf="!match.winner" (click)="setWinner(match, 'A')">Set Team A Winner</button>
-                <button *ngIf="!match.winner" (click)="setWinner(match, 'B')">Set Team B Winner</button>
-                <button (click)="startEdit(match)">Edit Match</button>
-                <button (click)="deleteMatch(match.id)">Delete Match</button>
-            </td>
-        </tr>
+      <tr *ngFor="let match of matches; let i = index">
+        <td>{{ i + 1 }}</td>
+        <td>{{ match.teamA }}</td>
+        <td>{{ match.teamB }}</td>
+        <td>{{ match.startDateTime | date:'short' }}</td>
+        <td>{{ match.status }}</td>
+        <td>{{ match.winner }}</td>
+        <td>
+          <button (click)="startEdit(match)">Edit</button>
+          <button (click)="deleteMatch(match)" class="danger">Delete</button>
+          <button *ngIf="!match.winner" (click)="setWinner(match, 'A')">Set Team A Winner</button>
+          <button *ngIf="!match.winner" (click)="setWinner(match, 'B')">Set Team B Winner</button>
+        </td>
+      </tr>
     </tbody>
-</table>
-<button *ngIf="editMatchId" (click)="cancelEdit()">Cancel Edit</button>
+  </table>
+</div>

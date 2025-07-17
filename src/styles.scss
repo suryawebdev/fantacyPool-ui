@@ -1,1 +1,142 @@
 /* You can add global styles to this file, and also import other style files */
+
+:root {
+  --primary-color: #1976d2;
+  --secondary-color: #43a047;
+  --danger-color: #e53935;
+  --background-color: #f5f5f5;
+  --text-color: #222;
+  --border-radius: 6px;
+  --transition: 0.2s;
+}
+
+body {
+  background: var(--background-color);
+  color: var(--text-color);
+  font-family: 'Segoe UI', Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+h1, h2, h3 {
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+form {
+  background: #fff;
+  padding: 2.5rem 2rem;
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  max-width: 420px;
+  width: 100%;
+  margin: 2rem auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+@media (max-width: 600px) {
+  form {
+    padding: 1.2rem 0.5rem;
+    max-width: 98vw;
+  }
+  .signup-title, .signin-title {
+    font-size: 1.3rem;
+  }
+  .signup-name-row, .name-row {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+.signup-title {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+label {
+  font-weight: 500;
+  margin-bottom: 0.2rem;
+}
+
+input, select {
+  border: 1px solid #ccc;
+  border-radius: var(--border-radius);
+  padding: 0.7rem 0.8rem;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+button {
+  background: var(--primary-color);
+  color: #fff;
+  border: none;
+  border-radius: var(--border-radius);
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background var(--transition);
+  margin-top: 0.5rem;
+}
+button:hover {
+  background: var(--secondary-color);
+}
+
+button.danger {
+  background: var(--danger-color);
+}
+button.danger:hover {
+  background: #b71c1c;
+}
+
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+.error-message {
+  color: var(--danger-color);
+  background: #ffe6e6;
+  border: 1px solid #ff9999;
+  border-radius: var(--border-radius);
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+table {
+  width: 100%;
+  overflow-x: auto;
+  display: block;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: var(--border-radius);
+  margin-top: 1rem;
+}
+
+th, td {
+  padding: 0.7rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+th {
+  background: var(--primary-color);
+  color: #fff;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+@media (max-width: 600px) {
+  th, td {
+    padding: 0.5rem;
+    font-size: 0.95rem;
+  }
+}

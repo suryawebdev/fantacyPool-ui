@@ -181,18 +181,21 @@
   <div class="content">
     <div class="left-side">
       <h2>Hello, {{ title }}</h2>
-      <p>Congratulations! Your app is running.! 🎉</p>
     </div>
     <div class="divider" role="separator" aria-label="Divider"></div>
     <div class="right-side">
-      
-      <p>Introducing to Surya Projects</p>
+      <p>Welcome to the Cricket Pool App! 🎉</p>
     </div>
+    <button *ngIf="isAuthenticated()" (click)="logout()">Logout</button>
   </div>
 </main>
 <nav>
-  <a routerLink="/signup"></a>
-  <a routerLink="/signin"></a>
+  <a routerLink="/home"></a>
+  <a routerLink="/leaderboard"></a>
+  <a routerLink="/admin" *ngIf="isAdmin()"></a>
+  <a routerLink="/signup" *ngIf="!isAuthenticated()"></a>
+  <a routerLink="/signin" *ngIf="!isAuthenticated()"></a>
+  
 </nav>
 
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->

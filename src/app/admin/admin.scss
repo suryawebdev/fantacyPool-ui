@@ -1,0 +1,41 @@
+.admin-panel {
+  max-width: 700px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background: #fff;
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+}
+
+.admin-title {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.admin-form-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.admin-form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+@media (max-width: 600px) {
+  .admin-panel {
+    padding: 0.5rem;
+  }
+  .admin-form-row {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .admin-form-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}

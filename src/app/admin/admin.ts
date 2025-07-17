@@ -14,6 +14,7 @@ export class Admin {
   matchForm: FormGroup;
   matches: any[] = [];
   editMatchId: number | null = null;
+  errorMessage: string = '';
 
   constructor(
     private fb: FormBuilder, 
@@ -108,6 +109,11 @@ export class Admin {
         },
         error: (err) => {
           console.error('Error deleting match:', err);
+          if(err.status === 409) {
+            this.errorMessage = 'Cannot delete match because it has predictions';
+          } else {
+            this.errorMessage = 'Error deleting match';
+          }
         }
       });
     }

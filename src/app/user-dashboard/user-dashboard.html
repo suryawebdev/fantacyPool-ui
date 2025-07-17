@@ -1,0 +1,63 @@
+<h2>Welcome, {{ user.firstName }} {{ user.lastName }}</h2>
+<p><strong>Your current points: {{ totalPoints }}</strong></p>
+
+<h3>Upcoming Matches</h3>
+<table *ngIf="upcomingMatches.length > 0">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Team A</th>
+      <th>Team B</th>
+      <th>Start Time</th>
+      <th>Your Pick</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let match of upcomingMatches; let i = index">
+      <td>{{ i + 1 }}</td>
+      <td>{{ match.teamA }}</td>
+      <td>{{ match.teamB }}</td>
+      <td>{{ match.startDateTime | date:'short' }}</td>
+      <td>{{ match.userPick || '-' }}</td>
+      <td>
+        <button *ngIf="!isMatchStarted(match)" [disabled]="match.userPick === 'A'" (click)="selectTeam(match, 'A')">Pick Team A</button>
+        <button *ngIf="!isMatchStarted(match)" [disabled]="match.userPick === 'B'" (click)="selectTeam(match, 'B')">Pick Team B</button>
+        <span *ngIf="isMatchStarted(match)">Locked (Your pick: {{ match.userPick || '-' }})</span>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p *ngIf="upcomingMatches.length === 0">No upcoming matches.</p>
+
+<h3> Your Match History </h3>
+<table *ngIf="userHistory.length > 0">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Team A</th>
+      <th>Team B</th>
+      <th>Start Date Time</th>
+      <th>Your Pick</th>
+      <th>Winner</th>
+      <th>Points Earned</th>
+      <th>Result</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let match of userHistory; let i = index">
+      <td>{{ i + 1 }}</td>
+      <td>{{ match.teamA }}</td>
+      <td>{{ match.teamB }}</td>
+      <td>{{ match.startDateTime | date:'short' }}</td>
+      <td>{{ match.userPick || '-' }}</td>
+      <td>{{ match.result || '-' }}</td>
+      <td>{{ match.pointsEarned || '-' }}</td>
+      <td>
+        <span *ngIf="match.userPick === match.winner" style="color: green;">✓ Correct</span>
+        <span *ngIf="match.userPick !== match.winner" style="color: red;">✗ Wrong</span>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p *ngIf="userHistory.length === 0">No match history found.</p>

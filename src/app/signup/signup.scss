@@ -11,6 +11,8 @@ label {
 input, select {
   padding: 0.5rem;
   font-size: 1rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 small {
   color: red;
@@ -19,6 +21,8 @@ button {
   padding: 0.5rem;
   font-size: 1rem;
   cursor: pointer;
+  width: 100%;
+  margin-top: 1rem;
 }
 
 .error-message {
@@ -28,4 +32,39 @@ button {
   border: 1px solid red;
   border-radius: 4px;
   background-color: #ffe3e3;
+}
+
+.signup-title {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.signup-name-row {
+  display: flex;
+  gap: 1rem;
+}
+
+.signup-name-row > div {
+  flex: 1;
+}
+
+.signup-link {
+  margin-top: 1rem;
+  text-align: center;
+
+  a {
+    color: blue;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .signup-name-row {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
 }

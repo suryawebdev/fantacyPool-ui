@@ -1,0 +1,22 @@
+<h2>Leaderboard</h2>
+
+<table *ngIf="leaderboard.length > 0">
+  <thead>
+    <tr>
+      <th>Rank</th>
+      <th>Name</th>
+      <th>Username</th>
+      <th>Points</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let user of leaderboard" [class.current-user]="isCurrentUser(user)">
+      <td>{{ user.rank }}</td>
+      <td>{{ user.firstName }} {{ user.lastName }}</td>
+      <td>{{ user.username }}</td>
+      <td><strong>{{ user.totalPoints }}</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<p *ngIf="leaderboard.length === 0">No users found.</p>
