@@ -1,63 +1,98 @@
-<h2>Welcome, {{ user.firstName }} {{ user.lastName }}</h2>
-<p><strong>Your current points: {{ totalPoints }}</strong></p>
+<div class="dashboard-card">
+    <h2>Welcome, {{ user.firstName }} {{ user.lastName }}!</h2>
+    <!-- <p class="user-email">{{ user.email }}</p> -->
+    <p class="user-points">Your current points: <strong>{{ totalPoints }}</strong></p>
 
-<h3>Upcoming Matches</h3>
-<table *ngIf="upcomingMatches.length > 0">
-  <thead>
-    <tr>
-      <th>#</th>
-      <th>Team A</th>
-      <th>Team B</th>
-      <th>Start Time</th>
-      <th>Your Pick</th>
-      <th>Action</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let match of upcomingMatches; let i = index">
-      <td>{{ i + 1 }}</td>
-      <td>{{ match.teamA }}</td>
-      <td>{{ match.teamB }}</td>
-      <td>{{ match.startDateTime | date:'short' }}</td>
-      <td>{{ match.userPick || '-' }}</td>
-      <td>
-        <button *ngIf="!isMatchStarted(match)" [disabled]="match.userPick === 'A'" (click)="selectTeam(match, 'A')">Pick Team A</button>
-        <button *ngIf="!isMatchStarted(match)" [disabled]="match.userPick === 'B'" (click)="selectTeam(match, 'B')">Pick Team B</button>
-        <span *ngIf="isMatchStarted(match)">Locked (Your pick: {{ match.userPick || '-' }})</span>
-      </td>
-    </tr>
-  </tbody>
-</table>
-<p *ngIf="upcomingMatches.length === 0">No upcoming matches.</p>
+    <h3>Upcoming Matches</h3>
+    <table class="dashboard-table" *ngIf="upcomingMatches.length > 0">
+    <thead>
+        <tr>
+        <th>#</th>
+        <th>Team A</th>
+        <th>Team B</th>
+        <th>Start Time</th>
+        <th>Your Pick</th>
+        <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let match of upcomingMatches; let i = index">
+        <td>{{ i + 1 }}</td>
+        <td>{{ match.teamA }}</td>
+        <td>{{ match.teamB }}</td>
+        <td>{{ match.startDateTime | date:'short' }}</td>
+        <td>{{ getTeamName(match, match.userPick) }}</td>
+        <td>
+            <div class="pick-buttons">
+                <button 
+                    class="pick-button"
+                    *ngIf="!isMatchStarted(match)" 
+                    [disabled]="match.userPick === 'A'" 
+                    [ngClass]="{'selected-team': match.userPick === 'A'}"
+                    (click)="selectTeam(match, 'A')">
+                    Team A
+                </button>
+                <button 
+                    class="pick-button"
+                    *ngIf="!isMatchStarted(match)" 
+                    [disabled]="match.userPick === 'B'" 
+                    [ngClass]="{'selected-team': match.userPick === 'B'}"
+                    (click)="selectTeam(match, 'B')">
+                    Team B
+                </button>
+            </div>
+            <span 
+                *ngIf="isMatchStarted(match)">
+                Locked (Your pick: 
+                {{ getTeamName(match, match.userPick) }}
+                  <!-- <ng-container *ngIf="match.userPick === 'A'; else bOrNone">
+                    {{ match.teamA }}
+                  </ng-container>
+                  <ng-template #bOrNone>
+                    <ng-container *ngIf="match.userPick === 'B'; else noPick">
+                        {{ match.teamB }}
+                    </ng-container>
+                    <ng-template #noPick>
+                        No Pick
+                    </ng-template>
+                  </ng-template> -->
+                )
+            </span>
+        </td>
+        </tr>
+    </tbody>
+    </table>
+    <p *ngIf="upcomingMatches.length === 0">No upcoming matches.</p>
 
-<h3> Your Match History </h3>
-<table *ngIf="userHistory.length > 0">
-  <thead>
-    <tr>
-      <th>#</th>
-      <th>Team A</th>
-      <th>Team B</th>
-      <th>Start Date Time</th>
-      <th>Your Pick</th>
-      <th>Winner</th>
-      <th>Points Earned</th>
-      <th>Result</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let match of userHistory; let i = index">
-      <td>{{ i + 1 }}</td>
-      <td>{{ match.teamA }}</td>
-      <td>{{ match.teamB }}</td>
-      <td>{{ match.startDateTime | date:'short' }}</td>
-      <td>{{ match.userPick || '-' }}</td>
-      <td>{{ match.result || '-' }}</td>
-      <td>{{ match.pointsEarned || '-' }}</td>
-      <td>
-        <span *ngIf="match.userPick === match.winner" style="color: green;">✓ Correct</span>
-        <span *ngIf="match.userPick !== match.winner" style="color: red;">✗ Wrong</span>
-      </td>
-    </tr>
-  </tbody>
-</table>
-<p *ngIf="userHistory.length === 0">No match history found.</p>
+    <h3> Your Match History </h3>
+    <table class="dashboard-table" *ngIf="userHistory.length > 0">
+    <thead>
+        <tr>
+        <th>#</th>
+        <th>Team A</th>
+        <th>Team B</th>
+        <th>Start Time</th>
+        <th>Your Pick</th>
+        <th>Winner</th>
+        <th>Points</th>
+        <th>Result</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let match of userHistory; let i = index">
+        <td>{{ i + 1 }}</td>
+        <td>{{ match.teamA }}</td>
+        <td>{{ match.teamB }}</td>
+        <td>{{ match.startDateTime | date:'short' }}</td>
+        <td>{{ getTeamName(match, match.userPick) }}</td>
+        <td>{{ getWinnerName(match) }}</td>
+        <td>{{ match.pointsEarned || '-' }}</td>
+        <td>
+            <span *ngIf="match.userPick === match.winner" style="color: green;">✓ Correct</span>
+            <span *ngIf="match.userPick !== match.winner" style="color: red;">✗ Wrong</span>
+        </td>
+        </tr>
+    </tbody>
+    </table>
+    <p *ngIf="userHistory.length === 0">No match history yet.</p>
+</div>

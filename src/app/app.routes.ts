@@ -19,6 +19,6 @@ export const routes: Routes = [
     },
     {path: 'admin', component: Admin, canActivate: [adminGuard]},
     {path: 'user-dashboard', component: UserDashboard, canActivate: [authGuard]},
-    {path: 'leaderboard', component: Leaderboard, canActivate: [authGuard]},
+    {path: 'leaderboard', component: Leaderboard},
     {path: '**', redirectTo: '/signin', pathMatch: 'full'}//Default route
 ];

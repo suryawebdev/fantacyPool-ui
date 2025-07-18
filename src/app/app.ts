@@ -1,16 +1,15 @@
 import { Component } from '@angular/core';
-import { RouterOutlet, Router } from '@angular/router';
+import { RouterOutlet, Router, RouterModule } from '@angular/router';
 import { AuthService } from './auth.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, CommonModule],
+  imports: [RouterOutlet, CommonModule, RouterModule],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
 export class App {
-  protected title = 'Cricket Pool';
 
   constructor(
     private authService: AuthService,
@@ -23,6 +22,10 @@ export class App {
 
   isAdmin() {
     return this.authService.getUserRole() === 'ADMIN';
+  }
+
+  isUser() {
+    return this.authService.getUserRole() === 'USER';
   }
 
   logout() {

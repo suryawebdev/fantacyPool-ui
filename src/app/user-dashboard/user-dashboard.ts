@@ -97,4 +97,18 @@ export class UserDashboard implements OnInit {
       }
     });
   }
+
+  getTeamName(match: any, pick: 'A' | 'B'): string {
+    if(!pick) {
+      return 'No Pick';
+    }
+    return pick === 'A' ? match.teamA : match.teamB;
+  }
+
+  getWinnerName(match: any): string {
+    if(!match.winner) {
+      return 'TBD';
+    }
+    return match.winner === 'A' ? match.teamA : match.teamB;
+  }
 }

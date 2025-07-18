@@ -177,25 +177,18 @@
   }
 </style>
 
-<main class="main">
-  <div class="content">
-    <div class="left-side">
-      <h2>Hello, {{ title }}</h2>
+<nav class="main-navbar">
+  <div class="navbar-content">
+    <span class="app-title">Cricket Pool</span>
+    <div class="nav-links">
+      <a routerLink="/leaderboard" routerLinkActive="active-link">Leaderboard</a>
+      <a routerLink="/admin" *ngIf="isAdmin()" routerLinkActive="active-link">Admin</a>
+      <a routerLink="/signin" *ngIf="!isAuthenticated()" routerLinkActive="active-link">Sign In</a>
+      <a routerLink="/signup" *ngIf="!isAuthenticated()" routerLinkActive="active-link">Sign Up</a>
+      <a routerLink="/user-dashboard" *ngIf="isAuthenticated() && isUser()" routerLinkActive="active-link">User Dashboard</a>
+      <a *ngIf="isAuthenticated()" (click)="logout()">Logout</a>
     </div>
-    <div class="divider" role="separator" aria-label="Divider"></div>
-    <div class="right-side">
-      <p>Welcome to the Cricket Pool App! 🎉</p>
-    </div>
-    <button *ngIf="isAuthenticated()" (click)="logout()">Logout</button>
   </div>
-</main>
-<nav>
-  <a routerLink="/home"></a>
-  <a routerLink="/leaderboard"></a>
-  <a routerLink="/admin" *ngIf="isAdmin()"></a>
-  <a routerLink="/signup" *ngIf="!isAuthenticated()"></a>
-  <a routerLink="/signin" *ngIf="!isAuthenticated()"></a>
-  
 </nav>
 
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
