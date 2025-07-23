@@ -186,6 +186,7 @@
       <a routerLink="/signin" *ngIf="!isAuthenticated()" routerLinkActive="active-link">Sign In</a>
       <a routerLink="/signup" *ngIf="!isAuthenticated()" routerLinkActive="active-link">Sign Up</a>
       <a routerLink="/user-dashboard" *ngIf="isAuthenticated() && isUser()" routerLinkActive="active-link">User Dashboard</a>
+      <a routerLink="/selections-feed" *ngIf="isAuthenticated()" routerLinkActive="active-link">Selections Feed</a>
       <a *ngIf="isAuthenticated()" (click)="logout()">Logout</a>
     </div>
   </div>

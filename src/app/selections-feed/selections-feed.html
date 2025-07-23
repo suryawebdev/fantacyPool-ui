@@ -1,0 +1,12 @@
+<div class="feed-card">
+  <h2>User Selections</h2>
+  <ul>
+    <li *ngFor="let item of feed">
+      <strong>{{ item.user.firstName }} {{ item.user.lastName }}</strong> 
+      <div>picked <b>{{ item.match['team'+item.team] }} </b> <span> for <i>{{ item.match.teamA }} vs {{ item.match.teamB }}</i> </span></div>
+      <span class="timestamp">{{ item.match.updatedAt | date:'short' }}</span>
+    </li>
+  </ul>
+  <button *ngIf="hasMore && !loading" (click)="loadSelections()" >Load More</button>
+  <div *ngIf="loading">Loading...</div>
+</div>

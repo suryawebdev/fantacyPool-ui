@@ -3,6 +3,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../auth.service';
 import { Router, RouterModule } from '@angular/router';
+import { NotificationService } from '../notification.service';
 
 @Component({
   selector: 'app-signin',
@@ -19,7 +20,8 @@ export class Signin {
   constructor(
     private fb: FormBuilder, 
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private notification: NotificationService
   ) {
     this.signinForm = this.fb.group({
       username: ['', Validators.required],
@@ -33,11 +35,10 @@ export class Signin {
     if (this.signinForm.invalid) {
       return;
     }
-    // TODO: Call AuthService to perform signin
-    console.log(this.signinForm.value);
+
     this.authService.signin(this.signinForm.value).subscribe({
       next: (response) => {
-        console.log('Signin successful', response);
+        this.notification.showSuccess('Signin successful');
         const role = this.authService.getUserRole();
         if (role === 'ADMIN') {
           this.router.navigate(['/admin']);
@@ -48,12 +49,7 @@ export class Signin {
         }
       },
       error: (error) => {
-        console.error('Signin failed', error);
-        if (error.status === 400 && error.error?.message) {
-          this.errorMessage = error.error.message;
-        } else {
-          this.errorMessage = 'An error occurred while signing in';
-        }
+        this.notification.showError('Signin failed');
       }
     });
   }

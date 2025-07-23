@@ -14,6 +14,8 @@
 ### Low Priority
 - [X] Issue 6: Show match name instead of A or B in Winner column
 - [X] Issue 7: When admin is in admin page or user ins user-dashboard, the nav bar pill is not highlighted/selected making it hard to see on which page we are on
+- [ ] Issue 8: Upcoming matches show, matches that were already done/completed
+- [ ] Issue 9: Cross browser compatibility issues, app is not working properly on safari
 
 ## ✅ Fixed Issues
 - [x] Issue 8: [Brief description] - Fixed on [date]

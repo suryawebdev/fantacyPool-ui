@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatchService } from '../match.service';
 import { AuthService } from '../auth.service';
+import { NotificationService } from '../notification.service';
+import { WebSocketService } from '../websocket.service';
 
 @Component({
   selector: 'app-user-dashboard',
@@ -23,13 +25,22 @@ export class UserDashboard implements OnInit {
   userHistory: any[] = [];
   totalPoints: number = 0;
 
-  constructor(private matchService: MatchService, private authService: AuthService) {}
+  constructor(
+    private matchService: MatchService, 
+    private authService: AuthService,
+    private notification: NotificationService,
+    private webSocketService: WebSocketService
+  ) {}
 
   ngOnInit() {
     this.user = this.authService.getUserDetails() || {};
     this.loadUserData();
     this.loadUpcomingMatches();
     this.loadUserPicks();
+    this.webSocketService.matchUpdates$.subscribe((match) => {
+      this.loadUpcomingMatches();
+      this.notification.showInfo(`Match ${match.teamA} vs ${match.teamB} has started`);
+    });
   }
 
   loadUserData() {
@@ -90,10 +101,12 @@ export class UserDashboard implements OnInit {
       next: () => {
         match.userPick = team;
         this.userPicks[match.id] = team;
+        // this.snackBar.open('Your pick was saved!', 'Close', { duration: 3000, panelClass: ['snackbar-success'] });
+        this.notification.showSuccess('Your pick was saved!');
       },
       error: (err) => {
-        alert('Error saving your pick. Please try again.');
         console.error(err);
+        this.notification.showError('Error saving your pick. Please try again.');
       }
     });
   }

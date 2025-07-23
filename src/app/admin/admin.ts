@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { MatchService } from '../match.service';
+import { NotificationService } from '../notification.service';
 
 @Component({
   selector: 'app-admin',
@@ -19,7 +20,8 @@ export class Admin {
   constructor(
     private fb: FormBuilder, 
     private http: HttpClient,
-    private matchService: MatchService
+    private matchService: MatchService,
+    private notification: NotificationService
   ) {
     this.matchForm = this.fb.group({
       teamA: ['', Validators.required],
@@ -69,9 +71,11 @@ export class Admin {
           console.log('Match updated:', response);
           this.loadMatches();
           this.cancelEdit();
+          this.notification.showSuccess('Match updated successfully');
         },
         error: (error) => {
           console.error('Error updating match:', error);
+          this.notification.showError('Error updating match');
         }
       });
     } else {
@@ -80,23 +84,24 @@ export class Admin {
           console.log('Match created:', response);
           this.matchForm.reset();
           this.loadMatches();
+          this.notification.showSuccess('Match created successfully');
         },
         error: (error) => {
           console.error('Error creating match:', error);
+          this.notification.showError('Error creating match');
         }
       });
     }
-
-    console.log('Creating match:', matchData);
   }
 
   setWinner(match: any, winner: string) {
     this.matchService.setWinner(match.id, winner).subscribe({
       next: (res) => {
         this.loadMatches();
+        this.notification.showSuccess('Winner set successfully');
       },
       error: (err) => {
-        console.error('Error setting winner:', err);
+        this.notification.showError('Error setting winner');
       }
     });
   }
@@ -106,14 +111,10 @@ export class Admin {
       this.matchService.deleteMatch(matchId).subscribe({
         next: () => {
           this.loadMatches();
+          this.notification.showSuccess('Match deleted successfully');
         },
         error: (err) => {
-          console.error('Error deleting match:', err);
-          if(err.status === 409) {
-            this.errorMessage = 'Cannot delete match because it has predictions';
-          } else {
-            this.errorMessage = 'Error deleting match';
-          }
+          this.notification.showError('Error deleting match');
         }
       });
     }

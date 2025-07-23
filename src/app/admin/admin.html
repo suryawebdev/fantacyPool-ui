@@ -2,12 +2,12 @@
   <form [formGroup]="matchForm" (ngSubmit)="onCreateMatch()">
     <h2 class="admin-title">{{ editMatchId ? 'Edit Match' : 'Create Match' }}</h2>
     <div class="admin-form-row">
-      <input formControlName="teamA" placeholder="Team A" />
-      <input formControlName="teamB" placeholder="Team B" />
+      <input id="teamA" class="w-full" formControlName="teamA" placeholder="Team A" />
+      <input id="teamB" class="w-full" formControlName="teamB" placeholder="Team B" />
     </div>
-    <input formControlName="startDateTime" type="datetime-local" placeholder="Start Date Time" />
+    <input id="startDateTime" class="w-full" formControlName="startDateTime" type="datetime-local" placeholder="Start Date Time" />
     <div class="admin-form-actions">
-      <button type="submit">{{ editMatchId ? 'Update Match' : 'Create Match' }}</button>
+      <button class="bg-blue-500 text-white px-4 py-2 rounded-md w-full" type="submit">{{ editMatchId ? 'Update Match' : 'Create Match' }}</button>
       <button *ngIf="editMatchId" type="button" (click)="cancelEdit()" class="danger">Cancel</button>
     </div>
   </form>

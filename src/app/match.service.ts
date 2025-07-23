@@ -46,4 +46,8 @@ export class MatchService {
   getLeaderboard(): Observable<{username: string; points: number}[]> {
     return this.http.get<{username: string; points: number}[]>(`${this.baseUrl}/api/predictions/users/leaderboard`);
   }
+
+  getSelections(page: number, pageSize: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/api/predictions/selections?limit=${pageSize}&page=${page}`);
+  }
 }

@@ -1,4 +1,9 @@
 /* You can add global styles to this file, and also import other style files */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Your existing styles can go below */
 
 :root {
   --primary-color: #1976d2;
@@ -28,7 +33,7 @@ form {
   padding: 2.5rem 2rem;
   border-radius: var(--border-radius);
   box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-  max-width: 420px;
+  // max-width: 420px;
   width: 100%;
   margin: 2rem auto;
   display: flex;
@@ -207,4 +212,39 @@ tr:last-child td {
   font-weight: bold;
   border-radius: var(--border-radius);
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.success-snackbar{
+  background: #43a047 !important;
+  color: #fff !important;
+  font-weight: bold;
+
+  &:hover {
+    background: green !important;
+    color: #fff !important;
+  }
+}
+
+.success-snackbar > button {
+  background: #43a047 !important;
+  color: #fff !important;
+  font-weight: bold;
+}
+
+.error-snackbar {
+  background: #e53935 !important;
+  color: #fff !important;
+  font-weight: bold;
+}
+
+.info-snackbar {
+  background: #1976d2 !important;
+  color: #fff !important;
+  font-weight: bold;
+}
+
+.warning-snackbar {
+  background: #ffa000 !important;
+  color: #fff !important;
+  font-weight: bold;
 }

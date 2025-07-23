@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../auth.service';
 import { Router, RouterModule } from '@angular/router';
+import { NotificationService } from '../notification.service';
 
 @Component({
   selector: 'app-signup',
@@ -19,7 +20,8 @@ export class Signup {
   constructor(
     private fb: FormBuilder, 
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private notification: NotificationService
   ) {
     this.signupForm = this.fb.group({
       firstName: ['', Validators.required],
@@ -37,20 +39,14 @@ export class Signup {
     if (this.signupForm.invalid) {
       return;
     }
-    // TODO: Call AuthService to perform signup
-    console.log(this.signupForm.value);
+
     this.authService.signup(this.signupForm.value).subscribe({
       next: (response) => {
-        console.log('Signup successful', response);
         this.router.navigate(['/signin']);
+        this.notification.showSuccess('Signup successful');
       },
       error: (error) => {
-        console.error('Signup failed', error);
-        if (error.status === 400 && error.error?.message) {
-          this.errorMessage = error.error.message;
-        } else {
-          this.errorMessage = 'An error occurred while signing up';
-        }
+        this.notification.showError('Signup failed');
       }
     });
   }
