@@ -1,45 +1,44 @@
-<div class="dashboard-card">
-    <h2>Welcome, {{ user.firstName }} {{ user.lastName }}!</h2>
-    <!-- <p class="user-email">{{ user.email }}</p> -->
-    <p class="user-points">Your current points: <strong>{{ totalPoints }}</strong></p>
-
-    <h3 class="mt-4 mb-2 text-lg font-bold">Upcoming Matches</h3>
-    <table class="dashboard-table" *ngIf="upcomingMatches.length > 0">
-    <thead>
-        <tr>
-        <th>#</th>
-        <th>Team A</th>
-        <th>Team B</th>
-        <th>Start Time</th>
-        <th>Your Pick</th>
-        <th>Action</th>
+<div class="max-w-3xl mx-auto mt-8 bg-white rounded-lg shadow-lg p-6">
+  <div class="bg-white dark:bg-darkbg rounded-lg shadow-md p-5 mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
+    <p class="text-2xl font-bold text-red-600">Welcome, {{ user.firstName }} {{ user.lastName }}!</p>
+    <p class="text-lg font-semibold text-red-600">Your current points: <span class="text-red-600">{{ totalPoints }}</span></p>
+  </div>
+  <h3 class="text-xl font-semibold text-primary mb-3">Upcoming Matches</h3>
+  <div class="overflow-x-auto">
+    <table class="w-full table-auto border-collapse mb-8">
+      <thead>
+        <tr class="bg-primary text-white">
+          <th class="py-2 px-3">#</th>
+          <th class="py-2 px-3">Team A</th>
+          <th class="py-2 px-3">Team B</th>
+          <th class="py-2 px-3">Start Time</th>
+          <th class="py-2 px-3">Your Pick</th>
+          <th class="py-2 px-3">Action</th>
         </tr>
-    </thead>
-    <tbody>
-        <tr *ngFor="let match of upcomingMatches; let i = index">
-        <td>{{ i + 1 }}</td>
-        <td>{{ match.teamA }}</td>
-        <td>{{ match.teamB }}</td>
-        <td>{{ match.startDateTime | date:'short' }}</td>
-        <td>{{ getTeamName(match, match.userPick) }}</td>
-        <td>
+      </thead>
+      <tbody>
+        <tr *ngFor="let match of upcomingMatches; let i = index" class="even:bg-gray-50">
+          <td class="py-2 px-3">{{ i + 1 }}</td>
+          <td class="py-2 px-3">{{ match.teamA }}</td>
+          <td class="py-2 px-3">{{ match.teamB }}</td>
+          <td class="py-2 px-3">{{ match.startDateTime | date:'short' }}</td>
+          <td class="py-2 px-3">{{ getTeamName(match, match.userPick) }}</td>
+          <td class="py-2 px-3">
             <div class="pick-buttons">
-                <button 
-                    class="pick-button"
-                    *ngIf="!isMatchStarted(match)" 
-                    [disabled]="match.userPick === 'A'" 
-                    [ngClass]="{'selected-team': match.userPick === 'A'}"
-                    (click)="selectTeam(match, 'A')">
-                    Team A
-                </button>
-                <button 
-                    class="pick-button"
-                    *ngIf="!isMatchStarted(match)" 
-                    [disabled]="match.userPick === 'B'" 
-                    [ngClass]="{'selected-team': match.userPick === 'B'}"
-                    (click)="selectTeam(match, 'B')">
-                    Team B
-                </button>
+              <button
+                class="team-pick-btn bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition disabled:opacity-60 disabled:cursor-not-allowed"
+                *ngIf="!isMatchStarted(match)" 
+                [disabled]="match.userPick === 'A'" 
+                (click)="selectTeam(match, 'A')">
+                Pick Team A
+              </button>
+              <button
+                class="team-pick-btn bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition disabled:opacity-60 disabled:cursor-not-allowed"
+                *ngIf="!isMatchStarted(match)" 
+                [disabled]="match.userPick === 'B'" 
+                (click)="selectTeam(match, 'B')">
+                Pick Team B
+              </button>
             </div>
             <span 
                 *ngIf="isMatchStarted(match)">
@@ -47,41 +46,42 @@
                 {{ getTeamName(match, match.userPick) }}
                 )
             </span>
-        </td>
+          </td>
         </tr>
-    </tbody>
+      </tbody>
     </table>
-    <p *ngIf="upcomingMatches.length === 0">No upcoming matches.</p>
+  </div>
 
-    <h3 class="mt-4 mb-2 text-lg font-bold"> Your Match History </h3>
-    <table class="dashboard-table" *ngIf="userHistory.length > 0">
-    <thead>
-        <tr>
-        <th>#</th>
-        <th>Team A</th>
-        <th>Team B</th>
-        <th>Start Time</th>
-        <th>Your Pick</th>
-        <th>Winner</th>
-        <th>Points</th>
-        <th>Result</th>
+  <h3 class="text-xl font-semibold text-primary mb-3">Your Match History</h3>
+  <div class="overflow-x-auto">
+    <table class="w-full table-auto border-collapse">
+      <thead>
+        <tr class="bg-primary text-white">
+          <th class="py-2 px-3">#</th>
+          <th class="py-2 px-3">Team A</th>
+          <th class="py-2 px-3">Team B</th>
+          <th class="py-2 px-3">Start Time</th>
+          <th class="py-2 px-3">Your Pick</th>
+          <th class="py-2 px-3">Winner</th>
+          <th class="py-2 px-3">Points</th>
+          <th class="py-2 px-3">Result</th>
         </tr>
-    </thead>
-    <tbody>
-        <tr *ngFor="let match of userHistory; let i = index">
-        <td>{{ i + 1 }}</td>
-        <td>{{ match.teamA }}</td>
-        <td>{{ match.teamB }}</td>
-        <td>{{ match.startDateTime | date:'short' }}</td>
-        <td>{{ getTeamName(match, match.userPick) }}</td>
-        <td>{{ getWinnerName(match) }}</td>
-        <td>{{ match.pointsEarned || '-' }}</td>
-        <td>
+      </thead>
+      <tbody>
+        <tr *ngFor="let match of userHistory; let i = index" class="even:bg-gray-50">
+          <td class="py-2 px-3">{{ i + 1 }}</td>
+          <td class="py-2 px-3">{{ match.teamA }}</td>
+          <td class="py-2 px-3">{{ match.teamB }}</td>
+          <td class="py-2 px-3">{{ match.startDateTime | date:'short' }}</td>
+          <td class="py-2 px-3">{{ getTeamName(match, match.userPick) }}</td>
+          <td class="py-2 px-3">{{ getWinnerName(match) }}</td>
+          <td class="py-2 px-3">{{ match.pointsEarned || '-' }}</td>
+          <td class="py-2 px-3">
             <span *ngIf="match.userPick === match.winner" style="color: green;">✓ Correct</span>
             <span *ngIf="match.userPick !== match.winner" style="color: red;">✗ Wrong</span>
-        </td>
+          </td>
         </tr>
-    </tbody>
+      </tbody>
     </table>
-    <p *ngIf="userHistory.length === 0">No match history yet.</p>
+  </div>
 </div>
