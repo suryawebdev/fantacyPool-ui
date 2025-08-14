@@ -1,82 +1,176 @@
-.feed-card {
-  max-width: 600px;
-  margin: 2rem auto;
-  background: #fff;
-  border-radius: var(--border-radius);
-  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-  padding: 1.5rem;
+.feed-container {
+  padding: 2rem;
+  padding-top: 3rem; /* Account for fixed navbar */
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
 }
 
-h2 {
-  margin-bottom: 1.2rem;
-  font-size: 1.4rem;
-  color: var(--primary-color);
+.feed-card {
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  box-shadow: var(--shadow-medium);
+  border: 1px solid var(--border-color);
+  transition: all var(--transition-normal);
+}
+
+.feed-card:hover {
+  box-shadow: var(--shadow-heavy);
+  border-color: var(--border-hover);
+}
+
+.feed-title {
+  color: var(--primary-text);
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
   text-align: center;
 }
 
-ul {
+/* Error message styling */
+.error-message {
+  background: rgba(255, 71, 87, 0.1);
+  border: 1px solid rgba(255, 71, 87, 0.3);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.error-message p {
+  color: var(--danger-color);
+  margin: 0 0 1rem 0;
+  font-weight: 500;
+}
+
+.retry-btn {
+  background: linear-gradient(135deg, var(--danger-color) 0%, #ff6b6b 100%);
+  color: var(--primary-text);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.retry-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+  background: linear-gradient(135deg, #ff6b6b 0%, var(--danger-color) 100%);
+}
+
+.feed-list {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-li {
-  margin-bottom: 1.1rem;
-  font-size: 1.08rem;
-  display: flex;
-  flex-direction: column;
-  background: #f5f7fa;
-  border-radius: var(--border-radius);
-  padding: 0.7rem 1rem;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+.feed-item {
+  background: var(--tertiary-bg);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--border-color);
+  transition: all var(--transition-fast);
 }
 
-li strong {
-  color: var(--primary-color);
+.feed-item:hover {
+  background: var(--card-hover);
+  border-color: var(--border-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-light);
 }
 
-li b {
-  color: var(--secondary-color);
+.user-name {
+  color: var(--primary-accent);
+  font-size: 1.1rem;
+  display: block;
+  margin-bottom: 0.5rem;
 }
 
-li i {
-  color: #555;
+.selection-details {
+  color: var(--secondary-text);
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+}
+
+.team-name {
+  color: var(--success-color);
+  font-weight: 600;
+}
+
+.match-teams {
+  color: var(--info-color);
   font-style: italic;
 }
 
 .timestamp {
-  color: #888;
-  font-size: 0.92rem;
-  margin-top: 0.2rem;
-  align-self: flex-end;
-}
-
-button {
+  color: var(--muted-text);
+  font-size: 0.9rem;
   display: block;
-  margin: 1.2rem auto 0 auto;
-  background: var(--primary-color);
-  color: #fff;
+  margin-top: 0.5rem;
+}
+
+.load-more-btn {
+  background: linear-gradient(135deg, var(--primary-accent) 0%, #ff8c42 100%);
+  color: var(--primary-text);
   border: none;
-  border-radius: var(--border-radius);
-  padding: 0.5rem 1.2rem;
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1.5rem;
   font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all var(--transition-fast);
+  margin-top: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  width: 100%;
 }
 
-button:hover {
-  background: var(--secondary-color);
+.load-more-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+  background: linear-gradient(135deg, #ff8c42 0%, var(--primary-accent) 100%);
 }
 
-@media (max-width: 600px) {
+.loading {
+  text-align: center;
+  color: var(--secondary-text);
+  padding: 1rem;
+  font-style: italic;
+}
+
+.no-data {
+  text-align: center;
+  color: var(--secondary-text);
+  padding: 2rem;
+  font-style: italic;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .feed-container {
+    padding: 1rem;
+  }
+  
   .feed-card {
-    padding: 0.7rem;
+    padding: 1.5rem 1rem;
   }
-  li {
+  
+  .feed-title {
+    font-size: 1.5rem;
+  }
+  
+  .feed-item {
+    padding: 0.75rem;
+  }
+  
+  .user-name {
     font-size: 1rem;
-    padding: 0.5rem 0.7rem;
-  }
-  h2 {
-    font-size: 1.1rem;
   }
 }

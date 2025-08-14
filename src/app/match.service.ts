@@ -32,7 +32,14 @@ export class MatchService {
   }
 
   savePrediction(matchId: number, team: 'A' | 'B'): Observable<any> {
-    return this.http.post(`${this.baseUrl}/api/predictions`, { matchId, team });
+    const payload = { matchId, team };
+    console.log('Sending prediction request:', {
+      url: `${this.baseUrl}/api/predictions`,
+      payload: payload,
+      method: 'POST'
+    });
+    
+    return this.http.post(`${this.baseUrl}/api/predictions`, payload);
   }
 
   getUserPicks(): Observable<{ matchId: number; team: 'A' | 'B' }[]> {

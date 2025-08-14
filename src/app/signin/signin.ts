@@ -29,6 +29,22 @@ export class Signin {
     });
   }
 
+  ngOnInit(): void {
+    // Check if user is already authenticated
+    if (this.authService.isAuthenticated()) {
+      const role = this.authService.getUserRole();
+      if (role === 'ADMIN') {
+        this.router.navigate(['/admin']);
+      } else {
+        this.router.navigate(['/user-dashboard']);
+      }
+      return;
+    }
+    
+    // Continue with normal signin flow for unauthenticated users
+    console.log('User not authenticated, proceeding with signin');
+  }
+
   onSubmit() {
     this.submitted = true;
     this.errorMessage = '';
@@ -39,17 +55,18 @@ export class Signin {
     this.authService.signin(this.signinForm.value).subscribe({
       next: (response) => {
         this.notification.showSuccess('Signin successful');
+        
+        // Navigate based on role
         const role = this.authService.getUserRole();
         if (role === 'ADMIN') {
           this.router.navigate(['/admin']);
-        } else if (role === 'USER') {
-          this.router.navigate(['/user-dashboard']);
         } else {
-          this.router.navigate(['/signin']);
+          this.router.navigate(['/user-dashboard']);
         }
       },
       error: (error) => {
-        this.notification.showError('Signin failed');
+        console.error('Signin error:', error);
+        this.notification.showError('Signin failed. Please check your credentials.');
       }
     });
   }

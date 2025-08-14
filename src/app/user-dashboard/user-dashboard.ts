@@ -7,6 +7,7 @@ import { WebSocketService } from '../websocket.service';
 
 @Component({
   selector: 'app-user-dashboard',
+  standalone: true,
   imports: [CommonModule],
   templateUrl: './user-dashboard.html',
   styleUrl: './user-dashboard.scss'
@@ -48,11 +49,19 @@ export class UserDashboard implements OnInit {
       next: (data) => {
         this.totalPoints = data.totalPoints;
         this.userHistory = data.matches;
+        console.log('User data loaded:', data);
       },
       error: (err) => {
         console.error('Error fetching user history:', err);
+        this.notification.showError('Failed to load user history');
       }
     });
+  }
+
+  refreshUserData() {
+    this.loadUserData();
+    this.loadUpcomingMatches();
+    this.loadUserPicks();
   }
 
   loadUserPicks() {
@@ -67,9 +76,11 @@ export class UserDashboard implements OnInit {
         this.upcomingMatches.forEach(match => {
           match.userPick = this.userPicks[match.id];
         });
+        console.log('User picks loaded:', this.userPicks);
       },
       error: (err) => {
         console.error('Error fetching user picks:', err);
+        this.notification.showError('Failed to load user picks');
       }
     });
   }
@@ -84,6 +95,11 @@ export class UserDashboard implements OnInit {
             match.userPick = this.userPicks[match.id];
           });
         }
+        console.log('Upcoming matches loaded:', matches);
+      },
+      error: (err) => {
+        console.error('Error loading upcoming matches:', err);
+        this.notification.showError('Failed to load upcoming matches');
       }
     });
   }
@@ -94,19 +110,49 @@ export class UserDashboard implements OnInit {
 
   selectTeam(match: any, team: 'A' | 'B') {
     if(this.isMatchStarted(match)) {
-      // TODO: Show a message to the user that the match has already started
+      this.notification.showWarning('Match has already started. Picks are locked.');
       return;
     }
+
+    // Log the request details for debugging
+    console.log('Saving prediction:', {
+      matchId: match.id,
+      team: team,
+      match: match,
+      token: this.authService.getToken() ? 'Present' : 'Missing'
+    });
+
     this.matchService.savePrediction(match.id, team).subscribe({
-      next: () => {
+      next: (response) => {
+        console.log('Prediction saved successfully:', response);
         match.userPick = team;
         this.userPicks[match.id] = team;
-        // this.snackBar.open('Your pick was saved!', 'Close', { duration: 3000, panelClass: ['snackbar-success'] });
         this.notification.showSuccess('Your pick was saved!');
+        
+        // Refresh user data to ensure consistency
+        this.refreshUserData();
       },
       error: (err) => {
-        console.error(err);
-        this.notification.showError('Error saving your pick. Please try again.');
+        console.error('Error saving prediction:', {
+          error: err,
+          status: err.status,
+          message: err.message,
+          url: err.url,
+          matchId: match.id,
+          team: team
+        });
+        
+        if (err.status === 500) {
+          this.notification.showError('Server error occurred. Please try again later or contact support.');
+        } else if (err.status === 401) {
+          this.notification.showError('Authentication error. Please sign in again.');
+        } else if (err.status === 403) {
+          this.notification.showError('Access denied. You may not have permission to make predictions.');
+        } else if (err.status === 400) {
+          this.notification.showError('Invalid request. Please check your selection and try again.');
+        } else {
+          this.notification.showError(`Error saving your pick (${err.status}). Please try again.`);
+        }
       }
     });
   }

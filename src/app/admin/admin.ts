@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
@@ -7,15 +7,17 @@ import { NotificationService } from '../notification.service';
 
 @Component({
   selector: 'app-admin',
+  standalone: true,
   imports: [ReactiveFormsModule, CommonModule],
   templateUrl: './admin.html',
   styleUrl: './admin.scss'
 })
-export class Admin {
+export class Admin implements OnInit {
   matchForm: FormGroup;
   matches: any[] = [];
   editMatchId: number | null = null;
   errorMessage: string = '';
+  isFormVisible: boolean = false; // Control form visibility
 
   constructor(
     private fb: FormBuilder, 
@@ -34,15 +36,28 @@ export class Admin {
     this.loadMatches();
   }
 
+  toggleForm() {
+    this.isFormVisible = !this.isFormVisible;
+    if (!this.isFormVisible) {
+      this.cancelEdit(); // Reset form when hiding
+    }
+  }
+
   loadMatches() {
     this.matchService.getAllMatches().subscribe({
       next: (matches) => {
         this.matches = matches;
+        console.log('Matches loaded:', matches);
       },
       error: (error) => {
         console.error('Error loading matches:', error);
+        this.notification.showError('Failed to load matches');
       }
     })
+  }
+
+  refreshMatches() {
+    this.loadMatches();
   }
 
   startEdit(match: any) {
@@ -114,6 +129,7 @@ export class Admin {
           this.notification.showSuccess('Match deleted successfully');
         },
         error: (err) => {
+          console.error('Error deleting match:', err);
           this.notification.showError('Error deleting match');
         }
       });

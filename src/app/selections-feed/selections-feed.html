@@ -1,12 +1,37 @@
-<div class="feed-card">
-  <h2>User Selections</h2>
-  <ul>
-    <li *ngFor="let item of feed">
-      <strong>{{ item.user.firstName }} {{ item.user.lastName }}</strong> 
-      <div>picked <b>{{ item.match['team'+item.team] }} </b> <span> for <i>{{ item.match.teamA }} vs {{ item.match.teamB }}</i> </span></div>
-      <span class="timestamp">{{ item.match.updatedAt | date:'short' }}</span>
-    </li>
-  </ul>
-  <button *ngIf="hasMore && !loading" (click)="loadSelections()" >Load More</button>
-  <div *ngIf="loading">Loading...</div>
+<div class="feed-container">
+  <div class="feed-card">
+    <h2 class="feed-title">User Selections</h2>
+    
+    @if (error) {
+      <div class="error-message">
+        <p>{{ error }}</p>
+        <button class="retry-btn" (click)="retryLoad()">Retry</button>
+      </div>
+    }
+    
+    @if (feed.length > 0) {
+      <ul class="feed-list">
+        @for (item of feed; track item.id || item.match?.id) {
+          <li class="feed-item">
+            <strong class="user-name">{{ item.user?.firstName }} {{ item.user?.lastName }}</strong> 
+            <div class="selection-details">
+              picked <b class="team-name">{{ item.match?.['team'+item.team] }}</b> 
+              <span> for <i class="match-teams">{{ item.match?.teamA }} vs {{ item.match?.teamB }}</i></span>
+            </div>
+            <span class="timestamp">{{ item.match?.updatedAt | date:'short' }}</span>
+          </li>
+        }
+      </ul>
+    } @else if (!loading && !error) {
+      <p class="no-data">No selections found.</p>
+    }
+    
+    @if (hasMore && !loading && !error) {
+      <button class="load-more-btn" (click)="loadSelections()">Load More</button>
+    }
+    
+    @if (loading) {
+      <div class="loading">Loading...</div>
+    }
+  </div>
 </div>

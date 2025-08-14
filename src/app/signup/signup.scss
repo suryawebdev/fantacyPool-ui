@@ -1,12 +1,12 @@
 form {
-  max-width: 30%;
+  max-width: 100%;
   margin: 2rem auto;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0rem;
 
   @media (min-width: 768px) and (max-width: 1024px) {
-    max-width: 50%;
+    max-width: 80%;
   }
 }
 label {
@@ -38,37 +38,122 @@ button {
   background-color: #ffe3e3;
 }
 
+/* Use global design system */
+.auth-page-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 80px); /* Subtract navbar height */
+  padding: 2rem;
+  gap: 1.5rem;
+  overflow: hidden; /* Prevent scrollbars */
+}
+
 .signup-title {
   text-align: center;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  color: var(--primary-text);
+  font-size: 2rem;
+  font-weight: 600;
 }
 
 .signup-name-row {
-  display: flex;
-  gap: 1rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem; /* Increased gap */
 }
 
 .signup-name-row > div {
-  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
+.signup-name-row label {
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--primary-text);
+  font-size: 0.95rem;
+}
+
+.signup-name-row input {
+  margin-bottom: 1rem;
+  padding: 1rem 1.2rem; /* Increased padding */
+  font-size: 1.1rem; /* Larger font size */
+}
+
+/* Individual input styling */
+form input {
+  padding: 1rem 1.2rem; /* Increased padding */
+  font-size: 1.1rem; /* Larger font size */
+  margin-bottom: 1rem;
+}
+
+form label {
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--primary-text);
+  font-size: 0.95rem;
+}
+
+form button {
+  padding: 1rem 1.5rem; /* Increased padding */
+  font-size: 1.1rem; /* Larger font size */
+}
+
+/* Custom styling for the signin link section */
 .signup-link {
-  margin-top: 1rem;
   text-align: center;
+  padding: 1rem;
+  background: rgba(0, 212, 170, 0.1);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(0, 212, 170, 0.3);
+  max-width: 450px; /* Match form width */
+  width: 100%;
+
+  p {
+    margin: 0;
+    color: var(--secondary-text);
+  }
 
   a {
-    color: blue;
+    color: var(--success-color);
+    font-weight: 600;
     text-decoration: none;
+    transition: all var(--transition-fast);
 
     &:hover {
+      color: #00b894;
       text-decoration: underline;
     }
   }
 }
 
-@media (max-width: 600px) {
+/* Responsive design */
+@media (max-width: 768px) {
+  .auth-page-container {
+    min-height: calc(100vh - 120px);
+    padding: 1rem;
+    gap: 1rem;
+  }
+  
   .signup-name-row {
-    flex-direction: column;
-    gap: 0.5rem;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .signup-link {
+    max-width: 100%;
+  }
+  
+  form input,
+  .signup-name-row input {
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+  }
+  
+  form button {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
   }
 }

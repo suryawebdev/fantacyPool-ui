@@ -42,31 +42,90 @@ button {
   background-color: #ffe3e3;
 }
 
-.signup-link {
-  margin-top: 1rem;
+/* Remove conflicting styles and use global design system */
+.auth-page-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 80px); /* Subtract navbar height */
+  padding: 2rem;
+  gap: 1.5rem;
+  overflow: hidden; /* Prevent scrollbars */
+}
+
+.signin-form {
+  /* Override global form styles for better positioning */
+  margin: 0;
+  max-width: 450px; /* Increased from 400px */
+  width: 100%;
+}
+
+.signin-title {
   text-align: center;
+  margin-bottom: 1.5rem;
+  color: var(--primary-text);
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+/* Custom styling for the signup link section */
+.signup-link {
+  text-align: center;
+  padding: 1rem;
+  background: rgba(0, 212, 170, 0.1);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(0, 212, 170, 0.3);
+  max-width: 450px; /* Match form width */
+  width: 100%;
+
+  p {
+    margin: 0;
+    color: var(--secondary-text);
+  }
 
   a {
-    color: blue;
+    color: var(--success-color);
+    font-weight: 600;
     text-decoration: none;
+    transition: all var(--transition-fast);
 
     &:hover {
+      color: #00b894;
       text-decoration: underline;
     }
   }
 }
 
-.signin-title {
-  text-align: center;
+/* Override global form styles for better spacing */
+.signin-form input {
   margin-bottom: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 1rem 1.2rem; /* Increased padding */
+  font-size: 1.1rem; /* Larger font size */
 }
 
-.signin-form label {
-  display: block;
-  margin-bottom: 0.3rem;
+.signin-form button {
+  width: 100%;
+  margin-top: 1rem;
+  padding: 1rem 1.5rem; /* Increased padding */
+  font-size: 1.1rem; /* Larger font size */
 }
 
-.signin-form input,
-.signin-form select {
-  margin-bottom: 1rem;
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .auth-page-container {
+    min-height: calc(100vh - 120px);
+    padding: 1rem;
+    gap: 1rem;
+  }
+  
+  .signin-form {
+    max-width: 100%;
+  }
+  
+  .signup-link {
+    max-width: 100%;
+  }
 }

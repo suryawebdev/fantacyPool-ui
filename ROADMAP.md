@@ -1,126 +1,142 @@
-Phase 1: Core User Experience
-User Dashboard
-Show upcoming matches and current user info
-Team Selection
-Allow users to pick teams for upcoming matches
-User's Match History
-Show their past predictions and results
-Phase 2: Social & Competition
-Points Table/Leaderboard
-Show all users and rankings
-User Profile
-Personal statistics and detailed history
-Phase 3: Polish & Enhancements
-Notifications
-Alert users when they can make predictions
-Real-time Updates
-Live updates when admin sets results
+# FantacyPool Project Roadmap
 
+## 🎯 **Project Overview**
+Fantasy Pool is a sports prediction game where users select teams before matches and earn points based on correct predictions. Built with Angular frontend and Spring Boot backend.
 
-# Project Roadmap
+## 🚀 **Development Phases**
 
-## Phase 1: Core User Experience
-- [x] User Dashboard
-- [x] Team Selection
-- [x] User's Match History
+### **Phase 1: Core Authentication & Basic Features** ✅ COMPLETED
+- [x] User registration and login system
+- [x] JWT-based authentication
+- [x] Role-based access control (USER/ADMIN)
+- [x] Basic admin panel for match management
+- [x] User dashboard for making predictions
+- [x] Match creation and management
+- [x] User prediction system
+- [x] Points calculation and leaderboard
+- [x] Basic styling and responsive design
 
-## Phase 2: Social & Competition
-- [x] Leaderboard
-- [ ] User Profile
+### **Phase 2: Enhanced User Experience & Real-time Features** ✅ COMPLETED
+- [x] Real-time updates via WebSocket
+- [x] User selections feed
+- [x] Match history and statistics
+- [x] Improved UI/UX with consistent theming
+- [x] Mobile-responsive design
+- [x] Notification system (Angular Material)
+- [x] Route guards and navigation
+- [x] Error handling and user feedback
 
-## Phase 3: Polish & Enhancements
-- [ ] Notifications
-- [ ] Real-time Updates
-- [ ] Password Reset
-- [ ] Admin Features
-- [ ] Check if there is a public API from which we can get match schedules and post the matches? Or else use an excel where all matches were provided, import it an parse to show the schedules
-- [ ] Add a screen to admin to appprove users, so that only approved users can use this app
+### **Phase 3: Advanced Features & Analytics** 🔄 IN PROGRESS
+- [ ] **Design Overhaul & Black Theme** 🎨
+  - [ ] Complete redesign with modern, cool aesthetic
+  - [ ] Dark/black theme implementation
+  - [ ] Professional sports betting website look
+  - [ ] Enhanced visual hierarchy and typography
+  - [ ] Custom animations and transitions
+  - [ ] Improved card layouts and spacing
 
+- [ ] **Password Reset & Recovery System** 🔐
+  - [ ] Forgot password functionality
+  - [ ] Email-based password reset
+  - [ ] Secure token generation for reset links
+  - [ ] Password reset form and validation
+  - [ ] Email templates and styling
+  - [ ] Backend email service integration
 
+- [ ] **Data Visualization & Analytics** 📊
+  - [ ] User picks distribution charts
+  - [ ] Match outcome statistics
+  - [ ] User performance trends
+  - [ ] Team popularity graphs
+  - [ ] Angular Charts or D3.js integration
+  - [ ] Interactive dashboards for admins
+  - [ ] Real-time data updates in charts
 
-## New Features
-Feature 1: User Selections Feed (Live Updates)
-    Goal: Show a real-time feed of user selections (who picked which team, when).
-    How:
-        When a user selects a team, send the selection to the backend.
-        Backend broadcasts the new selection to all clients via WebSocket (/topic/selections).
-        Frontend subscribes to /topic/selections and updates the feed instantly.
-Feature 2: In-App Chat (Real-Time)
-    Goal: Allow users to send and receive chat messages in real-time.
-    How:
-        Add a chat UI (input + message list).
-        When a user sends a message, send it to the backend.
-        Backend broadcasts the message to all clients via WebSocket (/topic/chat).
-        Frontend subscribes to /topic/chat and updates the chat instantly.
+### **Phase 4: Performance & Polish** 📋 PLANNED
+- [ ] Performance optimization
+- [ ] Advanced caching strategies
+- [ ] Progressive Web App (PWA) features
+- [ ] Advanced user analytics
+- [ ] Social features (user profiles, achievements)
+- [ ] Advanced admin tools and reporting
 
-Step-by-Step Plan for Feature 1 (Selections Feed)
-Backend
-[ ] Add endpoint for submitting a team selection (if not present).
-[ ] On new selection, broadcast to /topic/selections via WebSocket.
-Frontend
-[ ] Create a new page/component: SelectionsFeed
-[ ] Subscribe to /topic/selections in WebSocketService
-[ ] Display a live-updating list of selections (user, team, time)
-[ ] When a user selects a team, send to backend (if not already implemented)
+### **Phase 5: Deployment & Scaling** 🚀 PLANNED
+- [x] Backend deployment to AWS
+- [ ] Frontend deployment to Vercel/Netlify
+- [ ] CI/CD pipeline setup
+- [ ] Production environment configuration
+- [ ] Monitoring and logging
+- [ ] Load testing and optimization
 
+## 🎨 **Design System & Theming**
 
-Migration Plan to Google Cloud
+### **Current Theme**
+- Light theme with blue primary colors
+- Basic responsive design
+- Angular Material components
 
-. High-Level Migration Plan
-A. Prepare Your Apps for Cloud
-Ensure your Angular app builds to static files (ng build --configuration production).
-Ensure your Spring Boot app is stateless and uses environment variables for config (DB URL, secrets, etc.).
-Use a managed database (e.g., Cloud SQL for PostgreSQL).
-B. Choose GCP Services
-Frontend (Angular):
-Cloud Storage + Cloud CDN (recommended for static hosting)
-Firebase Hosting (alternative, also works great for Angular SPAs)
-Backend (Spring Boot):
-Cloud Run (containerized, serverless, scales to zero, easy to deploy)
-App Engine Flex (PaaS, also supports Spring Boot)
-GKE (Kubernetes) or Compute Engine (for advanced/large-scale needs)
-Database:
-Cloud SQL (managed PostgreSQL/MySQL)
-C. Migration Steps
-1. Database
-Export your local PostgreSQL DB and import into Cloud SQL.
-Update your Spring Boot config to use the Cloud SQL connection string.
-2. Backend (Spring Boot)
-Containerize your app with Docker (recommended for Cloud Run).
-Push your image to Google Container Registry (GCR) or Artifact Registry.
-Deploy to Cloud Run (or App Engine Flex).
-Set environment variables/secrets in GCP.
-3. Frontend (Angular)
-Build your Angular app for production.
-Upload the dist/ folder to Cloud Storage (or Firebase Hosting).
-Set up a load balancer or CDN if needed.
-4. WebSocket Support
-Cloud Run and App Engine Flex support WebSockets.
-If using Cloud Run, ensure you use HTTP/1.1 (not HTTP/2) for WebSocket support.
-5. Domain & HTTPS
-Set up a custom domain in GCP.
-Use Google-managed SSL certificates.
-2. Migration Checklist
-[ ] Prepare production builds for Angular and Spring Boot.
-[ ] Containerize Spring Boot app (Dockerfile).
-[ ] Create and configure Cloud SQL instance.
-[ ] Migrate database data to Cloud SQL.
-[ ] Update backend config for Cloud SQL and environment variables.
-[ ] Push Docker image to GCR/Artifact Registry.
-[ ] Deploy backend to Cloud Run (or App Engine Flex).
-[ ] Build Angular app and upload to Cloud Storage or Firebase Hosting.
-[ ] Set up CORS and environment variables for frontend-backend communication.
-[ ] Test WebSocket connections in the cloud environment.
-[ ] Set up custom domain and HTTPS.
-[ ] Monitor logs and performance in GCP Console.
-3. Resources
-Deploying Angular to Google Cloud Storage
-Deploying Spring Boot to Cloud Run
-Cloud SQL for PostgreSQL
-WebSockets on Cloud Run
-Would you like to start with:
-Migrating the database to Cloud SQL?
-Containerizing and deploying the backend?
-Deploying the Angular frontend?
-Or a detailed step-by-step for a specific part?
-Let me know your preference and I’ll guide you through it!
+### **New Black Theme Goals**
+- Modern, professional sports betting aesthetic
+- High contrast for readability
+- Consistent color palette
+- Smooth animations and transitions
+- Professional typography
+- Enhanced visual hierarchy
+
+## 📊 **Data Visualization Requirements**
+
+### **Chart Types Needed**
+- **User Picks Distribution**: Pie charts, bar charts
+- **Match Statistics**: Line charts, area charts
+- **Performance Trends**: Time series charts
+- **Team Popularity**: Horizontal bar charts
+- **User Rankings**: Leaderboard with visual elements
+
+### **Technology Options**
+- **Angular Charts**: Easy integration, good documentation
+- **D3.js**: More customizable, complex visualizations
+- **Chart.js**: Lightweight, good performance
+- **NGX-Charts**: Angular-specific, responsive
+
+## 🔐 **Password Reset System**
+
+### **Frontend Requirements**
+- Forgot password form
+- Password reset form
+- Email validation
+- Success/error messaging
+- Loading states
+
+### **Backend Requirements**
+- Email service integration
+- Secure token generation
+- Password reset endpoints
+- Email templates
+- Token expiration handling
+
+## 📱 **Responsive Design Goals**
+- Mobile-first approach
+- Tablet optimization
+- Desktop enhancement
+- Touch-friendly interactions
+- Fast loading on all devices
+
+## 🚀 **Next Sprint Priorities**
+1. **Design Overhaul**: Start with black theme and modern aesthetic
+2. **Password Reset**: Implement complete forgot password flow
+3. **Charts Integration**: Add data visualization to user dashboard
+4. **UI Polish**: Enhance animations and user interactions
+
+## 📋 **Technical Debt & Improvements**
+- [ ] Optimize bundle size
+- [ ] Implement lazy loading for routes
+- [ ] Add comprehensive error boundaries
+- [ ] Improve accessibility (ARIA labels, keyboard navigation)
+- [ ] Add unit tests for critical components
+- [ ] Performance monitoring and metrics
+
+---
+
+**Last Updated**: January 2025
+**Current Phase**: Phase 3 - Advanced Features & Analytics
+**Next Milestone**: Design Overhaul & Black Theme Implementation

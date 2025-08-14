@@ -1,37 +1,29 @@
 import { Injectable } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Injectable({
   providedIn: 'root'
 })
 export class NotificationService {
-  constructor(private snackBar: MatSnackBar) {}
+  constructor() {}
 
   showSuccess(message: string) {
-    this.snackBar.open(message, '', {
-      duration: 3000,
-      panelClass: ['success-snackbar']
-    });
+    console.log('✅ Success:', message);
+    // Simple alert for now - can be enhanced later
+    alert(`Success: ${message}`);
   }
 
   showError(message: string) {
-    this.snackBar.open(message, '', {
-      duration: 3000,
-      panelClass: ['error-snackbar']
-    });
+    console.error('❌ Error:', message);
+    alert(`Error: ${message}`);
   }
 
   showInfo(message: string) {
-    this.snackBar.open(message, '', {
-      duration: 3000,
-      panelClass: ['info-snackbar']
-    });
+    console.info('ℹ️ Info:', message);
+    alert(`Info: ${message}`);
   }
 
   showWarning(message: string) {   
-    this.snackBar.open(message, '', {
-      duration: 3000,
-      panelClass: ['warning-snackbar']
-    });
+    console.warn('⚠️ Warning:', message);
+    alert(`Warning: ${message}`);
   }
 }

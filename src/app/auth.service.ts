@@ -64,11 +64,56 @@ export class AuthService {
     localStorage.removeItem('jwt_token');
   }
   isAuthenticated() {
-    return !!this.getToken();
+    const token = this.getToken();
+    if (!token) {
+      return false;
+    }
+    
+    try {
+      const decodedToken = jwtDecode<MyJwtPayload>(token);
+      const currentTime = Date.now() / 1000;
+      
+      // Check if token is expired
+      if (decodedToken.exp && decodedToken.exp < currentTime) {
+        console.log('Token expired, removing it');
+        this.logout();
+        return false;
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      this.logout();
+      return false;
+    }
   }
   logout() {
     this.removeToken();
     localStorage.removeItem('user_details');
+  }
+  
+  refreshAuthStatus() {
+    // This method can be called to refresh the authentication status
+    // and update any stored user information if needed
+    const token = this.getToken();
+    if (token) {
+      try {
+        const decodedToken = jwtDecode<MyJwtPayload>(token);
+        const currentTime = Date.now() / 1000;
+        
+        if (decodedToken.exp && decodedToken.exp < currentTime) {
+          this.logout();
+          return false;
+        }
+        
+        return true;
+      } catch (error) {
+        console.error('Error validating token:', error);
+        this.logout();
+        return false;
+      }
+    }
+    return false;
   }
   getUserRole() {
     const token = this.getToken();

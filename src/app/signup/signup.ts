@@ -33,6 +33,22 @@ export class Signup {
     });
   }
 
+  ngOnInit(): void {
+    // Check if user is already authenticated
+    if (this.authService.isAuthenticated()) {
+      const role = this.authService.getUserRole();
+      if (role === 'ADMIN') {
+        this.router.navigate(['/admin']);
+      } else {
+        this.router.navigate(['/user-dashboard']);
+      }
+      return;
+    }
+    
+    // Continue with normal signup flow for unauthenticated users
+    console.log('User not authenticated, proceeding with signup');
+  }
+
   onSubmit() {
     this.submitted = true;
     this.errorMessage = '';
@@ -42,11 +58,12 @@ export class Signup {
 
     this.authService.signup(this.signupForm.value).subscribe({
       next: (response) => {
+        this.notification.showSuccess('Signup successful! Please sign in with your new account.');
         this.router.navigate(['/signin']);
-        this.notification.showSuccess('Signup successful');
       },
       error: (error) => {
-        this.notification.showError('Signup failed');
+        console.error('Signup error:', error);
+        this.notification.showError('Signup failed. Please try again.');
       }
     });
   }
