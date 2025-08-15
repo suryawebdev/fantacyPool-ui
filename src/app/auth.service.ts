@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
 import { environment } from '../environments/environments';
-import { jwtDecode, JwtPayload } from 'jwt-decode';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { jwtDecode, JwtPayload} from 'jwt-decode';
 
 interface MyJwtPayload extends JwtPayload {
   firstName?: string;
@@ -17,84 +17,102 @@ interface MyJwtPayload extends JwtPayload {
 })
 export class AuthService {
   private baseUrl = environment.apiUrl;
+  private authStatusSubject = new BehaviorSubject<boolean>(false);
 
-  constructor(private http: HttpClient) {}
+  authStatus$ = this.authStatusSubject.asObservable();
 
-  signup(data: { 
-    firstName: string;
-    lastName: string;
-    email: string;
-    username: string; 
-    password: string; 
-    role: string 
-  }): Observable<any> {
-    return this.http.post(`${this.baseUrl}/api/auth/signup`, data);
+  constructor(private http: HttpClient) {
+    // Initialize auth status on service creation
+    this.authStatusSubject.next(this.isAuthenticated());
   }
 
-  signin(data: { username: string; password: string }): Observable<any> {
-    return this.http.post<{ 
-      token: string,
-      firstName: string,
-      lastName: string,
-      email: string,
-      username: string,
-      role: string,
-    }>(`${this.baseUrl}/api/auth/signin`, data).pipe(
-      tap(response => {
-        if (response?.token) {
-          this.setToken(response.token);
-          localStorage.setItem('user_details', JSON.stringify({
-            firstName: response.firstName,
-            lastName: response.lastName,
-            email: response.email,
-            username: response.username,
-            role: response.role,
-          }));
-        }
-      })
-    );
+  signin(credentials: { username: string; password: string }): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/auth/signin`, credentials);
   }
-  setToken(token: string) {
-    localStorage.setItem('jwt_token', token);
+
+  // Method to store user details after successful signin
+  storeUserDetails(userDetails: any): void {
+    if (userDetails) {
+      localStorage.setItem('user_details', JSON.stringify(userDetails));
+    }
   }
-  getToken() {
-    return localStorage.getItem('jwt_token');
+
+  signup(userData: any): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/auth/signup`, userData);
   }
-  removeToken() {
-    localStorage.removeItem('jwt_token');
-  }
-  isAuthenticated() {
-    return !!this.getToken();
-  }
-  logout() {
-    this.removeToken();
+
+  logout(): void {
+    localStorage.removeItem('token');
     localStorage.removeItem('user_details');
+    this.authStatusSubject.next(false);
   }
-  getUserRole() {
+
+  getToken(): string | null {
+    return localStorage.getItem('token');
+  }
+
+  isAuthenticated(): boolean {
     const token = this.getToken();
     if (!token) {
-      return null;
+      return false;
     }
     try {
       const decodedToken = jwtDecode<MyJwtPayload>(token);
-      return decodedToken.role || null  ;
-    } catch {
-      return null;  
+      const currentTime = Date.now() / 1000;
+      if (decodedToken.exp && decodedToken.exp < currentTime) {
+        console.log('Token expired, removing it');
+        this.logout();
+        return false;
+      }
+      return true;
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      this.logout();
+      return false;
     }
   }
 
-  getUsername() {
+  getUserRole(): string {
+    const userDetails = this.getUserDetails();
+    if (userDetails && userDetails.role) {
+      return userDetails.role;
+    }
+    
+    // Fallback to JWT token if user details not available
     const token = this.getToken();
     if (!token) {
-      return null;
+      return '';
     }
-    const decodedToken = jwtDecode<MyJwtPayload>(token);
-    return decodedToken.sub || null;
+    try {
+      const decodedToken = jwtDecode<MyJwtPayload>(token);
+      return decodedToken.role || '';
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      return '';
+    }
   }
 
-  getUserDetails() {
+  getUserDetails(): any {
     const userDetails = localStorage.getItem('user_details');
-    return userDetails ? JSON.parse(userDetails) : null;
+    if (userDetails) {
+      try {
+        return JSON.parse(userDetails);
+      } catch (error) {
+        console.error('Error parsing user details:', error);
+        return null;
+      }
+    }
+    return null;
+  }
+
+  // Method to update auth status after successful login
+  updateAuthStatus(): void {
+    this.authStatusSubject.next(this.isAuthenticated());
+  }
+
+  // Method to fetch user details from backend if needed
+  fetchUserDetails(username: string): Observable<any> {
+    return this.http.get(`${this.baseUrl}/api/users/${username}`);
   }
 }
 

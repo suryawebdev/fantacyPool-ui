@@ -179,26 +179,54 @@
 
 <nav class="main-navbar">
   <div class="navbar-content">
-    <span class="app-title">Cricket Pool</span>
-    <div class="nav-links">
-      <a routerLink="/leaderboard" routerLinkActive="active-link">Leaderboard</a>
-      <a routerLink="/admin" *ngIf="isAdmin()" routerLinkActive="active-link">Admin</a>
-      <a routerLink="/signin" *ngIf="!isAuthenticated()" routerLinkActive="active-link">Sign In</a>
-      <a routerLink="/signup" *ngIf="!isAuthenticated()" routerLinkActive="active-link">Sign Up</a>
-      <a routerLink="/user-dashboard" *ngIf="isAuthenticated() && isUser()" routerLinkActive="active-link">User Dashboard</a>
-      <a routerLink="/selections-feed" *ngIf="isAuthenticated()" routerLinkActive="active-link">Selections Feed</a>
-      <a *ngIf="isAuthenticated()" (click)="logout()">Logout</a>
+    <div class="navbar-brand">
+      <a routerLink="/" class="brand-link">Cricket Pool</a>
     </div>
+    
+    <div class="navbar-links">
+      <!-- Leaderboard - visible to everyone -->
+      <a routerLink="/leaderboard" routerLinkActive="active-link" class="nav-link">
+        <span class="nav-icon">🏆</span>
+        <span class="nav-text">Leaderboard</span>
+      </a>
+      
+      @if (isAuthenticated) {
+        <!-- Admin Routes -->
+        @if (isAdmin) {
+          <a routerLink="/admin" routerLinkActive="active-link" class="nav-link">
+            <span class="nav-icon">👑</span>
+            <span class="nav-text">Admin</span>
+          </a>
+        }
+        
+        <!-- User Routes -->
+        @if (isUser) {
+          <a routerLink="/user-dashboard" routerLinkActive="active-link" class="nav-link">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-text">Dashboard</span>
+          </a>
+        }
+        
+        <!-- Common Authenticated Routes -->
+        <a routerLink="/selections-feed" routerLinkActive="active-link" class="nav-link">
+          <span class="nav-icon">📊</span>
+          <span class="nav-text">Live Feed</span>
+        </a>
+        
+        <button (click)="logout()" class="logout-btn">Logout</button>
+      } @else {
+        <!-- Guest Routes -->
+        <a routerLink="/signin" routerLinkActive="active-link" class="nav-link">Sign In</a>
+        <a routerLink="/signup" routerLinkActive="active-link" class="nav-link signup-link">Sign Up</a>
+      }
+    </div>
+    
+    <button (click)="toggleTheme()" class="theme-toggle">
+      <span class="theme-icon">{{ isDarkTheme ? '☀️' : '🌙' }}</span>
+    </button>
   </div>
 </nav>
 
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
-<!-- * * * * * * * * * * * The content above * * * * * * * * * * * * -->
-<!-- * * * * * * * * * * is only a placeholder * * * * * * * * * * * -->
-<!-- * * * * * * * * * * and can be replaced.  * * * * * * * * * * * -->
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
-<!-- * * * * * * * * * * End of Placeholder  * * * * * * * * * * * * -->
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
-
-
-<router-outlet />
+<main class="main-content">
+  <router-outlet></router-outlet>
+</main>

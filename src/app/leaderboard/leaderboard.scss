@@ -1,85 +1,66 @@
+.leaderboard-container {
+  padding: 2rem;
+  padding-top: 3rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
 .leaderboard-card {
-  max-width: 700px;
-  margin: 2rem auto;
-  padding: 1.5rem;
-  background: #fff;
-  border-radius: var(--border-radius);
-  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  box-shadow: var(--shadow-medium);
+  border: 1px solid var(--border-color);
+  transition: all var(--transition-normal);
+}
+
+.leaderboard-title {
+  color: var(--text-primary);
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-top: 1rem;
+  box-shadow: var(--shadow-light);
+  border: 1px solid var(--border-color);
+}
+
+.leaderboard-table th,
+.leaderboard-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.leaderboard-table th {
+  background: var(--secondary-bg);
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.leaderboard-table td {
+  color: var(--text-secondary);
 }
 
 .current-user {
-  background-color: #e3f2fd;
-  font-weight: bold;
+  background: rgba(0, 212, 170, 0.1) !important;
+  font-weight: 600;
+  border-left: 4px solid var(--success-color);
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: #fff;
-  border-radius: var(--border-radius);
-  overflow: hidden;
-  margin-top: 1rem;
-  table-layout: fixed;
-}
-
-th, td {
-  padding: 0.7rem;
-  text-align: left;
-  border-bottom: 1px solid #eee;
-}
-
-th {
-  background: var(--primary-color);
-  color: #fff;
-}
-
-tr:last-child td {
-  border-bottom: none;
-}
-
-th:nth-child(1), td:nth-child(1) { /* Rank */
-  width: 60px;
-  min-width: 50px;
+.no-data {
   text-align: center;
-}
-th:nth-child(2), td:nth-child(2) { /* Name */
-  width: 180px;
-  min-width: 120px;
-}
-th:nth-child(3), td:nth-child(3) { /* Username */
-  width: 160px;
-  min-width: 100px;
-}
-th:nth-child(4), td:nth-child(4) { /* Points */
-  width: 100px;
-  min-width: 70px;
-  text-align: center;
-}
-
-@media (max-width: 600px) {
-  .leaderboard-card {
-    padding: 0.5rem;
-  }
-  th, td {
-    padding: 0.5rem;
-    font-size: 0.95rem;
-  }
-}
-
-@media (max-width: 700px) {
-  .leaderboard-card {
-    padding: 0.5rem;
-  }
-  table {
-    font-size: 0.97rem;
-  }
-  th, td {
-    padding: 0.5rem;
-    font-size: 0.95rem;
-    min-width: 80px;
-  }
-  th:nth-child(2), td:nth-child(2),
-  th:nth-child(3), td:nth-child(3) {
-    min-width: 120px;
-  }
+  color: var(--text-secondary);
+  font-style: italic;
+  padding: 2rem;
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatchService } from '../match.service';
 import { AuthService } from '../auth.service';
@@ -77,7 +77,7 @@ export class UserDashboard implements OnInit {
   loadUpcomingMatches() {
     this.matchService.getAllMatches().subscribe({
       next: (matches) => {
-        this.upcomingMatches = matches;
+        this.upcomingMatches = matches.sort((a: any, b: any) => new Date(a.startDateTime).getTime() - new Date(b.startDateTime).getTime());
         // After loading matches, update with user picks if already loaded
         if (Object.keys(this.userPicks).length > 0) {
           this.upcomingMatches.forEach(match => {

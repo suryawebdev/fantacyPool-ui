@@ -1,5 +1,6 @@
 export const environment = {
   production: true,
-  apiUrl: 'http://localhost:8080',
+  // apiUrl: 'http://localhost:8080',
+  apiUrl: 'http://fantacypool-api-env.eba-c8dpmph3.us-east-2.elasticbeanstalk.com',
   enableWebSockets: true
 };

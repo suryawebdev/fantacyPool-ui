@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
@@ -7,15 +7,17 @@ import { NotificationService } from '../notification.service';
 
 @Component({
   selector: 'app-admin',
+  standalone: true,
   imports: [ReactiveFormsModule, CommonModule],
   templateUrl: './admin.html',
   styleUrl: './admin.scss'
 })
-export class Admin {
+export class Admin implements OnInit {
   matchForm: FormGroup;
   matches: any[] = [];
   editMatchId: number | null = null;
   errorMessage: string = '';
+  isFormVisible: boolean = false;
 
   constructor(
     private fb: FormBuilder, 
@@ -26,7 +28,8 @@ export class Admin {
     this.matchForm = this.fb.group({
       teamA: ['', Validators.required],
       teamB: ['', Validators.required],
-      startDateTime: ['', Validators.required]
+      startDateTime: ['', Validators.required],
+      status: ['SCHEDULED', Validators.required]
     });
   }
 
@@ -34,10 +37,17 @@ export class Admin {
     this.loadMatches();
   }
 
+  toggleForm() {
+    this.isFormVisible = !this.isFormVisible;
+    if (!this.isFormVisible) {
+      this.cancelEdit();
+    }
+  }
+
   loadMatches() {
     this.matchService.getAllMatches().subscribe({
       next: (matches) => {
-        this.matches = matches;
+        this.matches = matches.sort((a: any, b: any) => new Date(a.startDateTime).getTime() - new Date(b.startDateTime).getTime());
       },
       error: (error) => {
         console.error('Error loading matches:', error);
@@ -51,6 +61,7 @@ export class Admin {
       teamA: match.teamA,
       teamB: match.teamB,
       startDateTime: match.startDateTime,
+      status: match.status || 'SCHEDULED'
     });
   }
 

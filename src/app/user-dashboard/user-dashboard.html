@@ -1,87 +1,143 @@
-<div class="max-w-3xl mx-auto mt-8 bg-white rounded-lg shadow-lg p-6">
-  <div class="bg-white dark:bg-darkbg rounded-lg shadow-md p-5 mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
-    <p class="text-2xl font-bold text-red-600">Welcome, {{ user.firstName }} {{ user.lastName }}!</p>
-    <p class="text-lg font-semibold text-red-600">Your current points: <span class="text-red-600">{{ totalPoints }}</span></p>
-  </div>
-  <h3 class="text-xl font-semibold text-primary mb-3">Upcoming Matches</h3>
-  <div class="overflow-x-auto">
-    <table class="w-full table-auto border-collapse mb-8">
-      <thead>
-        <tr class="bg-primary text-white">
-          <th class="py-2 px-3">#</th>
-          <th class="py-2 px-3">Team A</th>
-          <th class="py-2 px-3">Team B</th>
-          <th class="py-2 px-3">Start Time</th>
-          <th class="py-2 px-3">Your Pick</th>
-          <th class="py-2 px-3">Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let match of upcomingMatches; let i = index" class="even:bg-gray-50">
-          <td class="py-2 px-3">{{ i + 1 }}</td>
-          <td class="py-2 px-3">{{ match.teamA }}</td>
-          <td class="py-2 px-3">{{ match.teamB }}</td>
-          <td class="py-2 px-3">{{ match.startDateTime | date:'short' }}</td>
-          <td class="py-2 px-3">{{ getTeamName(match, match.userPick) }}</td>
-          <td class="py-2 px-3">
-            <div class="pick-buttons">
-              <button
-                class="team-pick-btn bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition disabled:opacity-60 disabled:cursor-not-allowed"
-                *ngIf="!isMatchStarted(match)" 
-                [disabled]="match.userPick === 'A'" 
-                (click)="selectTeam(match, 'A')">
-                Pick Team A
-              </button>
-              <button
-                class="team-pick-btn bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition disabled:opacity-60 disabled:cursor-not-allowed"
-                *ngIf="!isMatchStarted(match)" 
-                [disabled]="match.userPick === 'B'" 
-                (click)="selectTeam(match, 'B')">
-                Pick Team B
-              </button>
-            </div>
-            <span 
-                *ngIf="isMatchStarted(match)">
-                Locked (Pick: 
-                {{ getTeamName(match, match.userPick) }}
-                )
-            </span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+<div class="dashboard-container">
+  <!-- Welcome Section -->
+  <div class="welcome-section">
+    <div class="welcome-card">
+      <h1 class="welcome-title">Welcome, {{ user.firstName }} {{ user.lastName }}!</h1>
+      <div class="points-display">
+        <span class="points-label">Your Current Points:</span>
+        <span class="points-value">{{ totalPoints }}</span>
+      </div>
+    </div>
   </div>
 
-  <h3 class="text-xl font-semibold text-primary mb-3">Your Match History</h3>
-  <div class="overflow-x-auto">
-    <table class="w-full table-auto border-collapse">
-      <thead>
-        <tr class="bg-primary text-white">
-          <th class="py-2 px-3">#</th>
-          <th class="py-2 px-3">Team A</th>
-          <th class="py-2 px-3">Team B</th>
-          <th class="py-2 px-3">Start Time</th>
-          <th class="py-2 px-3">Your Pick</th>
-          <th class="py-2 px-3">Winner</th>
-          <th class="py-2 px-3">Points</th>
-          <th class="py-2 px-3">Result</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let match of userHistory; let i = index" class="even:bg-gray-50">
-          <td class="py-2 px-3">{{ i + 1 }}</td>
-          <td class="py-2 px-3">{{ match.teamA }}</td>
-          <td class="py-2 px-3">{{ match.teamB }}</td>
-          <td class="py-2 px-3">{{ match.startDateTime | date:'short' }}</td>
-          <td class="py-2 px-3">{{ getTeamName(match, match.userPick) }}</td>
-          <td class="py-2 px-3">{{ getWinnerName(match) }}</td>
-          <td class="py-2 px-3">{{ match.pointsEarned || '-' }}</td>
-          <td class="py-2 px-3">
-            <span *ngIf="match.userPick === match.winner" style="color: green;">✓ Correct</span>
-            <span *ngIf="match.userPick !== match.winner" style="color: red;">✗ Wrong</span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+  <!-- Upcoming Matches Section -->
+  <div class="matches-section">
+    <h2 class="section-title">Upcoming Matches</h2>
+
+    @if (upcomingMatches.length > 0) {
+    <div class="table-container">
+      <table class="matches-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Team A</th>
+            <th>Team B</th>
+            <th>Start Time</th>
+            <th>Your Pick</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (match of upcomingMatches; track match.id; let i = $index) {
+          <tr class="match-row">
+            <td>{{ i + 1 }}</td>
+            <td>{{ match.teamA }}</td>
+            <td>{{ match.teamB }}</td>
+            <td>{{ match.startDateTime | date:'short' }}</td>
+            <td>
+              @if (match.userPick) {
+              <span class="pick-badge pick-{{ match.userPick.toLowerCase() }}">
+                {{ getTeamName(match, match.userPick) }}
+              </span>
+              } @else {
+              <span class="no-pick">No Pick</span>
+              }
+            </td>
+            <td class="actions-cell">
+              @if (!isMatchStarted(match)) {
+              <div class="pick-buttons">
+                <button class="pick-btn team-a-btn" [disabled]="match.userPick === 'A'"
+                  (click)="selectTeam(match, 'A')">
+                  Pick Team A
+                </button>
+                <button class="pick-btn team-b-btn" [disabled]="match.userPick === 'B'"
+                  (click)="selectTeam(match, 'B')">
+                  Pick Team B
+                </button>
+              </div>
+              } @else {
+              <span class="match-locked">
+                Locked ({{ getTeamName(match, match.userPick) }})
+              </span>
+              }
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    } @else {
+    <div class="no-matches">
+      <p>No upcoming matches found.</p>
+    </div>
+    }
+  </div>
+
+  <!-- Match History Section -->
+  <div class="history-section">
+    <h2 class="section-title">Your Match History</h2>
+
+    @if (userHistory.length > 0) {
+    <div class="table-container">
+      <table class="matches-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Team A</th>
+            <th>Team B</th>
+            <th>Start Time</th>
+            <th>Your Pick</th>
+            <th>Winner</th>
+            <th>Points</th>
+            <th>Result</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (match of userHistory; track match.id; let i = $index) {
+          <tr class="match-row">
+            <td>{{ i + 1 }}</td>
+            <td>{{ match.teamA }}</td>
+            <td>{{ match.teamB }}</td>
+            <td>{{ match.startDateTime | date:'short' }}</td>
+            <td>
+              @if (match.userPick) {
+              <span class="pick-badge pick-{{ match.userPick.toLowerCase() }}">
+                {{ getTeamName(match, match.userPick) }}
+              </span>
+              } @else {
+              <span class="no-pick">No Pick</span>
+              }
+            </td>
+            <td>
+              @if (match.winner) {
+              <span class="winner-badge">{{ getWinnerName(match) }}</span>
+              } @else {
+              <span class="tbd">TBD</span>
+              }
+            </td>
+            <td>
+              @if (match.pointsEarned) {
+              <span class="points-earned">{{ match.pointsEarned }}</span>
+              } @else {
+              <span class="no-points">-</span>
+              }
+            </td>
+            <td>
+              @if (match.userPick === match.winner) {
+              <span class="result-correct">✓ Correct</span>
+              } @else {
+              <span class="result-wrong">✗ Wrong</span>
+              }
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    } @else {
+    <div class="no-history">
+      <p>No match history found. Start making picks to see your results!</p>
+    </div>
+    }
   </div>
 </div>

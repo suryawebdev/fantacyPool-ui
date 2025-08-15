@@ -8,11 +8,12 @@ import { adminGuard } from './admin.guard';
 import { UserDashboard } from './user-dashboard/user-dashboard';
 import { Leaderboard } from './leaderboard/leaderboard';
 import { SelectionsFeed } from './selections-feed/selections-feed';
+import { guestGuard } from './guest.guard';
 
 export const routes: Routes = [
     // {path: '', component: Home},
-    {path: 'signup', component: Signup},
-    {path: 'signin', component: Signin},
+    {path: 'signup', component: Signup, canActivate: [guestGuard]},
+    {path: 'signin', component: Signin, canActivate: [guestGuard]},
     {
         path: 'home', 
         component: Home, 

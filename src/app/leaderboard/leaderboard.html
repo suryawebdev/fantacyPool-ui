@@ -1,24 +1,27 @@
-<div class="leaderboard-card">
-  <h2>Leaderboard</h2>
-
-  <table *ngIf="leaderboard.length > 0">
-    <thead>
-      <tr>
-        <th>Rank</th>
-        <th>Name</th>
-        <!-- <th>Username</th> -->
-        <th>Points</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let user of leaderboard" [class.current-user]="isCurrentUser(user)">
-        <td>{{ user.rank }}</td>
-        <td>{{ user.firstName }} {{ user.lastName }}</td>
-        <!-- <td>{{ user.username }}</td> -->
-        <td><strong>{{ user.totalPoints }}</strong></td>
-      </tr>
-    </tbody>
-  </table>
-
-  <p *ngIf="leaderboard.length === 0">No users found.</p>
+<div class="leaderboard-container">
+  <div class="leaderboard-card">
+    <h2 class="leaderboard-title">Leaderboard</h2>
+    @if (leaderboard.length > 0) {
+      <table class="leaderboard-table">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Name</th>
+            <th>Points</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of leaderboard; track user.username) {
+            <tr [class.current-user]="isCurrentUser(user)">
+              <td>{{ user.rank }}</td>
+              <td>{{ user.firstName }} {{ user.lastName }}</td>
+              <td><strong>{{ user.totalPoints }}</strong></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    } @else {
+      <p class="no-data">No users found.</p>
+    }
+  </div>
 </div>

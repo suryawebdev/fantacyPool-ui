@@ -38,8 +38,23 @@ export class Signin {
 
     this.authService.signin(this.signinForm.value).subscribe({
       next: (response) => {
+        console.log('Signin response:', response);
+        
+        // Store the token if it's in the response
+        if (response?.token) {
+          localStorage.setItem('token', response.token);
+          console.log('Token stored:', response.token);
+        } else {
+          console.warn('No token in response:', response);
+        }
+        
+        // Update auth status to notify other components
+        this.authService.updateAuthStatus();
+        
         this.notification.showSuccess('Signin successful');
         const role = this.authService.getUserRole();
+        console.log('User role:', role);
+        
         if (role === 'ADMIN') {
           this.router.navigate(['/admin']);
         } else if (role === 'USER') {
@@ -49,6 +64,7 @@ export class Signin {
         }
       },
       error: (error) => {
+        console.error('Signin error:', error);
         this.notification.showError('Signin failed');
       }
     });
