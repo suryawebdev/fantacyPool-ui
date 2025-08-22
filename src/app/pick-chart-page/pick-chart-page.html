@@ -1,0 +1,18 @@
+<div class="pick-chart-page">
+  <div class="page-header">
+    <h1>Pick Distribution Analytics</h1>
+    <p>Interactive D3.js visualization of user picks across matches</p>
+  </div>
+
+  <div class="loading-container" *ngIf="loading">
+    <div class="loading-spinner"></div>
+    <p>Loading chart data...</p>
+  </div>
+
+  <div class="chart-content" *ngIf="!loading">
+    <app-pick-chart
+      [matches]="matches"
+      [userPicks]="userPicks">
+    </app-pick-chart>
+  </div>
+</div>

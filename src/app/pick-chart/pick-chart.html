@@ -1,0 +1,23 @@
+<div class="pick-chart-container">
+  <h3 class="chart-title">Pick Distribution Chart</h3>
+  <div class="chart-description">
+    Visual representation of user picks across all matches
+  </div>
+  
+  <!-- Debug info -->
+  <div class="debug-info" *ngIf="!matches.length || !userPicks.length">
+    <p><strong>Debug Info:</strong></p>
+    <p>Matches: {{ matches.length }}</p>
+    <p>User Picks: {{ userPicks.length }}</p>
+    <p>Loading: {{ loading }}</p>
+  </div>
+  
+  <!-- Chart container -->
+  <div #chartContainer class="chart-container"></div>
+  
+  <!-- No data message -->
+  <div class="no-data" *ngIf="!loading && (!matches.length || !userPicks.length)">
+    <p>No data available to display chart.</p>
+    <p>Please ensure you have matches and user picks data.</p>
+  </div>
+</div>

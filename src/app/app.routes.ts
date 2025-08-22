@@ -8,6 +8,7 @@ import { adminGuard } from './admin.guard';
 import { UserDashboard } from './user-dashboard/user-dashboard';
 import { Leaderboard } from './leaderboard/leaderboard';
 import { SelectionsFeed } from './selections-feed/selections-feed';
+import { PickChartPage } from './pick-chart-page/pick-chart-page';
 import { guestGuard } from './guest.guard';
 
 export const routes: Routes = [
@@ -23,5 +24,6 @@ export const routes: Routes = [
     {path: 'user-dashboard', component: UserDashboard, canActivate: [authGuard]},
     {path: 'leaderboard', component: Leaderboard},
     {path: 'selections-feed', component: SelectionsFeed},
+    {path: 'pick-chart', component: PickChartPage, canActivate: [authGuard]},
     {path: '**', redirectTo: '/signin', pathMatch: 'full'}//Default route
 ];
