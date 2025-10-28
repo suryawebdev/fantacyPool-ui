@@ -1,11 +1,37 @@
 <div class="admin-container">
   <div class="admin-header">
     <h1 class="admin-title">Admin Dashboard</h1>
-    <button class="toggle-form-btn" (click)="toggleForm()">
-      <span class="toggle-icon">{{ isFormVisible ? '−' : '+' }}</span>
-      {{ isFormVisible ? 'Hide Form' : 'Create Match' }}
+  </div>
+
+  <!-- Admin Navigation Tabs -->
+  <div class="admin-tabs">
+    <button 
+      class="tab-btn" 
+      [class.active]="activeTab === 'matches'"
+      (click)="setActiveTab('matches')"
+    >
+      <span class="tab-icon">⚽</span>
+      Matches
+    </button>
+    <button 
+      class="tab-btn" 
+      [class.active]="activeTab === 'tournaments'"
+      (click)="setActiveTab('tournaments')"
+    >
+      <span class="tab-icon">🏆</span>
+      Tournaments
     </button>
   </div>
+
+  <!-- Matches Tab Content -->
+  <div class="tab-content" *ngIf="activeTab === 'matches'">
+    <div class="matches-header">
+      <h2 class="section-title">Match Management</h2>
+      <button class="toggle-form-btn" (click)="toggleForm()">
+        <span class="toggle-icon">{{ isFormVisible ? '−' : '+' }}</span>
+        {{ isFormVisible ? 'Hide Form' : 'Create Match' }}
+      </button>
+    </div>
   
   @if (isFormVisible) {
     <div class="create-match-section">
@@ -13,19 +39,46 @@
         <div class="form-row">
           <div class="form-group">
             <label for="teamA">Team A</label>
-            <input id="teamA" formControlName="teamA" placeholder="Team A Name"/>
+            <input 
+              id="teamA" 
+              formControlName="teamA" 
+              placeholder="Team A Name"
+              (input)="onTeamNameInput($event, 'teamA')"
+            />
           </div>
           <div class="form-group">
             <label for="teamB">Team B</label>
-            <input id="teamB" formControlName="teamB" placeholder="Team B Name"/>
+            <input 
+              id="teamB" 
+              formControlName="teamB" 
+              placeholder="Team B Name"
+              (input)="onTeamNameInput($event, 'teamB')"
+            />
           </div>
         </div>
         
         <div class="form-row">
           <div class="form-group">
+            <label for="tournamentId">Tournament *</label>
+            <select id="tournamentId" formControlName="tournamentId">
+              <option value="">Select Tournament</option>
+              @for (tournament of tournaments; track tournament.id) {
+                <option [value]="tournament.id">{{ tournament.name }}</option>
+              }
+            </select>
+            @if (tournaments.length === 0) {
+              <small class="text-muted">No tournaments available. Create a tournament first.</small>
+            } @else {
+              <small class="text-muted">{{ tournaments.length }} tournament(s) available</small>
+            }
+          </div>
+          <div class="form-group">
             <label for="startDateTime">Match Date</label>
             <input id="startDateTime" type="datetime-local" formControlName="startDateTime"/>
           </div>
+        </div>
+        
+        <div class="form-row">
           <div class="form-group">
             <label for="status">Status</label>
             <select id="status" formControlName="status">
@@ -48,56 +101,70 @@
     </div>
   }
   
-  <div class="matches-section">
-    <h2 class="section-title">All Matches</h2>
-    @if (matches.length > 0) {
-      <div class="table-container">
-        <table class="matches-table">
-          <thead>
-            <tr>
-              <th>Teams</th>
-              <th>Date</th>
-              <th>Status</th>
-              <th>Winner</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (match of matches; track match.id; let i = $index) {
-              <tr class="match-row">
-                <td class="teams-cell">
-                  <strong>{{ match.teamA }}</strong> vs <strong>{{ match.teamB }}</strong>
-                </td>
-                <td>{{ match.startDateTime | date:'short' }}</td>
-                <td>
-                  <span class="status-badge status-{{ match.status?.toLowerCase() }}">
-                    {{ match.status }}
-                  </span>
-                </td>
-                <td>
-                  @if (match.winner) {
-                    <span class="winner-badge">{{ match.winner }}</span>
-                  } @else {
-                    <span class="no-winner">No winner set</span>
-                  }
-                </td>
-                <td class="actions-cell">
-                  <button (click)="startEdit(match)" class="action-btn edit-btn">Edit</button>
-                  <button (click)="deleteMatch(match.id)" class="action-btn delete-btn">Delete</button>
-                  @if (!match.winner) {
-                    <button (click)="setWinner(match, 'A')" class="action-btn winner-btn">Set A Winner</button>
-                    <button (click)="setWinner(match, 'B')" class="action-btn winner-btn">Set B Winner</button>
-                  }
-                </td>
+    <div class="matches-section">
+      <h2 class="section-title">All Matches</h2>
+      @if (matches.length > 0) {
+        <div class="table-container">
+          <table class="matches-table">
+            <thead>
+              <tr>
+                <th>Teams</th>
+                <th>Tournament</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Winner</th>
+                <th>Actions</th>
               </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-    } @else {
-      <div class="no-matches">
-        <p>No matches found. Create your first match using the form above.</p>
-      </div>
-    }
+            </thead>
+            <tbody>
+              @for (match of matches; track match.id; let i = $index) {
+                <tr class="match-row">
+                  <td class="teams-cell">
+                    <strong>{{ match.teamA }}</strong> vs <strong>{{ match.teamB }}</strong>
+                  </td>
+                  <td class="tournament-cell">
+                    @if (match.tournamentName) {
+                      <span class="tournament-name">{{ match.tournamentName }}</span>
+                    } @else {
+                      <span class="no-tournament">No Tournament</span>
+                    }
+                  </td>
+                  <td>{{ match.startDateTime | date:'short' }}</td>
+                  <td>
+                    <span class="status-badge status-{{ match.status?.toLowerCase() }}">
+                      {{ match.status }}
+                    </span>
+                  </td>
+                  <td>
+                    @if (match.winner) {
+                      <span class="winner-badge">{{ match.winner }}</span>
+                    } @else {
+                      <span class="no-winner">No winner set</span>
+                    }
+                  </td>
+                  <td class="actions-cell">
+                    <button (click)="startEdit(match)" class="action-btn edit-btn">Edit</button>
+                    <button (click)="deleteMatch(match.id)" class="action-btn delete-btn">Delete</button>
+                    @if (!match.winner) {
+                      <button (click)="setWinner(match, 'A')" class="action-btn winner-btn">Set A Winner</button>
+                      <button (click)="setWinner(match, 'B')" class="action-btn winner-btn">Set B Winner</button>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="no-matches">
+          <p>No matches found. Create your first match using the form above.</p>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Tournaments Tab Content -->
+  <div class="tab-content" *ngIf="activeTab === 'tournaments'">
+    <app-tournament-management></app-tournament-management>
   </div>
 </div>

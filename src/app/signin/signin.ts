@@ -65,7 +65,7 @@ export class Signin {
       },
       error: (error) => {
         console.error('Signin error:', error);
-        this.notification.showError('Signin failed');
+        this.notification.showError('Signin failed with error: ' + error.error.message);
       }
     });
   }

@@ -4,6 +4,7 @@
       {{ errorMessage }}
     </div>
   }
+  <div class="signup-form-container">
   <form class="signup-form" [formGroup]="signupForm" (ngSubmit)="onSubmit()">
     <h2 class="signup-title">Sign Up</h2>
     <div class="signup-name-row">
@@ -48,6 +49,17 @@
         </div>
       }
     </div>
+    <!-- TODO: This piece of code is to allow admin to be selected -->
+    <!-- <div>
+      <input id="role" formControlName="role" placeholder="Role"/>
+      @if (submitted && signupForm.controls['role'].errors) {
+        <div>
+          @if (signupForm.controls['role'].errors['required']) {
+            <small>Role is required</small>
+          }
+        </div>
+      }
+    </div> -->
     <div>
       <input id="password" type="password" formControlName="password" placeholder="Password"/>
       @if (submitted && signupForm.controls['password'].errors) {
@@ -63,4 +75,5 @@
   <div class="signup-link">
     <p>Already have an account? <a routerLink="/signin">Sign in</a></p>
   </div>
+</div>
 </div>

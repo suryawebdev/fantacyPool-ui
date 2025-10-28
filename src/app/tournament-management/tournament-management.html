@@ -1,0 +1,193 @@
+<div class="tournament-management-container">
+  <div class="header">
+    <h1>Tournament Management</h1>
+    <button class="create-btn" (click)="showCreateTournamentForm()">
+      <span class="icon">+</span>
+      Create Tournament
+    </button>
+  </div>
+
+  <!-- Create/Edit Tournament Form -->
+  <div class="form-container" *ngIf="showCreateForm">
+    <div class="form-header">
+      <h2>{{ editingTournament ? 'Edit Tournament' : 'Create New Tournament' }}</h2>
+      <button class="close-btn" (click)="cancelForm()">×</button>
+    </div>
+
+    <form [formGroup]="createTournamentForm" (ngSubmit)="onSubmit()" class="tournament-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="name">Tournament Name *</label>
+          <input
+            type="text"
+            id="name"
+            formControlName="name"
+            placeholder="Enter tournament name"
+            [class.error]="createTournamentForm.get('name')?.invalid && createTournamentForm.get('name')?.touched"
+          />
+          <div class="error-message" *ngIf="createTournamentForm.get('name')?.invalid && createTournamentForm.get('name')?.touched">
+            <span *ngIf="createTournamentForm.get('name')?.errors?.['required']">Name is required</span>
+            <span *ngIf="createTournamentForm.get('name')?.errors?.['minlength']">Name must be at least 3 characters</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="maxParticipants">Max Participants</label>
+          <input
+            type="number"
+            id="maxParticipants"
+            formControlName="maxParticipants"
+            placeholder="Optional"
+            min="2"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description *</label>
+        <textarea
+          id="description"
+          formControlName="description"
+          placeholder="Enter tournament description"
+          rows="3"
+          [class.error]="createTournamentForm.get('description')?.invalid && createTournamentForm.get('description')?.touched"
+        ></textarea>
+        <div class="error-message" *ngIf="createTournamentForm.get('description')?.invalid && createTournamentForm.get('description')?.touched">
+          <span *ngIf="createTournamentForm.get('description')?.errors?.['required']">Description is required</span>
+          <span *ngIf="createTournamentForm.get('description')?.errors?.['minlength']">Description must be at least 10 characters</span>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="startDate">Start Date *</label>
+          <input
+            type="date"
+            id="startDate"
+            formControlName="startDate"
+            [class.error]="createTournamentForm.get('startDate')?.invalid && createTournamentForm.get('startDate')?.touched"
+          />
+          <div class="error-message" *ngIf="createTournamentForm.get('startDate')?.invalid && createTournamentForm.get('startDate')?.touched">
+            Start date is required
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="endDate">End Date *</label>
+          <input
+            type="date"
+            id="endDate"
+            formControlName="endDate"
+            [class.error]="createTournamentForm.get('endDate')?.invalid && createTournamentForm.get('endDate')?.touched"
+          />
+          <div class="error-message" *ngIf="createTournamentForm.get('endDate')?.invalid && createTournamentForm.get('endDate')?.touched">
+            End date is required
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="entryFee">Entry Fee ($)</label>
+          <input
+            type="number"
+            id="entryFee"
+            formControlName="entryFee"
+            placeholder="0"
+            min="0"
+            step="0.01"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="prizePool">Prize Pool ($)</label>
+          <input
+            type="number"
+            id="prizePool"
+            formControlName="prizePool"
+            placeholder="0"
+            min="0"
+            step="0.01"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="rules">Rules & Regulations</label>
+        <textarea
+          id="rules"
+          formControlName="rules"
+          placeholder="Enter tournament rules and regulations"
+          rows="4"
+        ></textarea>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="cancel-btn" (click)="cancelForm()">Cancel</button>
+        <button type="submit" class="submit-btn" [disabled]="!createTournamentForm.valid">
+          {{ editingTournament ? 'Update Tournament' : 'Create Tournament' }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Tournaments List -->
+  <div class="tournaments-list" *ngIf="!loading">
+    <div class="tournament-card" *ngFor="let tournament of tournaments">
+      <div class="tournament-header">
+        <h3>{{ tournament.name }}</h3>
+        <span class="status" [ngClass]="getStatusClass(tournament.status)">
+          {{ tournament.status | titlecase }}
+        </span>
+      </div>
+
+      <div class="tournament-details">
+        <p class="description">{{ tournament.description }}</p>
+        
+        <div class="tournament-info">
+          <div class="info-item">
+            <span class="label">Duration:</span>
+            <span class="value">{{ formatDate(tournament.startDate) }} - {{ formatDate(tournament.endDate) }}</span>
+          </div>
+          
+          <div class="info-item" *ngIf="tournament.maxParticipants">
+            <span class="label">Max Participants:</span>
+            <span class="value">{{ tournament.maxParticipants }}</span>
+          </div>
+          
+          <div class="info-item" *ngIf="tournament.entryFee">
+            <span class="label">Entry Fee:</span>
+            <span class="value">${{ tournament.entryFee }}</span>
+          </div>
+          
+          <div class="info-item" *ngIf="tournament.prizePool">
+            <span class="label">Prize Pool:</span>
+            <span class="value">${{ tournament.prizePool }}</span>
+          </div>
+        </div>
+
+        <div class="tournament-actions">
+          <button class="edit-btn" (click)="editTournament(tournament)">Edit</button>
+          <button class="delete-btn" (click)="deleteTournament(tournament)">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="empty-state" *ngIf="tournaments.length === 0">
+      <div class="empty-icon">🏆</div>
+      <h3>No Tournaments Yet</h3>
+      <p>Create your first tournament to get started!</p>
+      <button class="create-btn" (click)="showCreateTournamentForm()">
+        <span class="icon">+</span>
+        Create Tournament
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Loading tournaments...</p>
+  </div>
+</div>
+

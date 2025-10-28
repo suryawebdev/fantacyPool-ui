@@ -167,7 +167,7 @@ form {
   padding: 2.5rem 2rem;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-medium);
-  max-width: 400px;
+  // max-width: 400px;
   margin: 2rem auto;
   display: flex;
   flex-direction: column;
@@ -586,27 +586,10 @@ router-outlet+* {
 
 /* ===== RESPONSIVE DESIGN ===== */
 @media (max-width: 768px) {
-  .navbar-content {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
+  /* Main content adjusted for smaller navbar */
+  .main-content {
+    margin-top: 60px;
     padding: 1rem;
-  }
-
-  .nav-links {
-    gap: 1rem;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  .nav-link {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.9rem;
-  }
-
-  .nav-text {
-    display: none;
-    /* Hide text on mobile, show only icons */
   }
 
   .app-title {

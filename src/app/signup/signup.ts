@@ -30,6 +30,14 @@ export class Signup {
       username: ['', Validators.required],
       password: ['', [Validators.required, Validators.minLength(6)]],
       role: ['USER', Validators.required] // default to 'user', can be 'admin'
+
+      //TODO: Remove this piece of code at end of development
+      //allow admin to be selected
+      // role: [
+      //   { value: 'ADMIN', disabled: false },
+      //   { value: 'USER', disabled: false },
+      //   [Validators.required, Validators.pattern('^(ADMIN|USER)$')]
+      // ]
     });
   }
 

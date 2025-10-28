@@ -10,28 +10,28 @@ export class NotificationService {
   showSuccess(message: string) {
     this.snackBar.open(message, '', {
       duration: 3000,
-      panelClass: ['success-snackbar']
+      panelClass: ['snackbar-success']
     });
   }
 
   showError(message: string) {
     this.snackBar.open(message, '', {
       duration: 3000,
-      panelClass: ['error-snackbar']
+      panelClass: ['snackbar-error']
     });
   }
 
   showInfo(message: string) {
     this.snackBar.open(message, '', {
       duration: 3000,
-      panelClass: ['info-snackbar']
+      panelClass: ['snackbar-info']
     });
   }
 
   showWarning(message: string) {   
     this.snackBar.open(message, '', {
       duration: 3000,
-      panelClass: ['warning-snackbar']
+      panelClass: ['snackbar-warning']
     });
   }
 }

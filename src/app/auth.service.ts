@@ -114,6 +114,16 @@ export class AuthService {
   fetchUserDetails(username: string): Observable<any> {
     return this.http.get(`${this.baseUrl}/api/users/${username}`);
   }
+
+  // Method to handle forgot password
+  forgotPassword(email: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/auth/forgot-password`, { email });
+  }
+
+  // Method to reset password with token
+  resetPassword(token: string, newPassword: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/auth/reset-password`, { token, newPassword });
+  }
 }
 
 

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../environments/environments';
+import { Match, CreateMatchRequest, UpdateMatchRequest } from './models/match.model';
 
 @Injectable({
   providedIn: 'root'
@@ -11,12 +12,22 @@ export class MatchService {
 
   constructor(private http: HttpClient) {}
 
-  createMatch(data: { teamA: string; teamB: string; startDateTime: string }): Observable<any> {
-    return this.http.post(`${this.baseUrl}/api/matches`, data);
+  createMatch(data: CreateMatchRequest): Observable<Match> {
+    return this.http.post<Match>(`${this.baseUrl}/api/matches`, data);
   }
 
-  getAllMatches(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/api/matches`);
+  getAllMatches(): Observable<Match[]> {
+    return this.http.get<Match[]>(`${this.baseUrl}/api/matches`);
+  }
+
+  // Get matches for a specific tournament
+  getMatchesByTournament(tournamentId: number): Observable<Match[]> {
+    return this.http.get<Match[]>(`${this.baseUrl}/api/tournaments/${tournamentId}/matches`);
+  }
+
+  // Get matches for current user's active tournaments
+  getMyTournamentMatches(): Observable<Match[]> {
+    return this.http.get<Match[]>(`${this.baseUrl}/api/matches/my-tournaments`);
   }
 
   setWinner(matchId: number, winner: string): Observable<any> {
@@ -27,8 +38,8 @@ export class MatchService {
     return this.http.delete(`${this.baseUrl}/api/matches/${matchId}`);
   }
 
-  updateMatch(matchId: number, data: any): Observable<any> {
-    return this.http.put(`${this.baseUrl}/api/matches/${matchId}`, data);
+  updateMatch(matchId: number, data: UpdateMatchRequest): Observable<Match> {
+    return this.http.put<Match>(`${this.baseUrl}/api/matches/${matchId}`, data);
   }
 
   savePrediction(matchId: number, team: 'A' | 'B'): Observable<any> {
