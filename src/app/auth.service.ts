@@ -7,6 +7,8 @@ import { jwtDecode, JwtPayload} from 'jwt-decode';
 interface MyJwtPayload extends JwtPayload {
   firstName?: string;
   lastName?: string;
+  first_name?: string;
+  last_name?: string;
   email?: string;
   sub?: string;
   role?: string;
@@ -30,7 +32,12 @@ export class AuthService {
     return this.http.post(`${this.baseUrl}/api/auth/signin`, credentials);
   }
 
-  // Method to store user details after successful signin
+  /**
+   * Store user details for dashboard (welcome name, etc.).
+   * Expected shape: { firstName?, lastName?, email?, username?, role? } (camelCase).
+   * Can be sent in signin response as response.userDetails or response.user.
+   * Alternatively, backend can put firstName, lastName, email in JWT claims and we read from token when nothing stored.
+   */
   storeUserDetails(userDetails: any): void {
     if (userDetails) {
       localStorage.setItem('user_details', JSON.stringify(userDetails));
@@ -93,12 +100,27 @@ export class AuthService {
   }
 
   getUserDetails(): any {
-    const userDetails = localStorage.getItem('user_details');
-    if (userDetails) {
+    const stored = localStorage.getItem('user_details');
+    if (stored) {
       try {
-        return JSON.parse(userDetails);
+        return JSON.parse(stored);
       } catch (error) {
         console.error('Error parsing user details:', error);
+      }
+    }
+    // Fallback: read from JWT if backend puts user info in token
+    const token = this.getToken();
+    if (token) {
+      try {
+        const d = jwtDecode<MyJwtPayload>(token);
+        return {
+          firstName: d.firstName ?? d.first_name,
+          lastName: d.lastName ?? d.last_name,
+          email: d.email,
+          username: d.sub,
+          role: d.role
+        };
+      } catch {
         return null;
       }
     }

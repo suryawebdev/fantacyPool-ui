@@ -26,6 +26,7 @@ export class UserDashboard implements OnInit {
   userHistory: any[] = [];
   totalPoints: number = 0;
   welcomeMessage: string | null = null;
+  userRank: number | null = null;
 
   constructor(
     private matchService: MatchService,
@@ -51,6 +52,7 @@ export class UserDashboard implements OnInit {
 
     this.user = this.authService.getUserDetails() || {};
     this.loadUserData();
+    this.loadLeaderboardRank();
     this.loadUpcomingMatches();
     this.loadUserPicks();
     this.webSocketService.matchUpdates$.subscribe((match) => {
@@ -61,6 +63,32 @@ export class UserDashboard implements OnInit {
 
   goToSignIn() {
     this.welcomeMessageService.clearMessage();
+  }
+
+  /** Display name for welcome: firstName + lastName, or username, or "there" */
+  getWelcomeName(): string {
+    const first = this.user?.firstName?.trim();
+    const last = this.user?.lastName?.trim();
+    if (first || last) return [first, last].filter(Boolean).join(' ');
+    return this.user?.username || 'there';
+  }
+
+  loadLeaderboardRank() {
+    this.matchService.getLeaderboard().subscribe({
+      next: (data) => {
+        const list: any[] = (data || []).filter((u: any) => u.enabled !== false);
+        const index = list.findIndex((u: any) => u.username === this.user?.username);
+        if (index >= 0) {
+          const entry = list[index];
+          this.userRank = entry?.rank != null ? entry.rank : index + 1;
+        } else {
+          this.userRank = null;
+        }
+      },
+      error: () => {
+        this.userRank = null;
+      }
+    });
   }
 
   loadUserData() {

@@ -11,11 +11,17 @@
   <!-- Welcome Section (logged-in) -->
   <div class="welcome-section">
     <div class="welcome-card">
-      <h1 class="welcome-title">Welcome, {{ user.firstName }} {{ user.lastName }}!</h1>
+      <h1 class="welcome-title">Welcome, {{ getWelcomeName() }}!</h1>
       <div class="points-display">
         <span class="points-label">Your Current Points:</span>
         <span class="points-value">{{ totalPoints }}</span>
       </div>
+      @if (userRank != null) {
+        <div class="rank-display">
+          <span class="rank-label">Your Position:</span>
+          <span class="rank-value">#{{ userRank }}</span>
+        </div>
+      }
     </div>
   </div>
 

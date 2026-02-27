@@ -48,8 +48,16 @@ export class Signin {
         }
         if (response?.token) {
           localStorage.setItem('token', response.token);
-          if (response?.userDetails) {
-            this.authService.storeUserDetails(response.userDetails);
+          // Backend sends user fields at top level: { token, username, role, firstName, lastName, email, ... }
+          const user = response?.userDetails ?? response?.user ?? {
+            username: response.username,
+            role: response.role,
+            firstName: response.firstName,
+            lastName: response.lastName,
+            email: response.email
+          };
+          if (user) {
+            this.authService.storeUserDetails(user);
           }
           this.authService.updateAuthStatus();
           this.notification.showSuccess('Signin successful');
