@@ -64,3 +64,33 @@
   font-style: italic;
   padding: 2rem;
 }
+
+/* Mobile only: keep table inside container */
+@media (max-width: 768px) {
+  .leaderboard-container {
+    padding: 1rem;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+  .leaderboard-card {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 1rem;
+  }
+
+  .leaderboard-table {
+    min-width: 0;
+    width: 100%;
+    table-layout: fixed;
+  }
+
+  .leaderboard-table th,
+  .leaderboard-table td {
+    padding: 0.5rem 0.4rem;
+    font-size: 0.9rem;
+    word-break: break-word;
+  }
+}

@@ -115,7 +115,7 @@ app-root {
   overflow: hidden;
   /* Prevent scrollbars */
   padding: 2rem;
-  padding-top: 6rem;
+  // padding-top: 6rem;
   /* Account for fixed navbar */
   box-sizing: border-box;
   min-height: calc(100vh - 80px);
@@ -467,8 +467,8 @@ tr:last-child td {
 }
 
 .logout-btn {
-  background: linear-gradient(135deg, var(--danger-color) 0%, #ff6b6b 100%);
-  color: var(--primary-text);
+  // background: linear-gradient(135deg, var(--danger-color) 0%, #ff6b6b 100%);
+  // color: var(--primary-text);
   font-weight: 600;
   border: none;
   padding: 0.75rem 1rem;
@@ -519,7 +519,7 @@ tr:last-child td {
   padding: 2rem;
   max-width: 1200px;
   margin: 0 auto;
-  margin-top: 80px;
+  // margin-top: 80px;
   /* Account for fixed navbar height */
   width: 100%;
   box-sizing: border-box;

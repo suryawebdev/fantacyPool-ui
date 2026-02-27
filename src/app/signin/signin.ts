@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { AuthService } from '../auth.service';
 import { Router, RouterModule } from '@angular/router';
 import { NotificationService } from '../notification.service';
+import { WelcomeMessageService } from '../welcome-message.service';
 
 @Component({
   selector: 'app-signin',
@@ -18,10 +19,11 @@ export class Signin {
   errorMessage = '';
 
   constructor(
-    private fb: FormBuilder, 
+    private fb: FormBuilder,
     private authService: AuthService,
     private router: Router,
-    private notification: NotificationService
+    private notification: NotificationService,
+    private welcomeMessageService: WelcomeMessageService
   ) {
     this.signinForm = this.fb.group({
       username: ['', Validators.required],
@@ -38,34 +40,36 @@ export class Signin {
 
     this.authService.signin(this.signinForm.value).subscribe({
       next: (response) => {
-        console.log('Signin response:', response);
-        
-        // Store the token if it's in the response
+        if (response?.pendingApproval === true) {
+          const message = response?.message || 'Account pending admin approval. You can sign in once an admin has approved your account.';
+          this.welcomeMessageService.setMessage(message);
+          this.router.navigate(['/user-dashboard']);
+          return;
+        }
         if (response?.token) {
           localStorage.setItem('token', response.token);
-          console.log('Token stored:', response.token);
-        } else {
-          console.warn('No token in response:', response);
+          if (response?.userDetails) {
+            this.authService.storeUserDetails(response.userDetails);
+          }
+          this.authService.updateAuthStatus();
+          this.notification.showSuccess('Signin successful');
+          const role = this.authService.getUserRole();
+          if (role === 'ADMIN') {
+            this.router.navigate(['/admin']);
+          } else {
+            this.router.navigate(['/user-dashboard']);
+          }
+          return;
         }
-        
-        // Update auth status to notify other components
-        this.authService.updateAuthStatus();
-        
-        this.notification.showSuccess('Signin successful');
-        const role = this.authService.getUserRole();
-        console.log('User role:', role);
-        
-        if (role === 'ADMIN') {
-          this.router.navigate(['/admin']);
-        } else if (role === 'USER') {
-          this.router.navigate(['/user-dashboard']);
-        } else {
-          this.router.navigate(['/signin']);
-        }
+        this.errorMessage = response?.message || 'Invalid response. Please try again.';
       },
       error: (error) => {
-        console.error('Signin error:', error);
-        this.notification.showError('Signin failed with error: ' + error.error.message);
+        const msg = error?.error?.message;
+        if (msg === 'Account pending admin approval.') {
+          this.errorMessage = msg;
+        } else {
+          this.errorMessage = msg || 'Invalid username or password.';
+        }
       }
     });
   }

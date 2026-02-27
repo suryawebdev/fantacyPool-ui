@@ -27,6 +27,29 @@
     border-color: var(--border-hover);
 }
 
+.welcome-message-text {
+    color: var(--primary-text);
+    font-size: 1.15rem;
+    line-height: 1.6;
+    margin: 0 0 1.25rem 0;
+}
+
+.welcome-signin-link {
+    display: inline-block;
+    padding: 0.6rem 1.25rem;
+    background: var(--primary-accent);
+    color: white;
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    font-weight: 600;
+    transition: all var(--transition-normal);
+}
+
+.welcome-signin-link:hover {
+    background: var(--success-color);
+    transform: translateY(-1px);
+}
+
 .welcome-title {
     color: var(--primary-text);
     font-size: 2.5rem;

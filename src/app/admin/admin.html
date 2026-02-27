@@ -21,6 +21,14 @@
       <span class="tab-icon">🏆</span>
       Tournaments
     </button>
+    <button 
+      class="tab-btn" 
+      [class.active]="activeTab === 'approvals'"
+      (click)="setActiveTab('approvals')"
+    >
+      <span class="tab-icon">👤</span>
+      Pending approvals
+    </button>
   </div>
 
   <!-- Matches Tab Content -->
@@ -166,5 +174,58 @@
   <!-- Tournaments Tab Content -->
   <div class="tab-content" *ngIf="activeTab === 'tournaments'">
     <app-tournament-management></app-tournament-management>
+  </div>
+
+  <!-- Pending Approvals Tab Content -->
+  <div class="tab-content" *ngIf="activeTab === 'approvals'">
+    <div class="approvals-section">
+      <h2 class="section-title">Users pending approval</h2>
+      <p class="section-desc">New signups must be approved before they can sign in.</p>
+      @if (pendingUsers.length > 0) {
+        <div class="table-container">
+          <table class="pending-table">
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (user of pendingUsers; track user.id) {
+                <tr>
+                  <td>{{ user.username }}</td>
+                  <td>{{ user.firstName }} {{ user.lastName }}</td>
+                  <td>{{ user.email }}</td>
+                  <td>{{ user.role }}</td>
+                  <td class="actions-cell">
+                    <button 
+                      (click)="approveUser(user)" 
+                      class="action-btn approve-btn"
+                      [disabled]="approvingId === user.id || rejectingId === user.id"
+                    >
+                      {{ approvingId === user.id ? '...' : 'Approve' }}
+                    </button>
+                    <button 
+                      (click)="rejectUser(user)" 
+                      class="action-btn reject-btn"
+                      [disabled]="approvingId === user.id || rejectingId === user.id"
+                    >
+                      {{ rejectingId === user.id ? '...' : 'Reject' }}
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="no-pending">
+          <p>No users pending approval.</p>
+        </div>
+      }
+    </div>
   </div>
 </div>

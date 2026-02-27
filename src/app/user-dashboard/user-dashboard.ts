@@ -1,18 +1,19 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { MatchService } from '../match.service';
 import { AuthService } from '../auth.service';
 import { NotificationService } from '../notification.service';
 import { WebSocketService } from '../websocket.service';
+import { WelcomeMessageService } from '../welcome-message.service';
 
 @Component({
   selector: 'app-user-dashboard',
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './user-dashboard.html',
   styleUrl: './user-dashboard.scss'
 })
 export class UserDashboard implements OnInit {
-  // username = '';
   points: number = 0;
   upcomingMatches: any[] = [];
   user: {
@@ -24,15 +25,30 @@ export class UserDashboard implements OnInit {
   userPicks: { [matchId: number]: 'A' | 'B' } = {};
   userHistory: any[] = [];
   totalPoints: number = 0;
+  welcomeMessage: string | null = null;
 
   constructor(
-    private matchService: MatchService, 
+    private matchService: MatchService,
     private authService: AuthService,
     private notification: NotificationService,
-    private webSocketService: WebSocketService
+    private webSocketService: WebSocketService,
+    private welcomeMessageService: WelcomeMessageService
   ) {}
 
   ngOnInit() {
+    const hasMessage = this.welcomeMessageService.getMessage();
+    const isAuthenticated = this.authService.isAuthenticated();
+
+    if (isAuthenticated) {
+      this.welcomeMessageService.clearMessage();
+      this.welcomeMessage = null;
+    } else if (hasMessage) {
+      this.welcomeMessage = hasMessage;
+      return;
+    } else {
+      this.welcomeMessage = null;
+    }
+
     this.user = this.authService.getUserDetails() || {};
     this.loadUserData();
     this.loadUpcomingMatches();
@@ -41,6 +57,10 @@ export class UserDashboard implements OnInit {
       this.loadUpcomingMatches();
       this.notification.showInfo(`Match ${match.teamA} vs ${match.teamB} has started`);
     });
+  }
+
+  goToSignIn() {
+    this.welcomeMessageService.clearMessage();
   }
 
   loadUserData() {

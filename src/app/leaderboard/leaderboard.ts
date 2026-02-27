@@ -29,7 +29,7 @@ export class Leaderboard implements OnInit {
   loadLeaderboard() {
     this.matchService.getLeaderboard().subscribe({
       next: (data) => {
-        this.leaderboard = data;
+        this.leaderboard = (data || []).filter((u: any) => u.enabled !== false);
       },
       error: (err) => {
         console.error('Error fetching leaderboard:', err);

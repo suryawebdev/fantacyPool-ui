@@ -76,7 +76,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background: var(--primary-color);
+  // background: var(--primary-color);
   color: white;
   border: none;
   border-radius: var(--radius-md);
@@ -87,7 +87,7 @@
 }
 
 .toggle-form-btn:hover {
-  background: var(--primary-hover);
+  // background: var(--primary-hover);
   transform: translateY(-1px);
 }
 
@@ -194,7 +194,7 @@
 }
 
 .submit-btn:hover {
-  background: var(--success-hover);
+  // background: var(--success-hover);
   transform: translateY(-1px);
 }
 
@@ -371,6 +371,73 @@
 }
 
 .no-matches {
+  text-align: center;
+  color: var(--text-secondary);
+  font-style: italic;
+  padding: 2rem;
+}
+
+/* Pending approvals */
+.approvals-section {
+  padding: 1rem 0;
+}
+
+.section-desc {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  margin-top: -0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.pending-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+.pending-table th,
+.pending-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.pending-table th {
+  background: var(--secondary-bg);
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.pending-table td {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.approve-btn {
+  background: rgba(0, 212, 170, 0.15);
+  color: var(--success-color);
+  border: 1px solid rgba(0, 212, 170, 0.4);
+}
+
+.approve-btn:hover:not(:disabled) {
+  background: rgba(0, 212, 170, 0.25);
+}
+
+.reject-btn {
+  background: rgba(255, 71, 87, 0.15);
+  color: var(--danger-color);
+  border: 1px solid rgba(255, 71, 87, 0.4);
+}
+
+.reject-btn:hover:not(:disabled) {
+  background: rgba(255, 71, 87, 0.25);
+}
+
+.no-pending {
   text-align: center;
   color: var(--text-secondary);
   font-style: italic;

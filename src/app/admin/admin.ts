@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { MatchService } from '../match.service';
 import { TournamentService } from '../tournament.service';
+import { AdminService, PendingUser } from '../admin.service';
 import { NotificationService } from '../notification.service';
 import { TournamentManagement } from '../tournament-management/tournament-management';
 import { Tournament } from '../models/tournament.model';
@@ -22,13 +23,17 @@ export class Admin implements OnInit {
   editMatchId: number | null = null;
   errorMessage: string = '';
   isFormVisible: boolean = false;
-  activeTab: 'matches' | 'tournaments' = 'matches';
+  activeTab: 'matches' | 'tournaments' | 'approvals' = 'matches';
+  pendingUsers: PendingUser[] = [];
+  approvingId: number | null = null;
+  rejectingId: number | null = null;
 
   constructor(
-    private fb: FormBuilder, 
+    private fb: FormBuilder,
     private http: HttpClient,
     private matchService: MatchService,
     private tournamentService: TournamentService,
+    private adminService: AdminService,
     private notification: NotificationService
   ) {
     this.matchForm = this.fb.group({
@@ -43,14 +48,61 @@ export class Admin implements OnInit {
   ngOnInit() {
     this.loadMatches();
     this.loadTournaments();
+    this.loadPendingUsers();
   }
 
-  setActiveTab(tab: 'matches' | 'tournaments') {
+  setActiveTab(tab: 'matches' | 'tournaments' | 'approvals') {
     this.activeTab = tab;
-    // Refresh tournaments when switching to matches tab to ensure we have latest data
     if (tab === 'matches') {
       this.loadTournaments();
     }
+    if (tab === 'approvals') {
+      this.loadPendingUsers();
+    }
+  }
+
+  loadPendingUsers() {
+    this.adminService.getPendingUsers().subscribe({
+      next: (users) => {
+        this.pendingUsers = users;
+      },
+      error: (err) => {
+        this.notification.showError('Failed to load pending users');
+      }
+    });
+  }
+
+  approveUser(user: PendingUser) {
+    this.approvingId = user.id;
+    this.adminService.approveUser(user.id).subscribe({
+      next: () => {
+        this.pendingUsers = this.pendingUsers.filter(u => u.id !== user.id);
+        this.approvingId = null;
+        this.notification.showSuccess(`${user.username} approved`);
+      },
+      error: () => {
+        this.approvingId = null;
+        this.notification.showError('Failed to approve user');
+      }
+    });
+  }
+
+  rejectUser(user: PendingUser) {
+    if (!confirm(`Reject and remove user "${user.username}"? This cannot be undone.`)) {
+      return;
+    }
+    this.rejectingId = user.id;
+    this.adminService.rejectUser(user.id).subscribe({
+      next: () => {
+        this.pendingUsers = this.pendingUsers.filter(u => u.id !== user.id);
+        this.rejectingId = null;
+        this.notification.showSuccess(`${user.username} rejected and removed`);
+      },
+      error: () => {
+        this.rejectingId = null;
+        this.notification.showError('Failed to reject user');
+      }
+    });
   }
 
   toggleForm() {

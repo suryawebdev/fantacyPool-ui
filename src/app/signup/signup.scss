@@ -75,6 +75,32 @@
   font-size: 0.9rem;
 }
 
+.success-message {
+  background: rgba(0, 212, 170, 0.1);
+  border: 1px solid var(--success-color);
+  color: var(--text-primary);
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+  max-width: 450px;
+}
+
+.success-message .success-hint {
+  margin-top: 0.75rem;
+  margin-bottom: 0;
+  font-size: 0.9rem;
+}
+
+.success-message .success-hint a {
+  color: var(--primary-accent);
+  text-decoration: none;
+}
+
+.success-message .success-hint a:hover {
+  text-decoration: underline;
+}
+
 small {
   color: var(--danger-color);
   font-size: 0.85rem;

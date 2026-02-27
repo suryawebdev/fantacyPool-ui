@@ -1,5 +1,14 @@
 <div class="dashboard-container">
-  <!-- Welcome Section -->
+  <!-- Welcome Section (message-only when pending approval) -->
+  @if (welcomeMessage) {
+    <div class="welcome-section">
+      <div class="welcome-card">
+        <p class="welcome-message-text">{{ welcomeMessage }}</p>
+        <a routerLink="/signin" (click)="goToSignIn()" class="welcome-signin-link">Sign in</a>
+      </div>
+    </div>
+  } @else {
+  <!-- Welcome Section (logged-in) -->
   <div class="welcome-section">
     <div class="welcome-card">
       <h1 class="welcome-title">Welcome, {{ user.firstName }} {{ user.lastName }}!</h1>
@@ -140,4 +149,5 @@
     </div>
     }
   </div>
+  }
 </div>

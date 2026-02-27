@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../auth.service';
 import { Router, RouterModule } from '@angular/router';
 import { NotificationService } from '../notification.service';
+import { WelcomeMessageService } from '../welcome-message.service';
 
 @Component({
   selector: 'app-signup',
@@ -18,26 +19,18 @@ export class Signup {
   errorMessage = '';
 
   constructor(
-    private fb: FormBuilder, 
+    private fb: FormBuilder,
     private authService: AuthService,
     private router: Router,
-    private notification: NotificationService
+    private notification: NotificationService,
+    private welcomeMessageService: WelcomeMessageService
   ) {
     this.signupForm = this.fb.group({
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       username: ['', Validators.required],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      role: ['USER', Validators.required] // default to 'user', can be 'admin'
-
-      //TODO: Remove this piece of code at end of development
-      //allow admin to be selected
-      // role: [
-      //   { value: 'ADMIN', disabled: false },
-      //   { value: 'USER', disabled: false },
-      //   [Validators.required, Validators.pattern('^(ADMIN|USER)$')]
-      // ]
+      password: ['', [Validators.required, Validators.minLength(6)]]
     });
   }
 
@@ -50,11 +43,31 @@ export class Signup {
 
     this.authService.signup(this.signupForm.value).subscribe({
       next: (response) => {
-        this.router.navigate(['/signin']);
-        this.notification.showSuccess('Signup successful');
+        if (response?.pendingApproval === true) {
+          const message = response?.message || 'Account created. Pending admin approval. You can sign in once an admin has approved your account.';
+          this.welcomeMessageService.setMessage(message);
+          this.router.navigate(['/user-dashboard']);
+          return;
+        }
+        if (response?.token) {
+          localStorage.setItem('token', response.token);
+          if (response?.userDetails) {
+            this.authService.storeUserDetails(response.userDetails);
+          }
+          this.authService.updateAuthStatus();
+          this.notification.showSuccess('Signup successful');
+          const role = this.authService.getUserRole();
+          if (role === 'ADMIN') {
+            this.router.navigate(['/admin']);
+          } else {
+            this.router.navigate(['/user-dashboard']);
+          }
+          return;
+        }
+        this.errorMessage = response?.message || 'Unexpected response. Please try signing in.';
       },
       error: (error) => {
-        this.notification.showError('Signup failed');
+        this.errorMessage = error?.error?.message || 'Signup failed';
       }
     });
   }
