@@ -36,6 +36,13 @@ export class SelectionsFeed implements OnInit {
     });
   }
 
+  /** Display team name for a pick: supports team name string or legacy "A"/"B". */
+  getPickTeamName(item: any): string {
+    if (!item?.team) return '';
+    if (item.team === 'A' || item.team === 'B') return item.match?.['team' + item.team] ?? item.team;
+    return item.team;
+  }
+
   loadSelections() {
     // debugger;
     if (this.loading || !this.hasMore) {

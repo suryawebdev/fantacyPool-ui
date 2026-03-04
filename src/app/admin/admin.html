@@ -154,8 +154,8 @@
                     <button (click)="startEdit(match)" class="action-btn edit-btn">Edit</button>
                     <button (click)="deleteMatch(match.id)" class="action-btn delete-btn">Delete</button>
                     @if (!match.winner) {
-                      <button (click)="setWinner(match, 'A')" class="action-btn winner-btn">Set A Winner</button>
-                      <button (click)="setWinner(match, 'B')" class="action-btn winner-btn">Set B Winner</button>
+                      <button (click)="setWinner(match, match.teamA)" class="action-btn winner-btn">{{ match.teamA }} Wins</button>
+                      <button (click)="setWinner(match, match.teamB)" class="action-btn winner-btn">{{ match.teamB }} Wins</button>
                     }
                   </td>
                 </tr>

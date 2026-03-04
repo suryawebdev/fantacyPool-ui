@@ -8,7 +8,7 @@
       <li class="feed-item">
         <strong class="user-name">{{ item.user?.firstName }} {{ item.user?.lastName }}</strong>
         <div class="selection-details">
-          picked <b class="team-name">{{ item.match?.['team'+item.team] }}</b>
+          picked <b class="team-name">{{ getPickTeamName(item) }}</b>
           <span> for <i class="match-teams">{{ item.match?.teamA }} vs {{ item.match?.teamB }}</i></span>
         </div>
         <span class="timestamp">{{ item.match?.updatedAt | date:'short' }}</span>

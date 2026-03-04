@@ -30,6 +30,7 @@ export class MatchService {
     return this.http.get<Match[]>(`${this.baseUrl}/api/matches/my-tournaments`);
   }
 
+  /** Set match winner by team name (e.g. "RCB"). Backend accepts team name string. */
   setWinner(matchId: number, winner: string): Observable<any> {
     return this.http.put(`${this.baseUrl}/api/matches/${matchId}/winner`, { winner });
   }
@@ -42,12 +43,14 @@ export class MatchService {
     return this.http.put<Match>(`${this.baseUrl}/api/matches/${matchId}`, data);
   }
 
-  savePrediction(matchId: number, team: 'A' | 'B'): Observable<any> {
+  /** Save user prediction by team name (e.g. "RCB"). Backend accepts team string. */
+  savePrediction(matchId: number, team: string): Observable<any> {
     return this.http.post(`${this.baseUrl}/api/predictions`, { matchId, team });
   }
 
-  getUserPicks(): Observable<{ matchId: number; team: 'A' | 'B' }[]> {
-    return this.http.get<{ matchId: number; team: 'A' | 'B' }[]>(`${this.baseUrl}/api/predictions/mine`);
+  /** Get current user's picks. Backend returns { matchId, team } with team = team name string. */
+  getUserPicks(): Observable<{ matchId: number; team: string }[]> {
+    return this.http.get<{ matchId: number; team: string }[]>(`${this.baseUrl}/api/predictions/mine`);
   }
 
   getUserHistory(): Observable<{totalPoints: number; matches: any[]}> {

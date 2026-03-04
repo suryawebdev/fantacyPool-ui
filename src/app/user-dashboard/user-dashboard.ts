@@ -22,7 +22,7 @@ export class UserDashboard implements OnInit {
     email?: string;
     username?: string;
   } = {};
-  userPicks: { [matchId: number]: 'A' | 'B' } = {};
+  userPicks: { [matchId: number]: string } = {};
   userHistory: any[] = [];
   totalPoints: number = 0;
   welcomeMessage: string | null = null;
@@ -140,16 +140,14 @@ export class UserDashboard implements OnInit {
     return new Date(match.startDateTime) <= new Date();
   }
 
-  selectTeam(match: any, team: 'A' | 'B') {
-    if(this.isMatchStarted(match)) {
-      // TODO: Show a message to the user that the match has already started
+  selectTeam(match: any, teamName: string) {
+    if (this.isMatchStarted(match)) {
       return;
     }
-    this.matchService.savePrediction(match.id, team).subscribe({
+    this.matchService.savePrediction(match.id, teamName).subscribe({
       next: () => {
-        match.userPick = team;
-        this.userPicks[match.id] = team;
-        // this.snackBar.open('Your pick was saved!', 'Close', { duration: 3000, panelClass: ['snackbar-success'] });
+        match.userPick = teamName;
+        this.userPicks[match.id] = teamName;
         this.notification.showSuccess('Your pick was saved!');
       },
       error: (err) => {
@@ -159,17 +157,17 @@ export class UserDashboard implements OnInit {
     });
   }
 
-  getTeamName(match: any, pick: 'A' | 'B'): string {
-    if(!pick) {
-      return 'No Pick';
-    }
-    return pick === 'A' ? match.teamA : match.teamB;
+  /** Display name for a pick: supports team name (e.g. "RCB") or legacy "A"/"B". */
+  getTeamName(match: any, pick: string): string {
+    if (!pick) return 'No Pick';
+    if (pick === 'A' || pick === 'B') return pick === 'A' ? match.teamA : match.teamB;
+    return pick;
   }
 
+  /** Display name for winner: supports team name or legacy "A"/"B". */
   getWinnerName(match: any): string {
-    if(!match.winner) {
-      return 'TBD';
-    }
-    return match.winner === 'A' ? match.teamA : match.teamB;
+    if (!match.winner) return 'TBD';
+    if (match.winner === 'A' || match.winner === 'B') return match.winner === 'A' ? match.teamA : match.teamB;
+    return match.winner;
   }
 }

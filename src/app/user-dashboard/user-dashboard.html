@@ -61,13 +61,13 @@
             <td class="actions-cell">
               @if (!isMatchStarted(match)) {
               <div class="pick-buttons">
-                <button class="pick-btn team-a-btn" [disabled]="match.userPick === 'A'"
-                  (click)="selectTeam(match, 'A')">
-                  Pick Team A
+                <button class="pick-btn team-a-btn" [disabled]="match.userPick === match.teamA"
+                  (click)="selectTeam(match, match.teamA)">
+                  {{ match.teamA }}
                 </button>
-                <button class="pick-btn team-b-btn" [disabled]="match.userPick === 'B'"
-                  (click)="selectTeam(match, 'B')">
-                  Pick Team B
+                <button class="pick-btn team-b-btn" [disabled]="match.userPick === match.teamB"
+                  (click)="selectTeam(match, match.teamB)">
+                  {{ match.teamB }}
                 </button>
               </div>
               } @else {

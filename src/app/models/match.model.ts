@@ -4,11 +4,11 @@ export interface Match {
   teamB: string;
   startDateTime: string;
   endDateTime?: string;
-  winner?: 'A' | 'B';
+  winner?: string; // Team name (e.g. "RCB") or legacy "A"|"B"
   status: 'upcoming' | 'live' | 'completed' | 'cancelled';
   tournamentId: number;
   tournamentName?: string; // For display purposes
-  userPick?: 'A' | 'B'; // User's prediction
+  userPick?: string; // Team name (e.g. "RCB") or legacy "A"|"B"
   createdAt: string;
   updatedAt: string;
 }
@@ -26,7 +26,7 @@ export interface UpdateMatchRequest {
   teamB?: string;
   startDateTime?: string;
   endDateTime?: string;
-  winner?: 'A' | 'B';
+  winner?: string;
   status?: 'upcoming' | 'live' | 'completed' | 'cancelled';
   tournamentId?: number;
 }
