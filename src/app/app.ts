@@ -3,6 +3,7 @@ import { RouterOutlet, Router, RouterModule } from '@angular/router';
 import { AuthService } from './auth.service';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
+import { inject as injectVercelAnalytics } from '@vercel/analytics';
 
 @Component({
   selector: 'app-root',
@@ -30,6 +31,7 @@ export class App implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    injectVercelAnalytics();
     this.checkAuthStatus();
     this.loadTheme();
   }
