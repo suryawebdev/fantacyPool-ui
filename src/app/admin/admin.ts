@@ -329,4 +329,31 @@ export class Admin implements OnInit {
       });
     }
   }
+
+  /** Groups matches by tournament for display (one table per tournament). */
+  getMatchesGroupedByTournament(): { tournamentId: number | null; tournamentName: string; matches: any[] }[] {
+    const byId = new Map<number | null, any[]>();
+    for (const m of this.matches) {
+      const tid = m.tournamentId ?? null;
+      if (!byId.has(tid)) byId.set(tid, []);
+      byId.get(tid)!.push(m);
+    }
+    const result: { tournamentId: number | null; tournamentName: string; matches: any[] }[] = [];
+    const sortedIds = Array.from(byId.keys()).sort((a, b) => {
+      if (a == null) return 1;
+      if (b == null) return -1;
+      return a - b;
+    });
+    for (const tid of sortedIds) {
+      const tournamentName = tid != null
+        ? (this.tournaments.find(t => t.id === tid)?.name ?? `Tournament #${tid}`)
+        : 'No tournament';
+      result.push({
+        tournamentId: tid,
+        tournamentName,
+        matches: byId.get(tid)!
+      });
+    }
+    return result;
+  }
 }

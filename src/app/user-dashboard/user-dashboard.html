@@ -8,8 +8,21 @@
       </div>
     </div>
   } @else {
+  <!-- Tournament selector (per-tournament data) -->
+  <div class="tournament-selector-section" *ngIf="!loadingTournaments && myTournaments.length > 0">
+    <label for="tournament-select" class="tournament-label">Tournament</label>
+    <select id="tournament-select" class="tournament-select" [ngModel]="selectedTournamentId" (ngModelChange)="onTournamentSelect($event)">
+      @for (t of myTournaments; track t.id) {
+        <option [ngValue]="t.id">{{ t.name }}</option>
+      }
+    </select>
+  </div>
+  <div class="no-tournaments" *ngIf="!loadingTournaments && myTournaments.length === 0">
+    <p>You are not in any tournament yet. Ask an admin to add you to a tournament.</p>
+  </div>
+
   <!-- Welcome Section (logged-in) -->
-  <div class="welcome-section">
+  <div class="welcome-section" *ngIf="selectedTournamentId != null">
     <div class="welcome-card">
       <h1 class="welcome-title">Welcome, {{ getWelcomeName() }}!</h1>
       <div class="points-display">
@@ -26,7 +39,7 @@
   </div>
 
   <!-- Upcoming Matches Section -->
-  <div class="matches-section">
+  <div class="matches-section" *ngIf="selectedTournamentId != null">
     <h2 class="section-title">Upcoming Matches</h2>
 
     @if (upcomingMatches.length > 0) {
@@ -89,7 +102,7 @@
   </div>
 
   <!-- Match History Section -->
-  <div class="history-section">
+  <div class="history-section" *ngIf="selectedTournamentId != null">
     <h2 class="section-title">Your Match History</h2>
 
     @if (userHistory.length > 0) {

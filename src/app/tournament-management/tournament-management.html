@@ -167,6 +167,7 @@
         </div>
 
         <div class="tournament-actions">
+          <button class="participants-btn" (click)="openParticipantsModal(tournament)">Manage participants</button>
           <button class="edit-btn" (click)="editTournament(tournament)">Edit</button>
           <button class="delete-btn" (click)="deleteTournament(tournament)">Delete</button>
         </div>
@@ -188,6 +189,53 @@
   <div class="loading-state" *ngIf="loading">
     <div class="spinner"></div>
     <p>Loading tournaments...</p>
+  </div>
+
+  <!-- Manage Participants Modal -->
+  <div class="modal-overlay" *ngIf="participantsModalOpen" (click)="closeParticipantsModal()">
+    <div class="modal-content participants-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Manage participants – {{ selectedTournament?.name }}</h2>
+        <button type="button" class="modal-close" (click)="closeParticipantsModal()" aria-label="Close">×</button>
+      </div>
+      <div class="modal-body">
+        <p class="participants-hint">Select or unselect users, then click Save to update participants.</p>
+        <p class="participants-hint participants-allow-active" *ngIf="selectedTournament?.status === 'active'">You can add or remove participants even after the tournament has started.</p>
+        <div class="participants-loading" *ngIf="loadingParticipants || loadingUsers">Loading users...</div>
+        <div class="select-all-row" *ngIf="!loadingParticipants && !loadingUsers && allUsers.length > 0">
+          <label class="user-checkbox-label select-all-label">
+            <input
+              type="checkbox"
+              [checked]="allParticipantsSelected"
+              (change)="onSelectAllToggle($any($event.target).checked)"
+            />
+            <span class="user-name">Select all</span>
+          </label>
+        </div>
+        <ul class="user-checkbox-list" *ngIf="!loadingParticipants && !loadingUsers && allUsers.length > 0">
+          <li class="user-checkbox-item" *ngFor="let u of allUsers">
+            <label class="user-checkbox-label">
+              <input
+                type="checkbox"
+                [checked]="isParticipant(u.id)"
+                (change)="onParticipantToggle(u, $any($event.target).checked)"
+              />
+              <span class="user-name">{{ getUserDisplayName(u) }}</span>
+              <span class="user-username">({{ u.username }})</span>
+            </label>
+          </li>
+        </ul>
+        <p class="no-users" *ngIf="!loadingParticipants && !loadingUsers && allUsers.length === 0">No approved users to add.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="cancel-modal-btn" (click)="closeParticipantsModal()">Cancel</button>
+        <button type="button" class="save-participants-btn"
+          [disabled]="savingParticipants || !hasParticipantChanges"
+          (click)="saveParticipants()">
+          {{ savingParticipants ? 'Saving...' : 'Save' }}
+        </button>
+      </div>
+    </div>
   </div>
 </div>
 

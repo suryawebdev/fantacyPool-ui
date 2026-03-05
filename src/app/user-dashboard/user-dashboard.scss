@@ -7,6 +7,44 @@
     width: 100%;
 }
 
+/* Tournament selector */
+.tournament-selector-section {
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.tournament-label {
+  color: var(--primary-text);
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.tournament-select {
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: var(--card-bg);
+  color: var(--primary-text);
+  font-size: 1rem;
+  min-width: 200px;
+}
+
+.no-tournaments {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  text-align: center;
+  color: var(--secondary-text);
+}
+
+.no-tournaments p {
+  margin: 0;
+  font-size: 1rem;
+}
+
 /* Welcome Section */
 .welcome-section {
     margin-bottom: 2rem;

@@ -22,6 +22,11 @@ export class TournamentService {
     return this.http.get<Tournament[]>(`${this.baseUrl}/api/tournaments/active`);
   }
 
+  /** Tournaments the current user is enrolled in (for dashboard/leaderboard selector). Backend: GET /api/tournaments/enrolled */
+  getEnrolledTournaments(): Observable<Tournament[]> {
+    return this.http.get<Tournament[]>(`${this.baseUrl}/api/tournaments/enrolled`);
+  }
+
   // Get tournament by ID
   getTournamentById(id: number): Observable<Tournament> {
     return this.http.get<Tournament>(`${this.baseUrl}/api/tournaments/${id}`);
@@ -60,6 +65,14 @@ export class TournamentService {
   // Get tournament participants
   getTournamentParticipants(tournamentId: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/api/tournaments/${tournamentId}/participants`);
+  }
+
+  /**
+   * Replace tournament participants with the given list (bulk update).
+   * Backend: PUT /api/tournaments/:id/participants body { userIds: number[] }.
+   */
+  setParticipants(tournamentId: number, userIds: number[]): Observable<any> {
+    return this.http.put(`${this.baseUrl}/api/tournaments/${tournamentId}/participants`, { userIds });
   }
 
   // Get tournament leaderboard

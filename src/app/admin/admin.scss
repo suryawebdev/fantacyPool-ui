@@ -216,6 +216,23 @@
   border: 1px solid var(--border-color);
 }
 
+.tournament-matches-block {
+  margin-bottom: 2rem;
+}
+
+.tournament-matches-block:last-child {
+  margin-bottom: 0;
+}
+
+.tournament-block-title {
+  color: var(--primary-text);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--border-color);
+}
+
 .section-title {
   color: var(--text-primary);
   font-size: 1.8rem;

@@ -53,8 +53,12 @@ export class MatchService {
     return this.http.get<{ matchId: number; team: string }[]>(`${this.baseUrl}/api/predictions/mine`);
   }
 
-  getUserHistory(): Observable<{totalPoints: number; matches: any[]}> {
-    return this.http.get<{totalPoints: number; matches: any[]}>(`${this.baseUrl}/api/predictions/me/history`);
+  /** User's prediction history. Optional tournamentId scopes to that tournament (backend: ?tournamentId=). */
+  getUserHistory(tournamentId?: number): Observable<{totalPoints: number; matches: any[]}> {
+    const url = tournamentId != null
+      ? `${this.baseUrl}/api/predictions/me/history?tournamentId=${tournamentId}`
+      : `${this.baseUrl}/api/predictions/me/history`;
+    return this.http.get<{totalPoints: number; matches: any[]}>(url);
   }
 
   getLeaderboard(): Observable<{username: string; points: number}[]> {

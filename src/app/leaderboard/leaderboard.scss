@@ -23,6 +23,34 @@
   text-align: center;
 }
 
+.tournament-selector-section {
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.tournament-label {
+  color: var(--primary-text);
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.tournament-select {
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: var(--card-bg);
+  color: var(--primary-text);
+  font-size: 1rem;
+  min-width: 200px;
+}
+
+.loading-text {
+  color: var(--secondary-text);
+  margin: 1rem 0;
+}
+
 .leaderboard-table {
   width: 100%;
   border-collapse: collapse;

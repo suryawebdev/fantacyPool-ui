@@ -1,27 +1,43 @@
 <div class="leaderboard-container">
   <div class="leaderboard-card">
     <h2 class="leaderboard-title">Leaderboard</h2>
-    @if (leaderboard.length > 0) {
-      <table class="leaderboard-table">
-        <thead>
-          <tr>
-            <th>Rank</th>
-            <th>Name</th>
-            <th>Points</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (user of leaderboard; track user.username) {
-            <tr [class.current-user]="isCurrentUser(user)">
-              <td>{{ user.rank }}</td>
-              <td>{{ user.firstName }} {{ user.lastName }}</td>
-              <td><strong>{{ user.totalPoints }}</strong></td>
-            </tr>
+    @if (loadingTournaments) {
+      <p class="loading-text">Loading tournaments...</p>
+    } @else if (myTournaments.length > 0) {
+      <div class="tournament-selector-section">
+        <label for="leaderboard-tournament-select" class="tournament-label">Tournament</label>
+        <select id="leaderboard-tournament-select" class="tournament-select" [ngModel]="selectedTournamentId" (ngModelChange)="onTournamentSelect($event)">
+          @for (t of myTournaments; track t.id) {
+            <option [ngValue]="t.id">{{ t.name }}</option>
           }
-        </tbody>
-      </table>
+        </select>
+      </div>
+      @if (loadingLeaderboard) {
+        <p class="loading-text">Loading leaderboard...</p>
+      } @else if (leaderboard.length > 0) {
+        <table class="leaderboard-table">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Name</th>
+              <th>Points</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (user of leaderboard; track user.username) {
+              <tr [class.current-user]="isCurrentUser(user)">
+                <td>{{ user.displayRank }}</td>
+                <td>{{ user.firstName }} {{ user.lastName }}</td>
+                <td><strong>{{ user.displayPoints }}</strong></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else {
+        <p class="no-data">No users in this tournament.</p>
+      }
     } @else {
-      <p class="no-data">No users found.</p>
+      <p class="no-data">No tournaments available. Create a tournament (admin) or ask to be added to one.</p>
     }
   </div>
 </div>
