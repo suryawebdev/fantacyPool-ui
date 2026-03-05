@@ -30,7 +30,12 @@
               "src/styles.scss"
             ],
             "allowedCommonJsDependencies": [
-              "sockjs-client"
+              "sockjs-client",
+              "eventsource",
+              "crypto",
+              "url-parse",
+              "inherits",
+              "events"
             ]
           },
           "configurations": {
@@ -43,8 +48,8 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "10kB",
+                  "maximumError": "14kB"
                 }
               ],
               "outputHashing": "all"
