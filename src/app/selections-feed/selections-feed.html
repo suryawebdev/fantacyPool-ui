@@ -1,6 +1,68 @@
 <div class="feed-container">
+  <!-- Selections by match (after cutoff) -->
+  <div class="feed-card match-selections-card">
+    <h2 class="feed-title">Selections by match (after cutoff)</h2>
+    @if (matchTournaments.length > 0) {
+      <div class="tournament-select-row">
+        <label for="match-tournament-select" class="tournament-label">Tournament</label>
+        <select id="match-tournament-select" class="tournament-select" [ngModel]="matchTournamentId" (ngModelChange)="onMatchTournamentSelect($event)">
+          @for (t of matchTournaments; track t.id) {
+            <option [ngValue]="t.id">{{ t.name }}</option>
+          }
+        </select>
+      </div>
+      @if (loadingMatchSelections) {
+        <p class="loading">Loading matches...</p>
+      } @else if (startedMatches.length > 0) {
+        <ul class="match-accordion-list">
+          @for (match of startedMatches; track match.id) {
+            <li class="match-accordion-item">
+              <button type="button" class="match-accordion-header" (click)="toggleMatchExpand(match.id)">
+                <span class="match-label">{{ match.teamA }} vs {{ match.teamB }}</span>
+                <span class="match-date">({{ match.startDateTime | date:'short' }})</span>
+                <span class="expand-icon">{{ expandedMatchId === match.id ? '▼' : '▶' }}</span>
+              </button>
+              @if (expandedMatchId === match.id) {
+                <div class="match-accordion-body">
+                  @if (!isMatchSelectionsLoaded(match.id)) {
+                    <p class="loading">Loading...</p>
+                  } @else if (getMatchSelectionsList(match.id).length === 0) {
+                    <p class="no-data">No picks for this match.</p>
+                  } @else {
+                    <ul class="match-picks-list">
+                      @for (entry of getMatchSelectionsList(match.id); track entry.userId || entry.username) {
+                        <li class="match-pick-item">
+                          <span class="pick-user">{{ getUserDisplayName(entry) }}</span>
+                          <span class="pick-team">{{ getTeamDisplayName(match, entry.team) }}</span>
+                          @if (entry.correct === true) {
+                            <span class="pick-result correct">✓ Correct</span>
+                          } @else if (entry.correct === false) {
+                            <span class="pick-result wrong">✗ Wrong</span>
+                          }
+                        </li>
+                      }
+                    </ul>
+                  }
+                </div>
+              }
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="no-data">No matches past cutoff yet for this tournament.</p>
+      }
+    } @else {
+      <p class="no-data">No tournaments available.</p>
+    }
+  </div>
+
+  <!-- Live stream: User Selections (only when feed is on) -->
+  @if (liveFeedConfig != null && liveFeedConfig.enabled) {
   <div class="feed-card">
     <h2 class="feed-title">User Selections</h2>
+    @if (liveFeedConfig.tournamentId != null) {
+      <p class="feed-subtitle">Live feed for selected tournament</p>
+    }
 
     @if (feed.length > 0) {
     <ul class="feed-list">
@@ -27,4 +89,9 @@
     <div class="loading">Loading...</div>
     }
   </div>
+  } @else if (liveFeedConfig == null) {
+  <div class="feed-card">
+    <p class="loading">Loading feed...</p>
+  </div>
+  }
 </div>

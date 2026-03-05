@@ -46,4 +46,14 @@ export class AdminService {
   rejectUser(id: number): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/api/admin/users/${id}/reject`, {});
   }
+
+  /** Live feed config: GET (used by Live Feed page). Public or admin. */
+  getLiveFeedConfig(): Observable<{ enabled: boolean; tournamentId?: number }> {
+    return this.http.get<{ enabled: boolean; tournamentId?: number }>(`${this.baseUrl}/api/live-feed/config`);
+  }
+
+  /** Live feed config: PUT (admin only). */
+  updateLiveFeedConfig(config: { enabled: boolean; tournamentId?: number }): Observable<any> {
+    return this.http.put(`${this.baseUrl}/api/admin/live-feed/config`, config);
+  }
 }

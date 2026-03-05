@@ -23,10 +23,14 @@ export class Admin implements OnInit {
   editMatchId: number | null = null;
   errorMessage: string = '';
   isFormVisible: boolean = false;
-  activeTab: 'matches' | 'tournaments' | 'approvals' = 'matches';
+  activeTab: 'matches' | 'tournaments' | 'approvals' | 'livefeed' = 'matches';
   pendingUsers: PendingUser[] = [];
   approvingId: number | null = null;
   rejectingId: number | null = null;
+
+  liveFeedEnabled = false;
+  liveFeedTournamentId: number | null = null;
+  liveFeedSaving = false;
 
   constructor(
     private fb: FormBuilder,
@@ -51,7 +55,7 @@ export class Admin implements OnInit {
     this.loadPendingUsers();
   }
 
-  setActiveTab(tab: 'matches' | 'tournaments' | 'approvals') {
+  setActiveTab(tab: 'matches' | 'tournaments' | 'approvals' | 'livefeed') {
     this.activeTab = tab;
     if (tab === 'matches') {
       this.loadTournaments();
@@ -59,6 +63,66 @@ export class Admin implements OnInit {
     if (tab === 'approvals') {
       this.loadPendingUsers();
     }
+    if (tab === 'livefeed') {
+      this.loadTournaments();
+      this.loadLiveFeedConfig();
+    }
+  }
+
+  loadLiveFeedConfig() {
+    this.adminService.getLiveFeedConfig().subscribe({
+      next: (config) => {
+        this.liveFeedEnabled = config?.enabled ?? false;
+        this.liveFeedTournamentId = config?.tournamentId ?? null;
+      },
+      error: () => {
+        this.liveFeedEnabled = false;
+        this.liveFeedTournamentId = null;
+      }
+    });
+  }
+
+  onLiveFeedToggle(enabled: boolean) {
+    this.liveFeedSaving = true;
+    if (enabled && (this.liveFeedTournamentId == null || this.liveFeedTournamentId === 0)) {
+      this.notification.showError('Select a tournament before turning the feed on');
+      this.liveFeedSaving = false;
+      return;
+    }
+    const payload = enabled
+      ? { enabled: true, tournamentId: this.liveFeedTournamentId ?? undefined }
+      : { enabled: false };
+    this.adminService.updateLiveFeedConfig(payload).subscribe({
+      next: () => {
+        this.liveFeedEnabled = enabled;
+        this.liveFeedSaving = false;
+        this.notification.showSuccess(enabled ? 'Live feed turned on' : 'Live feed turned off');
+      },
+      error: () => {
+        this.liveFeedSaving = false;
+        this.notification.showError('Failed to update live feed');
+      }
+    });
+  }
+
+  onLiveFeedTournamentSelect(value: string) {
+    const id = value === '' ? null : Number(value);
+    this.liveFeedTournamentId = Number.isNaN(id) ? null : id;
+    if (!this.liveFeedEnabled) return;
+    this.liveFeedSaving = true;
+    this.adminService.updateLiveFeedConfig({
+      enabled: true,
+      tournamentId: this.liveFeedTournamentId ?? undefined
+    }).subscribe({
+      next: () => {
+        this.liveFeedSaving = false;
+        this.notification.showSuccess('Live feed tournament updated');
+      },
+      error: () => {
+        this.liveFeedSaving = false;
+        this.notification.showError('Failed to update live feed');
+      }
+    });
   }
 
   loadPendingUsers() {

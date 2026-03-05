@@ -65,7 +65,16 @@ export class MatchService {
     return this.http.get<{username: string; points: number}[]>(`${this.baseUrl}/api/predictions/users/leaderboard`);
   }
 
-  getSelections(page: number, pageSize: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/api/predictions/selections?limit=${pageSize}&page=${page}`);
+  getSelections(page: number, pageSize: number, tournamentId?: number): Observable<any[]> {
+    let url = `${this.baseUrl}/api/predictions/selections?limit=${pageSize}&page=${page}`;
+    if (tournamentId != null) {
+      url += `&tournamentId=${tournamentId}`;
+    }
+    return this.http.get<any[]>(url);
+  }
+
+  /** Selections for a single match (after cutoff). Backend: GET /api/matches/:id/selections */
+  getSelectionsByMatch(matchId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/api/matches/${matchId}/selections`);
   }
 }

@@ -29,6 +29,14 @@
       <span class="tab-icon">👤</span>
       Pending approvals
     </button>
+    <button 
+      class="tab-btn" 
+      [class.active]="activeTab === 'livefeed'"
+      (click)="setActiveTab('livefeed')"
+    >
+      <span class="tab-icon">📡</span>
+      Live Feed
+    </button>
   </div>
 
   <!-- Matches Tab Content -->
@@ -223,6 +231,43 @@
           <p>No users pending approval.</p>
         </div>
       }
+    </div>
+  </div>
+
+  <!-- Live Feed Tab Content -->
+  <div class="tab-content" *ngIf="activeTab === 'livefeed'">
+    <div class="livefeed-section">
+      <h2 class="section-title">Live Feed control</h2>
+      <p class="section-desc">Turn the live feed on or off. When on, select which tournament's selections are streamed on the Live Feed page.</p>
+      <div class="livefeed-controls">
+        <div class="livefeed-tournament-row">
+          <label for="livefeed-tournament" class="livefeed-label">Tournament (when on)</label>
+          <select
+            id="livefeed-tournament"
+            class="livefeed-select"
+            [value]="liveFeedTournamentId ?? ''"
+            (change)="onLiveFeedTournamentSelect($any($event.target).value)"
+          >
+            <option value="">Select tournament</option>
+            @for (t of tournaments; track t.id) {
+              <option [value]="t.id">{{ t.name }}</option>
+            }
+          </select>
+        </div>
+        <div class="livefeed-toggle-row">
+          <span class="livefeed-label">Live feed</span>
+          <label class="toggle-switch" [class.disabled]="liveFeedSaving">
+            <input
+              type="checkbox"
+              role="switch"
+              [checked]="liveFeedEnabled"
+              [disabled]="liveFeedSaving"
+              (change)="onLiveFeedToggle($any($event.target).checked)"
+            />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
     </div>
   </div>
 </div>

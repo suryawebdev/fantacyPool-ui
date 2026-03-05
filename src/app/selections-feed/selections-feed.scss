@@ -153,6 +153,125 @@
   font-style: italic;
 }
 
+/* Selections by match section */
+.match-selections-card {
+  margin-bottom: 2rem;
+}
+
+.tournament-select-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.tournament-label {
+  font-weight: 600;
+  color: var(--primary-text);
+}
+
+.tournament-select {
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: var(--card-bg);
+  color: var(--primary-text);
+  min-width: 200px;
+}
+
+.match-accordion-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.match-accordion-item {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  margin-bottom: 0.5rem;
+  overflow: hidden;
+}
+
+.match-accordion-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: var(--tertiary-bg);
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-size: 1rem;
+  color: var(--primary-text);
+}
+
+.match-accordion-header:hover {
+  background: var(--card-hover);
+}
+
+.match-label {
+  font-weight: 600;
+}
+
+.match-date {
+  color: var(--secondary-text);
+  font-size: 0.9rem;
+}
+
+.expand-icon {
+  margin-left: auto;
+  font-size: 0.8rem;
+}
+
+.match-accordion-body {
+  padding: 1rem;
+  background: var(--card-bg);
+  border-top: 1px solid var(--border-color);
+}
+
+.match-picks-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.match-pick-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.match-pick-item:last-child {
+  border-bottom: none;
+}
+
+.pick-user {
+  font-weight: 500;
+  min-width: 120px;
+}
+
+.pick-team {
+  color: var(--success-color);
+  font-weight: 600;
+}
+
+.pick-result.correct {
+  color: var(--success-color);
+}
+
+.pick-result.wrong {
+  color: var(--danger-color);
+}
+
+.feed-subtitle {
+  color: var(--secondary-text);
+  font-size: 0.9rem;
+  margin: -0.5rem 0 1rem 0;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
   .feed-container {
