@@ -1,9 +1,11 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { RouterOutlet, Router, RouterModule } from '@angular/router';
+import { RouterOutlet, Router, RouterModule, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { AuthService } from './auth.service';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { inject as injectVercelAnalytics } from '@vercel/analytics';
+import { injectSpeedInsights } from '@vercel/speed-insights';
 
 @Component({
   selector: 'app-root',
@@ -32,6 +34,13 @@ export class App implements OnInit, OnDestroy {
 
   ngOnInit() {
     injectVercelAnalytics();
+    const speedInsights = injectSpeedInsights();
+    if (speedInsights?.setRoute) {
+      this.router.events.pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd)).subscribe(() => {
+        speedInsights.setRoute(this.router.url);
+      });
+      speedInsights.setRoute(this.router.url);
+    }
     this.checkAuthStatus();
     this.loadTheme();
   }
