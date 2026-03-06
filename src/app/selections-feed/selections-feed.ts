@@ -196,6 +196,12 @@ export class SelectionsFeed implements OnInit {
     return this.matchSelections[matchId] ?? [];
   }
 
+  /** True if match start (cutoff) time has passed, so picks can be revealed. */
+  isMatchPastCutoff(match: any): boolean {
+    if (!match?.startDateTime) return false;
+    return match.startDateTime < Date.now();
+  }
+
   getUserDisplayName(entry: any): string {
     if (entry?.firstName || entry?.lastName) return [entry.firstName, entry.lastName].filter(Boolean).join(' ');
     return entry?.username ?? 'Unknown';

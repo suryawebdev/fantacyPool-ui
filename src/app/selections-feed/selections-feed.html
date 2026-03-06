@@ -27,7 +27,11 @@
                   @if (!isMatchSelectionsLoaded(match.id)) {
                     <p class="loading">Loading...</p>
                   } @else if (getMatchSelectionsList(match.id).length === 0) {
-                    <p class="no-data">No picks for this match.</p>
+                    @if (isMatchPastCutoff(match)) {
+                      <p class="no-data">No picks for this match.</p>
+                    } @else {
+                      <p class="no-data">Picks will be revealed after cutoff time.</p>
+                    }
                   } @else {
                     <ul class="match-picks-list">
                       @for (entry of getMatchSelectionsList(match.id); track entry.userId || entry.username) {
