@@ -1,0 +1,14 @@
+<div class="email-verified-container">
+  @if (isInvalid) {
+    <h1 class="email-verified-title">Link invalid or expired.</h1>
+    <p class="email-verified-message">
+      The verification link is invalid or has expired. Please request a new one or sign in if your email is already verified.
+    </p>
+  } @else {
+    <h1 class="email-verified-title">Email verified</h1>
+    <p class="email-verified-message">
+      Your email has been verified. You can now sign in.
+    </p>
+  }
+  <a routerLink="/signin" class="nav-link">Sign in</a>
+</div>

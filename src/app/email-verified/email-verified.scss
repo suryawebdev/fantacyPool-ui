@@ -1,0 +1,39 @@
+.email-verified-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 80px);
+  padding: 2rem;
+  padding-top: 6rem;
+  gap: 1.5rem;
+  box-sizing: border-box;
+}
+
+.email-verified-title {
+  text-align: center;
+  color: var(--text-primary);
+  font-size: 2rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.email-verified-message {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  margin: 0;
+  line-height: 1.5;
+  max-width: 400px;
+}
+
+.nav-link {
+  margin-top: 1rem;
+  color: var(--primary-accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.nav-link:hover {
+  text-decoration: underline;
+}

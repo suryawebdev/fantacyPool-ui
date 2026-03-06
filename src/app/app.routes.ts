@@ -12,9 +12,11 @@ import { Leaderboard } from './leaderboard/leaderboard';
 import { SelectionsFeed } from './selections-feed/selections-feed';
 import { TournamentManagement } from './tournament-management/tournament-management';
 import { guestGuard } from './guest.guard';
+import { EmailVerified } from './email-verified/email-verified';
 
 export const routes: Routes = [
     // {path: '', component: Home},
+    {path: 'email-verified', component: EmailVerified},
     {path: 'signup', component: Signup, canActivate: [guestGuard]},
     {path: 'signin', component: Signin, canActivate: [guestGuard]},
     {path: 'forgot-password', component: ForgotPassword, canActivate: [guestGuard]},
