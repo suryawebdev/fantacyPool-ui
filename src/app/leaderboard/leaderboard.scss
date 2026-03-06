@@ -93,20 +93,37 @@
   padding: 2rem;
 }
 
-/* Mobile only: keep table inside container */
+/* Mobile: use more horizontal space, tournament dropdown and table */
 @media (max-width: 768px) {
   .leaderboard-container {
-    padding: 1rem;
+    padding: 1rem 0.5rem;
     box-sizing: border-box;
     overflow-x: hidden;
   }
 
   .leaderboard-card {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    overflow-x: hidden;
     max-width: 100%;
     box-sizing: border-box;
-    padding: 1rem;
+    padding: 1rem 0.5rem;
+  }
+
+  .tournament-selector-section {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .tournament-label {
+    width: 100%;
+    font-size: 0.9rem;
+  }
+
+  .tournament-select {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    font-size: 0.95rem;
   }
 
   .leaderboard-table {
@@ -117,8 +134,15 @@
 
   .leaderboard-table th,
   .leaderboard-table td {
-    padding: 0.5rem 0.4rem;
-    font-size: 0.9rem;
+    padding: 0.5rem 0.35rem;
+    font-size: 0.85rem;
     word-break: break-word;
   }
+
+  .leaderboard-table th:nth-child(1),
+  .leaderboard-table td:nth-child(1) { width: 15%; }
+  .leaderboard-table th:nth-child(2),
+  .leaderboard-table td:nth-child(2) { width: 50%; }
+  .leaderboard-table th:nth-child(3),
+  .leaderboard-table td:nth-child(3) { width: 35%; }
 }

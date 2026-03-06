@@ -366,11 +366,35 @@
     border: 1px solid var(--border-color);
 }
 
-/* Responsive Design */
+/* Responsive Design - mobile viewport: use more horizontal space, no scroll */
 @media (max-width: 768px) {
     .dashboard-container {
-        padding: 1rem;
-        padding-top: 2rem;
+        padding: 2rem 0.5rem 1rem 0.5rem;
+        overflow-x: hidden;
+        box-sizing: border-box;
+        max-width: 100%;
+    }
+
+    .tournament-selector-section {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .tournament-label {
+        width: 100%;
+        font-size: 0.9rem;
+    }
+
+    .tournament-select {
+        min-width: 0;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        font-size: 0.95rem;
+    }
+
+    .welcome-section .welcome-card {
+        padding: 1.5rem 0.5rem;
     }
 
     .welcome-title {
@@ -385,11 +409,65 @@
         font-size: 1.5rem;
     }
 
+    .matches-section,
+    .history-section {
+        padding: 1rem 0.5rem;
+        overflow-x: hidden;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .table-container {
+        overflow-x: visible;
+        max-width: 100%;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .matches-table {
+        table-layout: fixed;
+        width: 100%;
+        min-width: 0;
+    }
+
     .matches-table th,
     .matches-table td {
-        padding: 0.75rem 0.5rem;
-        font-size: 0.9rem;
+        padding: 0.4rem 0.3rem;
+        font-size: 0.75rem;
+        word-break: break-word;
+        overflow-wrap: break-word;
     }
+
+    /* Upcoming matches: # TeamA TeamB Time Pick Action */
+    .matches-section .matches-table th:nth-child(1),
+    .matches-section .matches-table td:nth-child(1) { width: 6%; }
+    .matches-section .matches-table th:nth-child(2),
+    .matches-section .matches-table td:nth-child(2) { width: 12%; }
+    .matches-section .matches-table th:nth-child(3),
+    .matches-section .matches-table td:nth-child(3) { width: 12%; }
+    .matches-section .matches-table th:nth-child(4),
+    .matches-section .matches-table td:nth-child(4) { width: 18%; }
+    .matches-section .matches-table th:nth-child(5),
+    .matches-section .matches-table td:nth-child(5) { width: 14%; }
+    .matches-section .matches-table th:nth-child(6),
+    .matches-section .matches-table td:nth-child(6) { width: 38%; }
+
+    /* Match history: # TeamA TeamB Time Pick Winner Pts Result */
+    .history-section .matches-table th:nth-child(1),
+    .history-section .matches-table td:nth-child(1) { width: 5%; }
+    .history-section .matches-table th:nth-child(2),
+    .history-section .matches-table td:nth-child(2) { width: 11%; }
+    .history-section .matches-table th:nth-child(3),
+    .history-section .matches-table td:nth-child(3) { width: 11%; }
+    .history-section .matches-table th:nth-child(4),
+    .history-section .matches-table td:nth-child(4) { width: 16%; }
+    .history-section .matches-table th:nth-child(5),
+    .history-section .matches-table td:nth-child(5) { width: 12%; }
+    .history-section .matches-table th:nth-child(6),
+    .history-section .matches-table td:nth-child(6) { width: 14%; }
+    .history-section .matches-table th:nth-child(7),
+    .history-section .matches-table td:nth-child(7) { width: 10%; }
+    .history-section .matches-table th:nth-child(8),
+    .history-section .matches-table td:nth-child(8) { width: 17%; }
 
     .pick-buttons {
         flex-direction: column;
@@ -399,5 +477,30 @@
     .pick-btn {
         width: 100%;
         min-width: auto;
+        font-size: 0.7rem;
+        padding: 0.35rem 0.5rem;
+    }
+
+    .pick-badge,
+    .no-pick,
+    .winner-badge,
+    .tbd,
+    .match-locked {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.4rem;
+    }
+
+    .result-correct,
+    .result-wrong {
+        font-size: 0.7rem;
+    }
+
+    .points-earned,
+    .no-points {
+        font-size: 0.75rem;
+    }
+
+    .actions-cell {
+        min-width: 0;
     }
 }
