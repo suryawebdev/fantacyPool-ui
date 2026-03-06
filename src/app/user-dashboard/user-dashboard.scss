@@ -437,6 +437,13 @@
         overflow-wrap: break-word;
     }
 
+    .matches-table th {
+        font-size: 0.55rem;
+        font-weight: 600;
+        line-height: 1.2;
+        letter-spacing: 0.02em;
+    }
+
     /* Upcoming matches: # TeamA TeamB Time Pick Action */
     .matches-section .matches-table th:nth-child(1),
     .matches-section .matches-table td:nth-child(1) { width: 6%; }

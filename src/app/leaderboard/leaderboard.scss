@@ -139,6 +139,13 @@
     word-break: break-word;
   }
 
+  .leaderboard-table th {
+    font-size: 0.55rem;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: 0.02em;
+  }
+
   .leaderboard-table th:nth-child(1),
   .leaderboard-table td:nth-child(1) { width: 15%; }
   .leaderboard-table th:nth-child(2),
