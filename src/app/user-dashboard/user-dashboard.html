@@ -43,8 +43,8 @@
     <h2 class="section-title">Upcoming Matches</h2>
 
     @if (upcomingMatches.length > 0) {
-    <div class="table-container">
-      <table class="matches-table">
+    <div class="table-container table-container-scroll">
+      <table class="matches-table matches-table-header">
         <thead>
           <tr>
             <th>#</th>
@@ -55,44 +55,48 @@
             <th>Action</th>
           </tr>
         </thead>
-        <tbody>
-          @for (match of upcomingMatches; track match.id; let i = $index) {
-          <tr class="match-row">
-            <td>{{ i + 1 }}</td>
-            <td>{{ match.teamA }}</td>
-            <td>{{ match.teamB }}</td>
-            <td>{{ match.startDateTime | date:'short' }}</td>
-            <td>
-              @if (match.userPick) {
-              <span class="pick-badge pick-{{ match.userPick.toLowerCase() }}">
-                {{ getTeamName(match, match.userPick) }}
-              </span>
-              } @else {
-              <span class="no-pick">No Pick</span>
-              }
-            </td>
-            <td class="actions-cell">
-              @if (!isMatchStarted(match)) {
-              <div class="pick-buttons">
-                <button class="pick-btn team-a-btn" [disabled]="match.userPick === match.teamA"
-                  (click)="selectTeam(match, match.teamA)">
-                  {{ match.teamA }}
-                </button>
-                <button class="pick-btn team-b-btn" [disabled]="match.userPick === match.teamB"
-                  (click)="selectTeam(match, match.teamB)">
-                  {{ match.teamB }}
-                </button>
-              </div>
-              } @else {
-              <span class="match-locked">
-                Locked ({{ getTeamName(match, match.userPick) }})
-              </span>
-              }
-            </td>
-          </tr>
-          }
-        </tbody>
       </table>
+      <div class="table-body-scroll">
+        <table class="matches-table matches-table-body">
+          <tbody>
+            @for (match of upcomingMatches; track match.id; let i = $index) {
+            <tr class="match-row">
+              <td>{{ i + 1 }}</td>
+              <td>{{ match.teamA }}</td>
+              <td>{{ match.teamB }}</td>
+              <td>{{ match.startDateTime | date:'short' }}</td>
+              <td>
+                @if (match.userPick) {
+                <span class="pick-badge pick-{{ match.userPick.toLowerCase() }}">
+                  {{ getTeamName(match, match.userPick) }}
+                </span>
+                } @else {
+                <span class="no-pick">No Pick</span>
+                }
+              </td>
+              <td class="actions-cell">
+                @if (!isMatchStarted(match)) {
+                <div class="pick-buttons">
+                  <button class="pick-btn team-a-btn" [disabled]="match.userPick === match.teamA"
+                    (click)="selectTeam(match, match.teamA)">
+                    {{ match.teamA }}
+                  </button>
+                  <button class="pick-btn team-b-btn" [disabled]="match.userPick === match.teamB"
+                    (click)="selectTeam(match, match.teamB)">
+                    {{ match.teamB }}
+                  </button>
+                </div>
+                } @else {
+                <span class="match-locked">
+                  Locked ({{ getTeamName(match, match.userPick) }})
+                </span>
+                }
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
     </div>
     } @else {
     <div class="no-matches">
@@ -106,8 +110,8 @@
     <h2 class="section-title">Your Match History</h2>
 
     @if (userHistory.length > 0) {
-    <div class="table-container">
-      <table class="matches-table">
+    <div class="table-container table-container-scroll">
+      <table class="matches-table matches-table-header">
         <thead>
           <tr>
             <th>#</th>
@@ -120,47 +124,51 @@
             <th>Result</th>
           </tr>
         </thead>
-        <tbody>
-          @for (match of userHistory; track match.id; let i = $index) {
-          <tr class="match-row">
-            <td>{{ i + 1 }}</td>
-            <td>{{ match.teamA }}</td>
-            <td>{{ match.teamB }}</td>
-            <td>{{ match.startDateTime | date:'short' }}</td>
-            <td>
-              @if (match.userPick) {
-              <span class="pick-badge pick-{{ match.userPick.toLowerCase() }}">
-                {{ getTeamName(match, match.userPick) }}
-              </span>
-              } @else {
-              <span class="no-pick">No Pick</span>
-              }
-            </td>
-            <td>
-              @if (match.winner) {
-              <span class="winner-badge">{{ getWinnerName(match) }}</span>
-              } @else {
-              <span class="tbd">TBD</span>
-              }
-            </td>
-            <td>
-              @if (match.pointsEarned) {
-              <span class="points-earned">{{ match.pointsEarned }}</span>
-              } @else {
-              <span class="no-points">-</span>
-              }
-            </td>
-            <td>
-              @if (match.userPick === match.winner) {
-              <span class="result-correct">✓ Correct</span>
-              } @else {
-              <span class="result-wrong">✗ Wrong</span>
-              }
-            </td>
-          </tr>
-          }
-        </tbody>
       </table>
+      <div class="table-body-scroll">
+        <table class="matches-table matches-table-body">
+          <tbody>
+            @for (match of userHistory; track match.id; let i = $index) {
+            <tr class="match-row">
+              <td>{{ i + 1 }}</td>
+              <td>{{ match.teamA }}</td>
+              <td>{{ match.teamB }}</td>
+              <td>{{ match.startDateTime | date:'short' }}</td>
+              <td>
+                @if (match.userPick) {
+                <span class="pick-badge pick-{{ match.userPick.toLowerCase() }}">
+                  {{ getTeamName(match, match.userPick) }}
+                </span>
+                } @else {
+                <span class="no-pick">No Pick</span>
+                }
+              </td>
+              <td>
+                @if (match.winner) {
+                <span class="winner-badge">{{ getWinnerName(match) }}</span>
+                } @else {
+                <span class="tbd">TBD</span>
+                }
+              </td>
+              <td>
+                @if (match.pointsEarned) {
+                <span class="points-earned">{{ match.pointsEarned }}</span>
+                } @else {
+                <span class="no-points">-</span>
+                }
+              </td>
+              <td>
+                @if (match.userPick === match.winner) {
+                <span class="result-correct">✓ Correct</span>
+                } @else {
+                <span class="result-wrong">✗ Wrong</span>
+                }
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
     </div>
     } @else {
     <div class="no-history">

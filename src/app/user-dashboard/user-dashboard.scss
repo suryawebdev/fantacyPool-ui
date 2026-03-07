@@ -166,21 +166,59 @@
     border: 1px solid var(--border-color);
 }
 
+/* Fixed header + scrollable body (~8 rows), scroll bar after 8 rows */
+.table-container-scroll {
+    display: flex;
+    flex-direction: column;
+    height: 420px;
+    max-height: 420px;
+    overflow: hidden;
+    padding: 0;
+    box-shadow: var(--shadow-light);
+}
+
+.table-container-scroll .matches-table-header {
+    flex: 0 0 auto;
+    table-layout: fixed;
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+.table-container-scroll .table-body-scroll {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.table-container-scroll .matches-table-body {
+    table-layout: fixed;
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+    border-radius: 0;
+}
+
 .matches-table {
     width: 100%;
     border-collapse: collapse;
     background: var(--card-bg);
-    border-radius: var(--radius-md);
-    overflow: hidden;
     margin: 0;
-    box-shadow: var(--shadow-light);
 }
 
 .matches-table th,
 .matches-table td {
-    padding: 1rem;
+    padding: 0.5rem 1rem;
     text-align: left;
     border-bottom: 1px solid var(--border-color);
+    font-size: 0.9rem;
+}
+
+.matches-table-body tbody tr:first-child td {
+    border-top: none;
 }
 
 .matches-table th {
@@ -189,8 +227,40 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
 }
+
+/* Upcoming matches: column widths so header and body align */
+.matches-section .matches-table-header th:nth-child(1) { width: 6%; }
+.matches-section .matches-table-header th:nth-child(2) { width: 12%; }
+.matches-section .matches-table-header th:nth-child(3) { width: 12%; }
+.matches-section .matches-table-header th:nth-child(4) { width: 18%; }
+.matches-section .matches-table-header th:nth-child(5) { width: 14%; }
+.matches-section .matches-table-header th:nth-child(6) { width: 38%; }
+.matches-section .matches-table-body td:nth-child(1) { width: 6%; }
+.matches-section .matches-table-body td:nth-child(2) { width: 12%; }
+.matches-section .matches-table-body td:nth-child(3) { width: 12%; }
+.matches-section .matches-table-body td:nth-child(4) { width: 18%; }
+.matches-section .matches-table-body td:nth-child(5) { width: 14%; }
+.matches-section .matches-table-body td:nth-child(6) { width: 38%; }
+
+/* Match history: column widths */
+.history-section .matches-table-header th:nth-child(1) { width: 5%; }
+.history-section .matches-table-header th:nth-child(2) { width: 11%; }
+.history-section .matches-table-header th:nth-child(3) { width: 11%; }
+.history-section .matches-table-header th:nth-child(4) { width: 16%; }
+.history-section .matches-table-header th:nth-child(5) { width: 12%; }
+.history-section .matches-table-header th:nth-child(6) { width: 14%; }
+.history-section .matches-table-header th:nth-child(7) { width: 10%; }
+.history-section .matches-table-header th:nth-child(8) { width: 17%; }
+.history-section .matches-table-body td:nth-child(1) { width: 5%; }
+.history-section .matches-table-body td:nth-child(2) { width: 11%; }
+.history-section .matches-table-body td:nth-child(3) { width: 11%; }
+.history-section .matches-table-body td:nth-child(4) { width: 16%; }
+.history-section .matches-table-body td:nth-child(5) { width: 12%; }
+.history-section .matches-table-body td:nth-child(6) { width: 14%; }
+.history-section .matches-table-body td:nth-child(7) { width: 10%; }
+.history-section .matches-table-body td:nth-child(8) { width: 17%; }
 
 .matches-table tr {
     transition: background var(--transition-fast);
@@ -201,6 +271,10 @@
 }
 
 .matches-table tr:last-child td {
+    border-bottom: none;
+}
+
+.matches-table-body tbody tr:last-child td {
     border-bottom: none;
 }
 
@@ -423,7 +497,13 @@
         -webkit-overflow-scrolling: touch;
     }
 
-    .matches-table {
+    .table-container-scroll {
+        height: 280px;
+        max-height: 280px;
+    }
+
+    .matches-table-header,
+    .matches-table-body {
         table-layout: fixed;
         width: 100%;
         min-width: 0;
@@ -444,37 +524,37 @@
         letter-spacing: 0.02em;
     }
 
-    /* Upcoming matches: # TeamA TeamB Time Pick Action */
-    .matches-section .matches-table th:nth-child(1),
-    .matches-section .matches-table td:nth-child(1) { width: 6%; }
-    .matches-section .matches-table th:nth-child(2),
-    .matches-section .matches-table td:nth-child(2) { width: 12%; }
-    .matches-section .matches-table th:nth-child(3),
-    .matches-section .matches-table td:nth-child(3) { width: 12%; }
-    .matches-section .matches-table th:nth-child(4),
-    .matches-section .matches-table td:nth-child(4) { width: 18%; }
-    .matches-section .matches-table th:nth-child(5),
-    .matches-section .matches-table td:nth-child(5) { width: 14%; }
-    .matches-section .matches-table th:nth-child(6),
-    .matches-section .matches-table td:nth-child(6) { width: 38%; }
+    /* Upcoming matches: header and body column widths */
+    .matches-section .matches-table-header th:nth-child(1) { width: 6%; }
+    .matches-section .matches-table-header th:nth-child(2) { width: 12%; }
+    .matches-section .matches-table-header th:nth-child(3) { width: 12%; }
+    .matches-section .matches-table-header th:nth-child(4) { width: 18%; }
+    .matches-section .matches-table-header th:nth-child(5) { width: 14%; }
+    .matches-section .matches-table-header th:nth-child(6) { width: 38%; }
+    .matches-section .matches-table-body td:nth-child(1) { width: 6%; }
+    .matches-section .matches-table-body td:nth-child(2) { width: 12%; }
+    .matches-section .matches-table-body td:nth-child(3) { width: 12%; }
+    .matches-section .matches-table-body td:nth-child(4) { width: 18%; }
+    .matches-section .matches-table-body td:nth-child(5) { width: 14%; }
+    .matches-section .matches-table-body td:nth-child(6) { width: 38%; }
 
-    /* Match history: # TeamA TeamB Time Pick Winner Pts Result */
-    .history-section .matches-table th:nth-child(1),
-    .history-section .matches-table td:nth-child(1) { width: 5%; }
-    .history-section .matches-table th:nth-child(2),
-    .history-section .matches-table td:nth-child(2) { width: 11%; }
-    .history-section .matches-table th:nth-child(3),
-    .history-section .matches-table td:nth-child(3) { width: 11%; }
-    .history-section .matches-table th:nth-child(4),
-    .history-section .matches-table td:nth-child(4) { width: 16%; }
-    .history-section .matches-table th:nth-child(5),
-    .history-section .matches-table td:nth-child(5) { width: 12%; }
-    .history-section .matches-table th:nth-child(6),
-    .history-section .matches-table td:nth-child(6) { width: 14%; }
-    .history-section .matches-table th:nth-child(7),
-    .history-section .matches-table td:nth-child(7) { width: 10%; }
-    .history-section .matches-table th:nth-child(8),
-    .history-section .matches-table td:nth-child(8) { width: 17%; }
+    /* Match history: header and body column widths */
+    .history-section .matches-table-header th:nth-child(1) { width: 5%; }
+    .history-section .matches-table-header th:nth-child(2) { width: 11%; }
+    .history-section .matches-table-header th:nth-child(3) { width: 11%; }
+    .history-section .matches-table-header th:nth-child(4) { width: 16%; }
+    .history-section .matches-table-header th:nth-child(5) { width: 12%; }
+    .history-section .matches-table-header th:nth-child(6) { width: 14%; }
+    .history-section .matches-table-header th:nth-child(7) { width: 10%; }
+    .history-section .matches-table-header th:nth-child(8) { width: 17%; }
+    .history-section .matches-table-body td:nth-child(1) { width: 5%; }
+    .history-section .matches-table-body td:nth-child(2) { width: 11%; }
+    .history-section .matches-table-body td:nth-child(3) { width: 11%; }
+    .history-section .matches-table-body td:nth-child(4) { width: 16%; }
+    .history-section .matches-table-body td:nth-child(5) { width: 12%; }
+    .history-section .matches-table-body td:nth-child(6) { width: 14%; }
+    .history-section .matches-table-body td:nth-child(7) { width: 10%; }
+    .history-section .matches-table-body td:nth-child(8) { width: 17%; }
 
     .pick-buttons {
         flex-direction: column;
