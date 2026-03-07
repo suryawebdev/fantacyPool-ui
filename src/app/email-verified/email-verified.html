@@ -1,14 +1,24 @@
 <div class="email-verified-container">
-  @if (isInvalid) {
+  @if (loading) {
+    <p class="email-verified-message">Verifying your email...</p>
+  } @else if (queryError) {
     <h1 class="email-verified-title">Link invalid or expired.</h1>
-    <p class="email-verified-message">
-      The verification link is invalid or has expired. Please request a new one or sign in if your email is already verified.
-    </p>
-  } @else {
+    <p class="email-verified-message">{{ queryError }}</p>
+    <a (click)="goToSignup()" class="nav-link">Sign up</a>
+    <a (click)="goToSignin()" class="nav-link">Sign in</a>
+  } @else if (successMessage) {
     <h1 class="email-verified-title">Email verified</h1>
-    <p class="email-verified-message">
-      Your email has been verified. You can now sign in.
-    </p>
+    <p class="email-verified-message">{{ successMessage }}</p>
+    <a (click)="goToSignin()" class="nav-link">Sign in</a>
+  } @else if (errorMessage) {
+    <h1 class="email-verified-title">Verification failed</h1>
+    <p class="email-verified-message">{{ errorMessage }}</p>
+    <a (click)="goToSignup()" class="nav-link">Sign up</a>
+    <a (click)="goToSignin()" class="nav-link">Sign in</a>
+  } @else {
+    <h1 class="email-verified-title">Invalid verification link</h1>
+    <p class="email-verified-message">No token provided. Use the link from your verification email.</p>
+    <a (click)="goToSignup()" class="nav-link">Sign up</a>
+    <a (click)="goToSignin()" class="nav-link">Sign in</a>
   }
-  <a routerLink="/signin" class="nav-link">Sign in</a>
 </div>

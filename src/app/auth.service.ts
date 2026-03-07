@@ -146,6 +146,11 @@ export class AuthService {
   resetPassword(token: string, newPassword: string): Observable<any> {
     return this.http.post(`${this.baseUrl}/api/auth/reset-password`, { token, newPassword });
   }
+
+  /** Verify email with token from link. POST /api/auth/verify-email body: { token }. */
+  verifyEmail(token: string): Observable<{ success: boolean; message?: string }> {
+    return this.http.post<{ success: boolean; message?: string }>(`${this.baseUrl}/api/auth/verify-email`, { token });
+  }
 }
 
 

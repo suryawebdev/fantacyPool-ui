@@ -16,7 +16,7 @@ import { EmailVerified } from './email-verified/email-verified';
 
 export const routes: Routes = [
     // {path: '', component: Home},
-    {path: 'email-verified', component: EmailVerified},
+    {path: 'verify-email', component: EmailVerified},
     {path: 'signup', component: Signup, canActivate: [guestGuard]},
     {path: 'signin', component: Signin, canActivate: [guestGuard]},
     {path: 'forgot-password', component: ForgotPassword, canActivate: [guestGuard]},
