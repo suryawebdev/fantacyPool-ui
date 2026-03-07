@@ -56,7 +56,7 @@
                       <p class="history-empty">No match history for this tournament.</p>
                     } @else {
                       <div class="history-table-wrap history-table-scroll">
-                        <table class="history-table history-table-header">
+                        <table class="history-table">
                           <thead>
                             <tr>
                               <th>Match</th>
@@ -65,37 +65,33 @@
                               <th>Winner</th>
                             </tr>
                           </thead>
+                          <tbody>
+                            @for (match of getHistoryForUser(user.username); track match.id) {
+                              <tr>
+                                <td class="match-cell">{{ match.teamA }} VS {{ match.teamB }}</td>
+                                <td>{{ match.startDateTime | date:'MM/dd/yy' }}</td>
+                                <td>
+                                  @if (match.userPick) {
+                                    <span class="pick-badge pick-{{ match.userPick?.toLowerCase() }}">{{ getTeamName(match, match.userPick) }}</span>
+                                  } @else {
+                                    <span class="no-pick">No Pick</span>
+                                  }
+                                </td>
+                                <td>
+                                  @if (match.winner) {
+                                    @if (match.userPick === match.winner) {
+                                      <span class="winner-badge winner-correct">{{ getWinnerName(match) }}</span>
+                                    } @else {
+                                      <span class="winner-badge winner-wrong">{{ getWinnerName(match) }}</span>
+                                    }
+                                  } @else {
+                                    <span class="tbd">TBD</span>
+                                  }
+                                </td>
+                              </tr>
+                            }
+                          </tbody>
                         </table>
-                        <div class="history-table-body-scroll">
-                          <table class="history-table history-table-body">
-                            <tbody>
-                              @for (match of getHistoryForUser(user.username); track match.id) {
-                                <tr>
-                                  <td class="match-cell">{{ match.teamA }} VS {{ match.teamB }}</td>
-                                  <td>{{ match.startDateTime | date:'MM/dd/yy' }}</td>
-                                  <td>
-                                    @if (match.userPick) {
-                                      <span class="pick-badge pick-{{ match.userPick?.toLowerCase() }}">{{ getTeamName(match, match.userPick) }}</span>
-                                    } @else {
-                                      <span class="no-pick">No Pick</span>
-                                    }
-                                  </td>
-                                  <td>
-                                    @if (match.winner) {
-                                      @if (match.userPick === match.winner) {
-                                        <span class="winner-badge winner-correct">{{ getWinnerName(match) }}</span>
-                                      } @else {
-                                        <span class="winner-badge winner-wrong">{{ getWinnerName(match) }}</span>
-                                      }
-                                    } @else {
-                                      <span class="tbd">TBD</span>
-                                    }
-                                  </td>
-                                </tr>
-                              }
-                            </tbody>
-                          </table>
-                        </div>
                       </div>
                     }
                   </td>
