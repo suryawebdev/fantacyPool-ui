@@ -86,4 +86,40 @@ export class MatchService {
   getSelectionsByMatch(matchId: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/api/matches/${matchId}/selections`);
   }
+
+  /**
+   * Optional Phase 2 API: aggregated analytics for current user in a tournament.
+   * Backend: GET /api/predictions/me/analytics?tournamentId=
+   * Response: { totalPoints, correctCount, wrongCount, pointsOverTime?: { labels, values }, picksByTeam?: { [team: string]: number } }
+   * If backend does not implement this, use getUserHistory() and compute client-side.
+   */
+  getMyAnalytics(tournamentId: number): Observable<{
+    totalPoints: number;
+    correctCount: number;
+    wrongCount: number;
+    pointsOverTime?: { labels: string[]; values: number[] };
+    picksByTeam?: Record<string, number>;
+  }> {
+    return this.http.get<any>(`${this.baseUrl}/api/predictions/me/analytics?tournamentId=${tournamentId}`);
+  }
+
+  /**
+   * Phase 3 API: pool-wide analytics (all users in tournament), same style as "My analytics".
+   * Backend: GET /api/tournaments/:id/pool-analytics
+   * Response can include:
+   * - matchStats: per-match pick counts (required for per-match cards).
+   * - totalPoints, correctCount, wrongCount: pool aggregates (for summary cards + doughnut).
+   * - picksByTeam: aggregate picks by team across all matches (for bar chart); can be derived from matchStats if missing.
+   * - pointsOverTime: { labels, values } for pool cumulative points (for line chart).
+   */
+  getPoolAnalytics(tournamentId: number): Observable<{
+    matchStats?: Array<{ matchId: number; teamA: string; teamB: string; picks: Record<string, number> }>;
+    totalPoints?: number;
+    correctCount?: number;
+    wrongCount?: number;
+    picksByTeam?: Record<string, number>;
+    pointsOverTime?: { labels: string[]; values: number[] };
+  }> {
+    return this.http.get<any>(`${this.baseUrl}/api/tournaments/${tournamentId}/pool-analytics`);
+  }
 }

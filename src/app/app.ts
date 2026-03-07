@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { inject as injectVercelAnalytics } from '@vercel/analytics';
 import { injectSpeedInsights } from '@vercel/speed-insights';
+import { environment } from '../environments/environments';
 
 @Component({
   selector: 'app-root',
@@ -20,6 +21,11 @@ export class App implements OnInit, OnDestroy {
   isUser: boolean = false;
   isDarkTheme: boolean = false;
   private authSubscription: Subscription;
+
+  /** Controlled by environment.features.analytics (feature toggle) */
+  get analyticsEnabled(): boolean {
+    return environment?.features?.analytics !== false;
+  }
 
   constructor(
     private authService: AuthService,

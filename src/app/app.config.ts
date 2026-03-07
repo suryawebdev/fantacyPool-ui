@@ -3,6 +3,7 @@ import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 
 import { routes } from './app.routes';
 import { AuthInterceptor } from './auth.interceptor';
@@ -13,6 +14,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideHttpClient(withInterceptors([AuthInterceptor])),
     importProvidersFrom(ReactiveFormsModule),
-    importProvidersFrom(MatSnackBarModule)
+    importProvidersFrom(MatSnackBarModule),
+    provideCharts(withDefaultRegisterables())
   ]
 };

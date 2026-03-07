@@ -10,6 +10,8 @@ import { adminGuard } from './admin.guard';
 import { UserDashboard } from './user-dashboard/user-dashboard';
 import { Leaderboard } from './leaderboard/leaderboard';
 import { SelectionsFeed } from './selections-feed/selections-feed';
+import { Analytics } from './analytics/analytics';
+import { analyticsFeatureGuard } from './analytics-feature.guard';
 import { TournamentManagement } from './tournament-management/tournament-management';
 import { guestGuard } from './guest.guard';
 import { EmailVerified } from './email-verified/email-verified';
@@ -31,5 +33,6 @@ export const routes: Routes = [
     {path: 'user-dashboard', component: UserDashboard, canActivate: [authGuard]},
     {path: 'leaderboard', component: Leaderboard},
     {path: 'selections-feed', component: SelectionsFeed},
+    {path: 'analytics', component: Analytics, canActivate: [authGuard, analyticsFeatureGuard]},
     {path: '**', redirectTo: '/signin', pathMatch: 'full'}//Default route
 ];

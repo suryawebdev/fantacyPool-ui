@@ -208,6 +208,12 @@
         }
         
         <!-- Common Authenticated Routes -->
+        @if (analyticsEnabled) {
+        <a routerLink="/analytics" routerLinkActive="active-link" class="nav-link">
+          <span class="nav-icon">📈</span>
+          <span class="nav-text">Analytics</span>
+        </a>
+        }
         <a routerLink="/selections-feed" routerLinkActive="active-link" class="nav-link">
           <span class="nav-icon">📊</span>
           <span class="nav-text">Live Feed</span>
