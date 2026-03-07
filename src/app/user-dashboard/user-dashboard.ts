@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -36,6 +36,8 @@ export class UserDashboard implements OnInit {
   myTournaments: Tournament[] = [];
   selectedTournamentId: number | null = null;
   loadingTournaments = false;
+
+  @ViewChild('upcomingMatchesBody') upcomingMatchesBody?: ElementRef<HTMLDivElement>;
 
   constructor(
     private matchService: MatchService,
@@ -185,11 +187,20 @@ export class UserDashboard implements OnInit {
         this.upcomingMatches.forEach(match => {
           match.userPick = this.userPicks[match.id];
         });
+        setTimeout(() => this.scrollUpcomingToBottom(), 150);
       },
       error: () => {
         this.upcomingMatches = [];
       }
     });
+  }
+
+  /** Scroll upcoming matches table to bottom so latest matches are in view. */
+  scrollUpcomingToBottom(): void {
+    const el = this.upcomingMatchesBody?.nativeElement;
+    if (el) {
+      el.scrollTop = el.scrollHeight;
+    }
   }
 
   isMatchStarted(match: any): boolean {

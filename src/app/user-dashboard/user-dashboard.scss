@@ -502,6 +502,12 @@
         max-height: 280px;
     }
 
+    /* Upcoming matches: show ~10 rows before scrolling on mobile */
+    .matches-section .table-container-scroll {
+        height: 420px;
+        max-height: 420px;
+    }
+
     .matches-table-header,
     .matches-table-body {
         table-layout: fixed;
