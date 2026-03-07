@@ -61,6 +61,15 @@ export class MatchService {
     return this.http.get<{totalPoints: number; matches: any[]}>(url);
   }
 
+  /** Another user's prediction history (e.g. for leaderboard). Backend: GET /api/predictions/users/:username/history?tournamentId= */
+  getUserHistoryByUsername(username: string, tournamentId?: number): Observable<{totalPoints: number; matches: any[]}> {
+    let url = `${this.baseUrl}/api/predictions/users/${encodeURIComponent(username)}/history`;
+    if (tournamentId != null) {
+      url += `?tournamentId=${tournamentId}`;
+    }
+    return this.http.get<{totalPoints: number; matches: any[]}>(url);
+  }
+
   getLeaderboard(): Observable<{username: string; points: number}[]> {
     return this.http.get<{username: string; points: number}[]>(`${this.baseUrl}/api/predictions/users/leaderboard`);
   }

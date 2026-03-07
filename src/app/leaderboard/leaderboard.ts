@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { TournamentService } from '../tournament.service';
 import { AuthService } from '../auth.service';
 import { SelectedTournamentService } from '../selected-tournament.service';
+import { MatchService } from '../match.service';
 import { Router } from '@angular/router';
 import { Tournament } from '../models/tournament.model';
 
@@ -21,10 +22,20 @@ export class Leaderboard implements OnInit {
   loadingTournaments = false;
   loadingLeaderboard = false;
 
+  /** Which player rows are expanded to show history */
+  expandedUsernames = new Set<string>();
+  /** Cached history per username: { totalPoints, matches } */
+  userHistoryCache: Record<string, { totalPoints: number; matches: any[] }> = {};
+  /** Username we're currently loading history for */
+  loadingHistoryForUser: string | null = null;
+  /** Username -> error message when history load failed */
+  historyLoadError: Record<string, string> = {};
+
   constructor(
     private tournamentService: TournamentService,
     private authService: AuthService,
     private selectedTournamentService: SelectedTournamentService,
+    private matchService: MatchService,
     private router: Router
   ) {}
 
@@ -76,6 +87,9 @@ export class Leaderboard implements OnInit {
       this.leaderboard = [];
       return;
     }
+    this.expandedUsernames.clear();
+    this.userHistoryCache = {};
+    this.historyLoadError = {};
     this.loadingLeaderboard = true;
     this.tournamentService.getTournamentLeaderboard(this.selectedTournamentId).subscribe({
       next: (data) => {
@@ -93,5 +107,55 @@ export class Leaderboard implements OnInit {
 
   isCurrentUser(user: any): boolean {
     return user.username === this.currentUser.username;
+  }
+
+  isExpanded(username: string): boolean {
+    return this.expandedUsernames.has(username);
+  }
+
+  toggleExpand(user: any): void {
+    const username = user?.username;
+    if (!username) return;
+    if (this.expandedUsernames.has(username)) {
+      this.expandedUsernames.delete(username);
+      return;
+    }
+    this.expandedUsernames.add(username);
+    if (this.userHistoryCache[username] != null) return;
+    this.loadUserHistory(username);
+  }
+
+  private loadUserHistory(username: string): void {
+    this.loadingHistoryForUser = username;
+    this.historyLoadError[username] = '';
+    const tid = this.selectedTournamentId ?? undefined;
+    this.matchService.getUserHistoryByUsername(username, tid).subscribe({
+      next: (data) => {
+        this.userHistoryCache[username] = { totalPoints: data.totalPoints ?? 0, matches: data.matches ?? [] };
+        this.loadingHistoryForUser = null;
+      },
+      error: () => {
+        this.historyLoadError[username] = 'Could not load history.';
+        this.loadingHistoryForUser = null;
+      }
+    });
+  }
+
+  getHistoryForUser(username: string): any[] {
+    const cached = this.userHistoryCache[username];
+    return cached?.matches ?? [];
+  }
+
+  /** Display name for pick/winner: supports team name or legacy "A"/"B". */
+  getTeamName(match: any, pick: string): string {
+    if (!pick) return 'No Pick';
+    if (pick === 'A' || pick === 'B') return pick === 'A' ? match.teamA : match.teamB;
+    return pick;
+  }
+
+  getWinnerName(match: any): string {
+    if (!match.winner) return 'TBD';
+    if (match.winner === 'A' || match.winner === 'B') return match.winner === 'A' ? match.teamA : match.teamB;
+    return match.winner;
   }
 }
