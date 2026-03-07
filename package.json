@@ -15,7 +15,7 @@
     "@angular/compiler": "^20.0.0",
     "@angular/core": "^20.0.0",
     "@angular/forms": "^20.0.0",
-    "@angular/material": "^20.1.2",
+    "@angular/material": "^20.2.14",
     "@angular/platform-browser": "^20.0.0",
     "@angular/router": "^20.0.0",
     "@stomp/stompjs": "^7.1.1",
