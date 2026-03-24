@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { MatchService } from '../match.service';
 import { AuthService } from '../auth.service';
 import { NotificationService } from '../notification.service';
-import { WebSocketService } from '../websocket.service';
+// import { WebSocketService } from '../websocket.service';
 import { WelcomeMessageService } from '../welcome-message.service';
 import { TournamentService } from '../tournament.service';
 import { SelectedTournamentService } from '../selected-tournament.service';
@@ -43,7 +43,7 @@ export class UserDashboard implements OnInit {
     private matchService: MatchService,
     private authService: AuthService,
     private notification: NotificationService,
-    private webSocketService: WebSocketService,
+    // private webSocketService: WebSocketService,
     private welcomeMessageService: WelcomeMessageService,
     private tournamentService: TournamentService,
     private selectedTournamentService: SelectedTournamentService
@@ -65,10 +65,11 @@ export class UserDashboard implements OnInit {
 
     this.user = this.authService.getUserDetails() || {};
     this.loadMyTournaments();
-    this.webSocketService.matchUpdates$.subscribe((match) => {
-      if (this.selectedTournamentId) this.loadUpcomingMatches();
-      this.notification.showInfo(`Match ${match.teamA} vs ${match.teamB} has started`);
-    });
+    // WebSockets disabled — match live updates / notifications
+    // this.webSocketService.matchUpdates$.subscribe((match) => {
+    //   if (this.selectedTournamentId) this.loadUpcomingMatches();
+    //   this.notification.showInfo(`Match ${match.teamA} vs ${match.teamB} has started`);
+    // });
   }
 
   loadMyTournaments() {

@@ -4,7 +4,8 @@ export const environment = {
   apiUrl: 'https://fp-api-production-36dd.up.railway.app',
   // apiUrl: 'http://fantacypool-api-env.eba-c8dpmph3.us-east-2.elasticbeanstalk.com',
 
-  enableWebSockets: true,
+  // WebSockets disabled — set true and uncomment websocket code to re-enable
+  enableWebSockets: false,
   /** Feature toggle: show Analytics nav and allow /analytics route */
   features: {
     analytics: true

@@ -18,34 +18,36 @@ export class WebSocketService implements OnDestroy {
   selectionFeed$ = this.selectionFeedSubject.asObservable();
 
   constructor() {
-    if (environment.enableWebSockets) {
-      this.connect();
-    }
+    // WebSockets disabled — uncomment when re-enabling (also set environment.enableWebSockets)
+    // if (environment.enableWebSockets) {
+    //   this.connect();
+    // }
   }
 
   connect() {
-    // Dynamically import SockJS to avoid browser compatibility issues
-    import('sockjs-client').then((SockJS) => {
-      this.client = new Client({
-        brokerURL: undefined, // Use SockJS
-        webSocketFactory: () => new SockJS.default(`${environment.apiUrl}/ws`),
-        reconnectDelay: 5000,
-        debug: (str) => { /* console.log(str); */ }
-      });
-
-      this.client.onConnect = () => {
-        this.subscription = this.client!.subscribe('/topic/matches', (message: IMessage) => {
-          this.matchUpdatesSubject.next(JSON.parse(message.body));
-        });
-        this.subscription = this.client!.subscribe('/topic/selections', (message: IMessage) => {
-          this.selectionFeedSubject.next(JSON.parse(message.body));
-        });
-      };
-
-      this.client.activate();
-    }).catch(error => {
-      console.error('Failed to load SockJS:', error);
-    });
+    // WebSockets disabled — entire connection flow commented out
+    // // Dynamically import SockJS to avoid browser compatibility issues
+    // import('sockjs-client').then((SockJS) => {
+    //   this.client = new Client({
+    //     brokerURL: undefined, // Use SockJS
+    //     webSocketFactory: () => new SockJS.default(`${environment.apiUrl}/ws`),
+    //     reconnectDelay: 5000,
+    //     debug: (str) => { /* console.log(str); */ }
+    //   });
+    //
+    //   this.client.onConnect = () => {
+    //     this.subscription = this.client!.subscribe('/topic/matches', (message: IMessage) => {
+    //       this.matchUpdatesSubject.next(JSON.parse(message.body));
+    //     });
+    //     this.subscription = this.client!.subscribe('/topic/selections', (message: IMessage) => {
+    //       this.selectionFeedSubject.next(JSON.parse(message.body));
+    //     });
+    //   };
+    //
+    //   this.client.activate();
+    // }).catch(error => {
+    //   console.error('Failed to load SockJS:', error);
+    // });
   }
 
   ngOnDestroy() {

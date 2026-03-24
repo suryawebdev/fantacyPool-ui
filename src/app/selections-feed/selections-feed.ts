@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { WebSocketService } from '../websocket.service';
+// import { WebSocketService } from '../websocket.service';
 import { MatchService } from '../match.service';
 import { AdminService } from '../admin.service';
 import { TournamentService } from '../tournament.service';
@@ -40,7 +40,7 @@ export class SelectionsFeed implements OnInit {
   expandedMatchId: number | null = null;
 
   constructor(
-    private websocketService: WebSocketService,
+    // private websocketService: WebSocketService,
     private matchService: MatchService,
     private adminService: AdminService,
     private tournamentService: TournamentService,
@@ -55,13 +55,14 @@ export class SelectionsFeed implements OnInit {
       error: () => this.applyLiveFeedConfig({ enabled: false })
     });
 
-    this.websocketService.selectionFeed$.subscribe((selection) => {
-      if (!this.liveFeedConfig?.enabled) return;
-      if (this.liveFeedConfig.tournamentId != null && selection?.match?.tournamentId !== this.liveFeedConfig.tournamentId) return;
-      this.feed.unshift(selection);
-      if (this.feed.length > 10) this.feed.pop();
-      this.cdr.detectChanges();
-    });
+    // WebSockets disabled — live push of selections; REST pagination still works when live feed is enabled
+    // this.websocketService.selectionFeed$.subscribe((selection) => {
+    //   if (!this.liveFeedConfig?.enabled) return;
+    //   if (this.liveFeedConfig.tournamentId != null && selection?.match?.tournamentId !== this.liveFeedConfig.tournamentId) return;
+    //   this.feed.unshift(selection);
+    //   if (this.feed.length > 10) this.feed.pop();
+    //   this.cdr.detectChanges();
+    // });
 
     this.loadTournamentsForMatchSection();
   }
