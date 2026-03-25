@@ -144,24 +144,34 @@
                 }
               </td>
               <td>
-                @if (match.winner) {
-                <span class="winner-badge">{{ getWinnerName(match) }}</span>
+                @if (match.winner || isMatchNoResult(match)) {
+                <span class="winner-badge" [class.nr-winner]="isMatchNoResult(match)">{{ getWinnerName(match) }}</span>
                 } @else {
                 <span class="tbd">TBD</span>
                 }
               </td>
               <td>
-                @if (match.pointsEarned) {
+                @if (match.pointsEarned !== undefined && match.pointsEarned !== null) {
                 <span class="points-earned">{{ match.pointsEarned }}</span>
                 } @else {
                 <span class="no-points">-</span>
                 }
               </td>
               <td>
-                @if (match.userPick === match.winner) {
-                <span class="result-correct">✓ Correct</span>
+                @if (isMatchNoResult(match)) {
+                  @if (match.userPick) {
+                  <span class="result-nr">NR (+1)</span>
+                  } @else {
+                  <span class="result-nr-muted">NR (0)</span>
+                  }
+                } @else if (match.winner) {
+                  @if (match.userPick === match.winner) {
+                  <span class="result-correct">✓ Correct</span>
+                  } @else {
+                  <span class="result-wrong">✗ Wrong</span>
+                  }
                 } @else {
-                <span class="result-wrong">✗ Wrong</span>
+                <span class="tbd">—</span>
                 }
               </td>
             </tr>

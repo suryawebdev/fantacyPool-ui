@@ -18,7 +18,8 @@
         <table class="leaderboard-table">
           <thead>
             <tr>
-              <th>Rank</th>
+              <th class="col-num" title="Order in the list (1, 2, 3…)">#</th>
+              <th title="Rank — tied points share the same rank">Rank</th>
               <th>Name</th>
               <th>Points</th>
               <th class="expand-header"></th>
@@ -30,6 +31,7 @@
                   [class.current-user]="isCurrentUser(user)"
                   [class.expanded]="isExpanded(user.username)"
                   (click)="toggleExpand(user)">
+                <td class="col-num">{{ user.rowNumber }}</td>
                 <td>{{ user.displayRank }}</td>
                 <td>{{ user.firstName }} {{ user.lastName }}</td>
                 <td><strong>{{ user.displayPoints }}</strong></td>
@@ -47,7 +49,7 @@
               </tr>
               @if (isExpanded(user.username)) {
                 <tr class="history-detail-row">
-                  <td colspan="4" class="history-detail-cell">
+                  <td colspan="5" class="history-detail-cell">
                     @if (loadingHistoryForUser === user.username) {
                       <p class="history-loading">Loading match history...</p>
                     } @else if (historyLoadError[user.username]) {
@@ -78,7 +80,9 @@
                                   }
                                 </td>
                                 <td>
-                                  @if (match.winner) {
+                                  @if (isMatchNoResult(match)) {
+                                    <span class="winner-badge nr-winner">NR</span>
+                                  } @else if (match.winner) {
                                     @if (match.userPick === match.winner) {
                                       <span class="winner-badge winner-correct">{{ getWinnerName(match) }}</span>
                                     } @else {

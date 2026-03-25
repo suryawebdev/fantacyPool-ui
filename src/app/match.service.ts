@@ -35,6 +35,15 @@ export class MatchService {
     return this.http.put(`${this.baseUrl}/api/matches/${matchId}/winner`, { winner });
   }
 
+  /**
+   * No result (NR): match abandoned / washout. Backend should award **1 point** to every user who submitted
+   * any pick for this match, and **0** to users with no pick; persist outcome so `GET /api/matches` and history
+   * expose `noResult: true` and/or `winner` as `"NR"` (see docs/BACKEND_CONTRACT.md).
+   */
+  setMatchNoResult(matchId: number): Observable<any> {
+    return this.http.put(`${this.baseUrl}/api/matches/${matchId}/winner`, { noResult: true });
+  }
+
   deleteMatch(matchId: number): Observable<any> {
     return this.http.delete(`${this.baseUrl}/api/matches/${matchId}`);
   }

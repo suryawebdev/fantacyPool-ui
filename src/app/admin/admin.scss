@@ -387,6 +387,23 @@
   transform: translateY(-1px);
 }
 
+.nr-btn {
+  background: rgba(148, 163, 184, 0.15);
+  color: var(--text-secondary, #64748b);
+  border: 1px solid rgba(148, 163, 184, 0.4);
+}
+
+.nr-btn:hover {
+  background: rgba(148, 163, 184, 0.25);
+  transform: translateY(-1px);
+}
+
+.nr-badge {
+  background: rgba(148, 163, 184, 0.2);
+  color: var(--text-secondary, #64748b);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+}
+
 .no-matches {
   text-align: center;
   color: var(--text-secondary);

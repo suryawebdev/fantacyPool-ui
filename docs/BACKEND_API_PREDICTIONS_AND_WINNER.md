@@ -51,7 +51,7 @@ If you still store "A"/"B" in the DB, map to team names when building the respon
 **Request**
 
 - **Method:** `PUT /api/matches/{matchId}/winner`
-- **Body:** `{ "winner": string }`
+- **Body (normal result):** `{ "winner": string }`
 - **`winner`:** The **team name** that won (must equal that match’s `teamA` or `teamB`).
 
 **Example**
@@ -60,9 +60,16 @@ If you still store "A"/"B" in the DB, map to team names when building the respon
 { "winner": "RCB" }
 ```
 
+**Body (no result / NR)**
+
+- `{ "noResult": true }` — match abandoned or washed out; **do not** require `winner`.
+- Backend should award **1 point** to each user who submitted any pick for this match, and **0** to users with no pick.
+- Persist the outcome so list/history APIs expose it (e.g. `noResult: true` and/or `winner: "NR"`).
+
 **Backend should**
 
-- Validate that `winner` is either `match.teamA` or `match.teamB` for the given match.
+- If `noResult` is true: apply NR scoring, set match outcome accordingly, skip team-name validation for `winner`.
+- Else: validate that `winner` is either `match.teamA` or `match.teamB` for the given match.
 - Store the winner as the team name string (or, if you keep "A"/"B" internally, map and store "A"/"B"; when returning the match, expose `winner` as the team name for the frontend).
 
 ---

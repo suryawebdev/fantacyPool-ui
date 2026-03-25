@@ -76,6 +76,14 @@
   font-size: 1.1rem;
 }
 
+.leaderboard-table th.col-num,
+.leaderboard-table td.col-num {
+  width: 2.75rem;
+  text-align: center;
+  color: var(--secondary-text);
+  font-variant-numeric: tabular-nums;
+}
+
 .leaderboard-table td {
   color: var(--text-secondary);
 }
@@ -240,6 +248,11 @@
   .winner-badge.winner-wrong {
     background: rgba(192, 57, 43, 0.15);
     color: var(--danger-color, #c0392b);
+  }
+
+  .winner-badge.nr-winner {
+    background: rgba(148, 163, 184, 0.25);
+    color: var(--text-secondary);
   }
 
   .tbd { color: var(--muted-text); font-style: italic; }

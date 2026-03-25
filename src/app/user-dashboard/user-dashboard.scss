@@ -354,6 +354,24 @@
     font-size: 0.9rem;
 }
 
+.result-nr {
+    color: var(--success-color);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.result-nr-muted {
+    color: var(--muted-text);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.winner-badge.nr-winner {
+    background: rgba(148, 163, 184, 0.35);
+    color: var(--primary-text);
+    text-transform: none;
+}
+
 /* Action Buttons */
 .actions-cell {
     // display: flex;

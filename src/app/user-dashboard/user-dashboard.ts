@@ -10,6 +10,7 @@ import { WelcomeMessageService } from '../welcome-message.service';
 import { TournamentService } from '../tournament.service';
 import { SelectedTournamentService } from '../selected-tournament.service';
 import { Tournament } from '../models/tournament.model';
+import { isNoResultMatch } from '../match-outcome';
 
 @Component({
   selector: 'app-user-dashboard',
@@ -232,10 +233,15 @@ export class UserDashboard implements OnInit {
     return pick;
   }
 
-  /** Display name for winner: supports team name or legacy "A"/"B". */
+  /** Display name for winner: supports team name or legacy "A"/"B"; NR for no result. */
   getWinnerName(match: any): string {
+    if (isNoResultMatch(match)) return 'NR';
     if (!match.winner) return 'TBD';
     if (match.winner === 'A' || match.winner === 'B') return match.winner === 'A' ? match.teamA : match.teamB;
     return match.winner;
+  }
+
+  isMatchNoResult(match: any): boolean {
+    return isNoResultMatch(match);
   }
 }

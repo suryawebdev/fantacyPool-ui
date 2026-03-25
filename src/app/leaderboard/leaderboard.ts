@@ -7,6 +7,7 @@ import { SelectedTournamentService } from '../selected-tournament.service';
 import { MatchService } from '../match.service';
 import { Router } from '@angular/router';
 import { Tournament } from '../models/tournament.model';
+import { isNoResultMatch } from '../match-outcome';
 
 @Component({
   selector: 'app-leaderboard',
@@ -75,11 +76,27 @@ export class Leaderboard implements OnInit {
     this.loadLeaderboard();
   }
 
-  /** Normalize points/rank from various backend field names. */
-  private normalizeLeaderboardEntry(entry: any, index: number): any {
+  /** Normalize points from various backend field names. */
+  private normalizeLeaderboardEntry(entry: any): any {
     const points = entry.totalPoints ?? entry.points ?? entry.score ?? entry.totalScore ?? 0;
-    const rank = entry.rank ?? entry.position ?? index + 1;
-    return { ...entry, displayPoints: Number(points), displayRank: rank };
+    return { ...entry, displayPoints: Number(points) };
+  }
+
+  /**
+   * Sort by points descending, assign competition rank (ties share the same rank),
+   * and row numbers (#) 1..n in display order.
+   */
+  private computeLeaderboardWithRanks(raw: any[]): any[] {
+    const withPoints = raw.map((u: any) => this.normalizeLeaderboardEntry(u));
+    const sorted = [...withPoints].sort((a, b) => b.displayPoints - a.displayPoints);
+    let rank = 1;
+    return sorted.map((entry, index) => {
+      const rowNumber = index + 1;
+      if (index > 0 && entry.displayPoints < sorted[index - 1].displayPoints) {
+        rank = index + 1;
+      }
+      return { ...entry, displayRank: rank, rowNumber };
+    });
   }
 
   loadLeaderboard() {
@@ -94,7 +111,7 @@ export class Leaderboard implements OnInit {
     this.tournamentService.getTournamentLeaderboard(this.selectedTournamentId).subscribe({
       next: (data) => {
         const raw = (data || []).filter((u: any) => u.enabled !== false);
-        this.leaderboard = raw.map((u: any, i: number) => this.normalizeLeaderboardEntry(u, i));
+        this.leaderboard = this.computeLeaderboardWithRanks(raw);
         this.loadingLeaderboard = false;
       },
       error: (err) => {
@@ -154,8 +171,13 @@ export class Leaderboard implements OnInit {
   }
 
   getWinnerName(match: any): string {
+    if (isNoResultMatch(match)) return 'NR';
     if (!match.winner) return 'TBD';
     if (match.winner === 'A' || match.winner === 'B') return match.winner === 'A' ? match.teamA : match.teamB;
     return match.winner;
+  }
+
+  isMatchNoResult(match: any): boolean {
+    return isNoResultMatch(match);
   }
 }

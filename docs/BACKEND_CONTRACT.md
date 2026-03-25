@@ -23,7 +23,13 @@ Base URL: `environment.apiUrl` (e.g. `http://localhost:8080`). All paths below a
 | GET | `/api/predictions/me/history?tournamentId=` | Dashboard history, Analytics (my) | `{ totalPoints: number, matches: Array<{ id, teamA, teamB, startDateTime, userPick, winner?, pointsEarned? }> }` |
 | GET | `/api/predictions/mine` | Dashboard (picks) | `Array<{ matchId, team: string }>` |
 | POST | `/api/predictions` | Dashboard (save pick) | Body: `{ matchId, team }` |
-| PUT | `/api/matches/:id/winner` | Admin | Body: `{ winner: string }` |
+| PUT | `/api/matches/:id/winner` | Admin | Body: `{ winner: string }` **or** `{ noResult: true }` for **No result (NR)** |
+
+**No result (NR)** — When the body is `{ "noResult": true }` (and no `winner`), the backend should:
+
+- Mark the match as finalized with no winning team (e.g. `noResult: true` on the match and/or `winner: "NR"` in API responses).
+- Award **1 point** to every user who had **any** prediction for that match, and **0** to users with no pick.
+- Include `pointsEarned` (0 or 1) and `winner` / `noResult` in prediction history responses so the dashboard can show NR correctly.
 
 ---
 

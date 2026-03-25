@@ -8,6 +8,7 @@ import { TournamentService } from '../tournament.service';
 import { AuthService } from '../auth.service';
 import { SelectedTournamentService } from '../selected-tournament.service';
 import { Tournament } from '../models/tournament.model';
+import { isNoResultMatch } from '../match-outcome';
 
 @Component({
   selector: 'app-analytics',
@@ -276,7 +277,7 @@ export class Analytics implements OnInit {
           const label = m.teamA && m.teamB ? `${m.teamA} vs ${m.teamB}` : `Match ${i + 1}`;
           labels.push(label.length > 18 ? label.slice(0, 16) + '…' : label);
 
-          if (m.winner) {
+          if (m.winner && !isNoResultMatch(m)) {
             if (m.userPick === m.winner) correct++;
             else wrong++;
           }

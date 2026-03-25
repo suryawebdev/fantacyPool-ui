@@ -8,6 +8,7 @@ import { AdminService, PendingUser } from '../admin.service';
 import { NotificationService } from '../notification.service';
 import { TournamentManagement } from '../tournament-management/tournament-management';
 import { Tournament } from '../models/tournament.model';
+import { isNoResultMatch, matchHasDeclaredOutcome } from '../match-outcome';
 
 @Component({
   selector: 'app-admin',
@@ -376,6 +377,33 @@ export class Admin implements OnInit {
       },
       error: (err) => {
         this.notification.showError('Error setting winner');
+      }
+    });
+  }
+
+  matchHasOutcome(match: any): boolean {
+    return matchHasDeclaredOutcome(match);
+  }
+
+  showNoResultBadge(match: any): boolean {
+    return isNoResultMatch(match);
+  }
+
+  setNoResult(match: any) {
+    if (
+      !confirm(
+        'Mark this match as No result (NR)? Users who made a pick get 1 point; users with no pick get 0.'
+      )
+    ) {
+      return;
+    }
+    this.matchService.setMatchNoResult(match.id).subscribe({
+      next: () => {
+        this.loadMatches();
+        this.notification.showSuccess('Match marked as no result (NR)');
+      },
+      error: () => {
+        this.notification.showError('Failed to set no result. Ensure the API supports noResult on PUT /winner.');
       }
     });
   }
