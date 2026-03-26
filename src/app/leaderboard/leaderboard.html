@@ -15,13 +15,27 @@
       @if (loadingLeaderboard) {
         <p class="loading-text">Loading leaderboard...</p>
       } @else if (leaderboard.length > 0) {
+        <div class="legend-section">
+          <h3 class="legend-title">Legend</h3>
+          <div class="legend-items">
+            <span class="legend-item">
+              <span class="np-badge">NP</span>
+              <span>= No Pick</span>
+            </span>
+            <span class="legend-item">
+              <span class="nr-badge">NR</span>
+              <span>= No Result</span>
+            </span>
+          </div>
+        </div>
         <table class="leaderboard-table">
           <thead>
             <tr>
-              <th class="col-num" title="Order in the list (1, 2, 3…)">#</th>
               <th title="Rank — tied points share the same rank">Rank</th>
+              <!-- <th class="col-num" title="Order in the list (1, 2, 3…)">#</th> -->
               <th>Name</th>
               <th>Points</th>
+              
               <th class="expand-header"></th>
             </tr>
           </thead>
@@ -31,10 +45,11 @@
                   [class.current-user]="isCurrentUser(user)"
                   [class.expanded]="isExpanded(user.username)"
                   (click)="toggleExpand(user)">
-                <td class="col-num">{{ user.rowNumber }}</td>
                 <td>{{ user.displayRank }}</td>
+                <!-- <td class="col-num">{{ user.rowNumber }}</td> -->
                 <td>{{ user.firstName }} {{ user.lastName }}</td>
                 <td><strong>{{ user.displayPoints }}</strong></td>
+                
                 <td class="expand-cell">
                   <button type="button" class="expand-btn" (click)="toggleExpand(user); $event.stopPropagation()"
                     [attr.aria-expanded]="isExpanded(user.username)"
@@ -75,6 +90,8 @@
                                 <td>
                                   @if (match.userPick) {
                                     <span class="pick-badge pick-{{ match.userPick?.toLowerCase() }}">{{ getTeamName(match, match.userPick) }}</span>
+                                  } @else if (match.isNoPick) {
+                                    <span class="no-pick nr-badge">NP</span>
                                   } @else {
                                     <span class="no-pick">No Pick</span>
                                   }

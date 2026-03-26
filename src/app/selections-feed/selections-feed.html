@@ -40,7 +40,7 @@
                           <span class="pick-team">{{ getTeamDisplayName(match, entry.team) }}</span>
                           @if (entry.correct === true) {
                             <span class="pick-result correct">✓ Correct</span>
-                          } @else if (entry.correct === false) {
+                          } @else if (entry && entry.correct === false) {
                             <span class="pick-result wrong">✗ Wrong</span>
                           }
                         </li>

@@ -109,6 +109,20 @@
   <div class="history-section" *ngIf="selectedTournamentId != null">
     <h2 class="section-title">Your Match History</h2>
 
+    <div class="legend-section">
+      <h3 class="legend-title">Legend</h3>
+      <div class="legend-items">
+        <span class="legend-item">
+          <span class="np-badge">NP</span>
+          <span>= No Pick</span>
+        </span>
+        <span class="legend-item">
+          <span class="nr-badge">NR</span>
+          <span>= No Result</span>
+        </span>
+      </div>
+    </div>
+
     @if (userHistory.length > 0) {
     <div class="table-container table-container-scroll">
       <table class="matches-table matches-table-header">
@@ -139,6 +153,8 @@
                 <span class="pick-badge pick-{{ match.userPick.toLowerCase() }}">
                   {{ getTeamName(match, match.userPick) }}
                 </span>
+                } @else if (match.isNoPick) {
+                <span class="no-pick nr-badge">NP</span>
                 } @else {
                 <span class="no-pick">No Pick</span>
                 }

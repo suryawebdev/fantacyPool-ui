@@ -37,6 +37,8 @@ export class UserDashboard implements OnInit {
   myTournaments: Tournament[] = [];
   selectedTournamentId: number | null = null;
   loadingTournaments = false;
+  /** All matches in the selected tournament */
+  allTournamentMatches: any[] = [];
 
   @ViewChild('upcomingMatchesBody') upcomingMatchesBody?: ElementRef<HTMLDivElement>;
 
@@ -105,6 +107,7 @@ export class UserDashboard implements OnInit {
       this.userHistory = [];
       this.totalPoints = 0;
       this.userRank = null;
+      this.allTournamentMatches = [];
       return;
     }
     this.loadLeaderboardRank();
@@ -148,15 +151,53 @@ export class UserDashboard implements OnInit {
   }
 
   loadUserData() {
-    this.matchService.getUserHistory(this.selectedTournamentId ?? undefined).subscribe({
-      next: (data) => {
-        this.totalPoints = data.totalPoints;
-        this.userHistory = data.matches || [];
-      },
-      error: (err) => {
-        console.error('Error fetching user history:', err);
+    if (this.selectedTournamentId == null) return;
+    
+    // Load both user history and all tournament matches
+    Promise.all([
+      this.matchService.getUserHistory(this.selectedTournamentId).toPromise(),
+      this.matchService.getMatchesByTournament(this.selectedTournamentId).toPromise()
+    ]).then(([historyData, matchesData]) => {
+      const pickedMatches = historyData?.matches ?? [];
+      this.totalPoints = historyData?.totalPoints ?? 0;
+      this.allTournamentMatches = matchesData ?? [];
+      
+      // Merge picked matches with all tournament matches
+      this.userHistory = this.mergePickedWithAllMatches(pickedMatches);
+    }).catch((err) => {
+      console.error('Error fetching user data:', err);
+      this.totalPoints = 0;
+      this.userHistory = [];
+      this.allTournamentMatches = [];
+    });
+  }
+
+  /** Merge picked matches with all tournament matches. Show NR for matches not picked. */
+  private mergePickedWithAllMatches(pickedMatches: any[]): any[] {
+    // Create a map of picked matches by ID for quick lookup
+    const pickedMatchMap = new Map(pickedMatches.map(m => [m.matchId, m]));
+    
+    // For each tournament match, use picked data if available, otherwise mark as NR
+    const mergedMatches = this.allTournamentMatches.map(tournamentMatch => {
+      const pickedMatch = pickedMatchMap.get(tournamentMatch.id);
+      
+      if (pickedMatch) {
+        // User picked this match - use the picked match data (includes userPick)
+        return pickedMatch;
+      } else {
+        // User didn't pick this match - create entry with NR
+        return {
+          ...tournamentMatch,
+          userPick: null, // No pick from user
+          isNoPick: true  // Mark as no pick
+        };
       }
     });
+    
+    // Sort by date
+    return mergedMatches.sort((a, b) => 
+      new Date(a.startDateTime).getTime() - new Date(b.startDateTime).getTime()
+    );
   }
 
   loadUserPicks() {

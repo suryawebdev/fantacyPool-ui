@@ -31,6 +31,8 @@ export class Leaderboard implements OnInit {
   loadingHistoryForUser: string | null = null;
   /** Username -> error message when history load failed */
   historyLoadError: Record<string, string> = {};
+  /** All matches in the selected tournament */
+  allTournamentMatches: any[] = [];
 
   constructor(
     private tournamentService: TournamentService,
@@ -90,11 +92,17 @@ export class Leaderboard implements OnInit {
     const withPoints = raw.map((u: any) => this.normalizeLeaderboardEntry(u));
     const sorted = [...withPoints].sort((a, b) => b.displayPoints - a.displayPoints);
     let rank = 1;
+    let previousPoints: number | null = null;
+    
     return sorted.map((entry, index) => {
       const rowNumber = index + 1;
-      if (index > 0 && entry.displayPoints < sorted[index - 1].displayPoints) {
-        rank = index + 1;
+      // Only increment rank when points differ from previous entry
+      if (previousPoints !== null && entry.displayPoints < previousPoints) {
+        // Count how many unique point values we've seen to determine correct rank
+        const uniquePointsBefore = new Set(sorted.slice(0, index).map(e => e.displayPoints)).size;
+        rank = uniquePointsBefore + 1;
       }
+      previousPoints = entry.displayPoints;
       return { ...entry, displayRank: rank, rowNumber };
     });
   }
@@ -107,18 +115,23 @@ export class Leaderboard implements OnInit {
     this.expandedUsernames.clear();
     this.userHistoryCache = {};
     this.historyLoadError = {};
+    this.allTournamentMatches = [];
     this.loadingLeaderboard = true;
-    this.tournamentService.getTournamentLeaderboard(this.selectedTournamentId).subscribe({
-      next: (data) => {
-        const raw = (data || []).filter((u: any) => u.enabled !== false);
-        this.leaderboard = this.computeLeaderboardWithRanks(raw);
-        this.loadingLeaderboard = false;
-      },
-      error: (err) => {
-        console.error('Error fetching leaderboard:', err);
-        this.leaderboard = [];
-        this.loadingLeaderboard = false;
-      }
+    
+    // Load both leaderboard and all tournament matches
+    Promise.all([
+      this.tournamentService.getTournamentLeaderboard(this.selectedTournamentId).toPromise(),
+      this.matchService.getMatchesByTournament(this.selectedTournamentId).toPromise()
+    ]).then(([leaderboardData, matchesData]) => {
+      const raw = (leaderboardData || []).filter((u: any) => u.enabled !== false);
+      this.leaderboard = this.computeLeaderboardWithRanks(raw);
+      this.allTournamentMatches = matchesData || [];
+      this.loadingLeaderboard = false;
+    }).catch((err) => {
+      console.error('Error fetching leaderboard or matches:', err);
+      this.leaderboard = [];
+      this.allTournamentMatches = [];
+      this.loadingLeaderboard = false;
     });
   }
 
@@ -148,7 +161,12 @@ export class Leaderboard implements OnInit {
     const tid = this.selectedTournamentId ?? undefined;
     this.matchService.getUserHistoryByUsername(username, tid).subscribe({
       next: (data) => {
-        this.userHistoryCache[username] = { totalPoints: data.totalPoints ?? 0, matches: data.matches ?? [] };
+        const pickedMatches = data.matches ?? [];
+        
+        // Merge picked matches with all tournament matches
+        const enrichedMatches = this.mergePickedWithAllMatches(pickedMatches);
+        
+        this.userHistoryCache[username] = { totalPoints: data.totalPoints ?? 0, matches: enrichedMatches };
         this.loadingHistoryForUser = null;
       },
       error: () => {
@@ -156,6 +174,34 @@ export class Leaderboard implements OnInit {
         this.loadingHistoryForUser = null;
       }
     });
+  }
+
+  /** Merge picked matches with all tournament matches. Show NR for matches not picked. */
+  private mergePickedWithAllMatches(pickedMatches: any[]): any[] {
+    // Create a map of picked matches by ID for quick lookup
+    const pickedMatchMap = new Map(pickedMatches.map(m => [m.matchId, m]));
+    
+    // For each tournament match, use picked data if available, otherwise mark as NR
+    const mergedMatches = this.allTournamentMatches.map(tournamentMatch => {
+      const pickedMatch = pickedMatchMap.get(tournamentMatch.id);
+      
+      if (pickedMatch) {
+        // User picked this match - use the picked match data (includes userPick)
+        return pickedMatch;
+      } else {
+        // User didn't pick this match - create entry with NR
+        return {
+          ...tournamentMatch,
+          userPick: null, // No pick from user
+          isNoPick: true  // Mark as no pick
+        };
+      }
+    });
+    
+    // Sort by date
+    return mergedMatches.sort((a, b) => 
+      new Date(a.startDateTime).getTime() - new Date(b.startDateTime).getTime()
+    );
   }
 
   getHistoryForUser(username: string): any[] {

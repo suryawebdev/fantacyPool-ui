@@ -312,6 +312,18 @@
     font-size: 0.9rem;
 }
 
+.nr-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: rgba(148, 163, 184, 0.25);
+    color: var(--text-secondary);
+    border: 1px solid rgba(148, 163, 184, 0.3);
+}
+
 /* Winner Badge */
 .winner-badge {
     background: linear-gradient(135deg, var(--success-color) 0%, #00b894 100%);
@@ -456,6 +468,59 @@
     padding: 2rem;
     box-shadow: var(--shadow-medium);
     border: 1px solid var(--border-color);
+}
+
+/* Legend Section */
+.legend-section {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: var(--secondary-bg);
+  border-left: 4px solid var(--primary-accent);
+  border-radius: var(--radius-md);
+}
+
+.legend-title {
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.legend-items {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.np-badge,
+.nr-badge {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  min-width: 2rem;
+  text-align: center;
+}
+
+.np-badge {
+  background: rgba(148, 163, 184, 0.25);
+  color: var(--text-secondary);
+}
+
+.nr-badge {
+  background: rgba(148, 163, 184, 0.25);
+  color: var(--text-secondary);
 }
 
 /* Responsive Design - mobile viewport: use more horizontal space, no scroll */
