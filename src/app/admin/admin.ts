@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { MatchService } from '../match.service';
@@ -9,11 +9,17 @@ import { NotificationService } from '../notification.service';
 import { TournamentManagement } from '../tournament-management/tournament-management';
 import { Tournament } from '../models/tournament.model';
 import { isNoResultMatch, matchHasDeclaredOutcome } from '../match-outcome';
+import {
+  parseBulkMatchJson,
+  formatDatetimeLocalForDisplay,
+  type ParsedBulkRow
+} from '../match-bulk-import.util';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, TournamentManagement],
+  imports: [ReactiveFormsModule, FormsModule, CommonModule, TournamentManagement],
   templateUrl: './admin.html',
   styleUrl: './admin.scss'
 })
@@ -32,6 +38,23 @@ export class Admin implements OnInit {
   liveFeedEnabled = false;
   liveFeedTournamentId: number | null = null;
   liveFeedSaving = false;
+
+  /** Bulk JSON import (matches tab) */
+  bulkImportTournamentId: number | null = null;
+  bulkImportYear = new Date().getFullYear();
+  bulkImportJsonText = '';
+  bulkImportPreview: ParsedBulkRow[] | null = null;
+  bulkImporting = false;
+  bulkImportResult: {
+    created: number;
+    failed: { index: number; message: string }[];
+    createdDetails?: { jsonRowIndex: number; matchId: number }[];
+  } | null = null;
+
+  /** Example JSON for docs / copy-paste (shown in template with ngNonBindable). */
+  bulkImportExampleJson = `[
+  { "MatchNumber": 21, "Teams": "RCB VS SRH", "Date&Time": "March 28th Saturday 9:00AM CST", "Venue": "Bengaluru" }
+]`;
 
   constructor(
     private fb: FormBuilder,
@@ -406,6 +429,122 @@ export class Admin implements OnInit {
         this.notification.showError('Failed to set no result. Ensure the API supports noResult on PUT /winner.');
       }
     });
+  }
+
+  /** Preview cell: same calendar style as match table for datetime-local strings. */
+  formatBulkWhen(value: string | undefined): string {
+    if (value == null || value === '') return '-';
+    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(value)) {
+      return formatDatetimeLocalForDisplay(value);
+    }
+    return value;
+  }
+
+  onBulkImportFile(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.bulkImportJsonText = typeof reader.result === 'string' ? reader.result : '';
+      this.previewBulkImport();
+    };
+    reader.readAsText(file);
+    input.value = '';
+  }
+
+  previewBulkImport(): void {
+    this.bulkImportResult = null;
+    if (!this.bulkImportJsonText.trim()) {
+      this.bulkImportPreview = null;
+      return;
+    }
+    try {
+      const raw = JSON.parse(this.bulkImportJsonText);
+      const parsed = parseBulkMatchJson(raw, { defaultYear: this.bulkImportYear });
+      if (parsed.rootTournamentId != null && this.bulkImportTournamentId == null) {
+        this.bulkImportTournamentId = parsed.rootTournamentId;
+      }
+      if (parsed.rootYear != null) {
+        this.bulkImportYear = parsed.rootYear;
+      }
+      this.bulkImportPreview = parsed.rows;
+    } catch {
+      this.bulkImportPreview = null;
+      this.notification.showError('Invalid JSON — fix syntax and try Preview again');
+    }
+  }
+
+  async importBulkMatches(): Promise<void> {
+    this.bulkImportResult = null;
+    let raw: unknown;
+    try {
+      raw = JSON.parse(this.bulkImportJsonText);
+    } catch {
+      this.notification.showError('Invalid JSON');
+      return;
+    }
+    const parsed = parseBulkMatchJson(raw, { defaultYear: this.bulkImportYear });
+    const tournamentId = parsed.rootTournamentId ?? this.bulkImportTournamentId;
+    if (tournamentId == null || Number.isNaN(Number(tournamentId))) {
+      this.notification.showError('Select a tournament for import (or include tournamentId in JSON root)');
+      return;
+    }
+    const valid = parsed.rows.filter(
+      (r) => !r.error && r.teamA && r.teamB && r.startDateTime
+    );
+    if (valid.length === 0) {
+      this.notification.showError('No valid rows to import — check Preview for errors');
+      return;
+    }
+    if (
+      !confirm(
+        `Create ${valid.length} match(es) for tournament #${tournamentId}?`
+      )
+    ) {
+      return;
+    }
+
+    this.bulkImporting = true;
+    const failed: { index: number; message: string }[] = [];
+    const createdDetails: { jsonRowIndex: number; matchId: number }[] = [];
+    let created = 0;
+
+    for (const row of valid) {
+      try {
+        const createdMatch = await firstValueFrom(
+          this.matchService.createMatch({
+            teamA: row.teamA!,
+            teamB: row.teamB!,
+            startDateTime: row.startDateTime!,
+            tournamentId: Number(tournamentId)
+          })
+        );
+        created++;
+        if (createdMatch?.id != null && Number.isFinite(Number(createdMatch.id))) {
+          createdDetails.push({ jsonRowIndex: row.index, matchId: Number(createdMatch.id) });
+        }
+      } catch (e: any) {
+        const msg =
+          e?.error?.message ||
+          e?.message ||
+          (typeof e?.error === 'string' ? e.error : 'Request failed');
+        failed.push({ index: row.index, message: String(msg) });
+      }
+    }
+
+    this.bulkImporting = false;
+    this.bulkImportResult = {
+      created,
+      failed,
+      ...(createdDetails.length > 0 ? { createdDetails } : {})
+    };
+    this.loadMatches();
+    if (failed.length === 0) {
+      this.notification.showSuccess(`Created ${created} match(es)`);
+    } else {
+      this.notification.showError(`Created ${created}; ${failed.length} failed (see list below)`);
+    }
   }
 
   deleteMatch(matchId: any) {

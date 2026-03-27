@@ -116,6 +116,144 @@
       </form>
     </div>
   }
+
+    <div class="bulk-import-section">
+      <details class="bulk-import-details">
+        <summary class="bulk-import-details-summary">
+          <div class="bulk-import-details-summary-text">
+            <span class="section-title bulk-import-details-title">Bulk import matches</span>
+            <span class="bulk-import-details-hint"
+              >Upload or paste JSON to create many matches — <strong>fields are inside</strong> (click to expand)</span>
+          </div>
+          <span class="bulk-import-details-cue">
+            <span class="bulk-import-details-arrow">▶</span>
+            <span class="bulk-import-details-cue-label">
+              <span class="bulk-import-details-cue-when-collapsed">Show fields</span>
+              <span class="bulk-import-details-cue-when-open">Hide fields</span>
+            </span>
+          </span>
+        </summary>
+        <div class="bulk-import-details-body">
+      <!-- <p class="bulk-import-help">
+        Upload a <code>.json</code> file or paste JSON below. Supported shapes:
+        <strong>schedule</strong> rows like
+        <code>Teams</code> (e.g. <code>"RCB VS SRH"</code>) and <code>Date&amp;Time</code> (e.g. <code>March 28th Saturday 9:00AM CST</code>),
+        or explicit <code>teamA</code>, <code>teamB</code>, <code>startDateTime</code>
+        (<code>yyyy-MM-ddTHH:mm</code>, US calendar <code>03/26/2026, 12:22 PM</code>, or ISO with <code>Z</code> / offset).
+        Optional root object may include <code>tournamentId</code>, <code>year</code>, and a <code>matches</code> array.
+        Each row’s schedule time in JSON is interpreted as the <strong>nominal match start</strong>; the value saved as
+        <code>startDateTime</code> is <strong>45 minutes earlier</strong> (pick lock = stored time), in
+        <code>yyyy-MM-ddTHH:mm</code>, shown in the list as <code>MM/dd/yyyy, h:mm AM/PM</code>.
+        Optional per-row <code>MatchNumber</code>, <code>matchId</code>, <code>id</code>, or <code>fixtureId</code> (and similar) appears in the
+        preview <strong>Match ID</strong> column for reference; after import, server-assigned ids are listed under the result.
+      </p> -->
+      <details class="bulk-example-details">
+        <summary class="bulk-example-summary">Example JSON</summary>
+        <pre class="bulk-example-pre" [textContent]="bulkImportExampleJson"></pre>
+      </details>
+      <div class="bulk-import-controls">
+        <div class="form-group">
+          <label for="bulk-tournament">Tournament for new matches *</label>
+          <select id="bulk-tournament" class="tournament-select" [(ngModel)]="bulkImportTournamentId">
+            <option [ngValue]="null">Select tournament</option>
+            @for (t of tournaments; track t.id) {
+              <option [ngValue]="t.id">{{ t.name }}</option>
+            }
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="bulk-year">Year</label>
+          <input id="bulk-year" type="number" class="tournament-select" [(ngModel)]="bulkImportYear" min="2000" max="2100" />
+        </div>
+        <div class="form-group bulk-file">
+          <label for="bulk-json-file">JSON file</label>
+          <input
+            id="bulk-json-file"
+            type="file"
+            accept="application/json,.json"
+            (change)="onBulkImportFile($event)"
+          />
+        </div>
+      </div>
+      <label for="bulk-json-text" class="bulk-json-label">JSON</label>
+      <textarea
+        id="bulk-json-text"
+        class="bulk-json-textarea"
+        rows="8"
+        [(ngModel)]="bulkImportJsonText"
+        (blur)="previewBulkImport()"
+        placeholder="Paste a JSON array, or use Upload JSON file"
+      ></textarea>
+      <div class="bulk-import-actions">
+        <button type="button" class="submit-btn" (click)="previewBulkImport()" [disabled]="bulkImporting">Preview</button>
+        <button
+          type="button"
+          class="submit-btn bulk-import-run"
+          (click)="importBulkMatches()"
+          [disabled]="bulkImporting || !bulkImportJsonText.trim()"
+        >
+          {{ bulkImporting ? 'Importing…' : 'Import matches' }}
+        </button>
+      </div>
+      @if (bulkImportPreview && bulkImportPreview.length > 0) {
+        <div class="bulk-preview-wrap">
+          <h3 class="bulk-preview-title">Preview - {{ bulkImportPreview.length }} rows</h3>
+          <div class="table-container">
+            <table class="matches-table bulk-preview-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Match ID</th>
+                  <th>Team A</th>
+                  <th>Team B</th>
+                  <th>Stored start (45 min before JSON schedule)</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of bulkImportPreview; track row.index) {
+                  <tr [class.bulk-row-error]="row.error">
+                    <td>{{ row.index + 1 }}</td>
+                    <td>{{ row.jsonMatchId ?? '—' }}</td>
+                    <td>{{ row.teamA ?? '-' }}</td>
+                    <td>{{ row.teamB ?? '-' }}</td>
+                    <td class="bulk-dt-cell">{{ formatBulkWhen(row.startDateTime) }}</td>
+                    <td>{{ row.error ?? 'OK' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      }
+      @if (bulkImportResult) {
+        <div class="bulk-result" [class.bulk-result-partial]="bulkImportResult.failed.length > 0">
+          <p>
+            <strong>Created:</strong> {{ bulkImportResult.created }}
+            @if (bulkImportResult.failed.length > 0) {
+              <span> — <strong>Failed:</strong> {{ bulkImportResult.failed.length }}</span>
+            }
+          </p>
+          @if (bulkImportResult.failed.length > 0) {
+            <ul class="bulk-fail-list">
+              @for (f of bulkImportResult.failed; track f.index) {
+                <li>Row {{ f.index + 1 }}: {{ f.message }}</li>
+              }
+            </ul>
+          }
+          @if (bulkImportResult.createdDetails && bulkImportResult.createdDetails.length > 0) {
+            <p class="bulk-created-ids-title"><strong>Created match ids (server):</strong></p>
+            <ul class="bulk-created-ids-list">
+              @for (c of bulkImportResult.createdDetails; track c.jsonRowIndex) {
+                <li>Row {{ c.jsonRowIndex + 1 }} → #{{ c.matchId }}</li>
+              }
+            </ul>
+          }
+        </div>
+      }
+        </div>
+      </details>
+    </div>
   
     <div class="matches-section">
       <h2 class="section-title">All Matches by Tournament</h2>
