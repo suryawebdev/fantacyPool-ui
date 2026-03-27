@@ -56,7 +56,13 @@
           </tr>
         </thead>
       </table>
-      <div class="table-body-scroll" #upcomingMatchesBody>
+      <div
+        class="table-body-scroll"
+        #upcomingMatchesBody
+        (scroll)="onDashboardTableScroll('upcoming', $event)"
+        role="region"
+        aria-label="Upcoming matches list"
+      >
         <table class="matches-table matches-table-body">
           <tbody>
             @for (match of upcomingMatches; track match.id; let i = $index) {
@@ -139,7 +145,13 @@
           </tr>
         </thead>
       </table>
-      <div class="table-body-scroll">
+      <div
+        class="table-body-scroll"
+        #historyMatchesBody
+        (scroll)="onDashboardTableScroll('history', $event)"
+        role="region"
+        aria-label="Match history list"
+      >
         <table class="matches-table matches-table-body">
           <tbody>
             @for (match of userHistory; track match.id; let i = $index) {

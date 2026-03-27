@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnDestroy, OnInit, HostListener, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -18,7 +18,7 @@ import { isNoResultMatch } from '../match-outcome';
   templateUrl: './user-dashboard.html',
   styleUrl: './user-dashboard.scss'
 })
-export class UserDashboard implements OnInit {
+export class UserDashboard implements OnInit, OnDestroy {
   points: number = 0;
   upcomingMatches: any[] = [];
   user: {
@@ -41,6 +41,10 @@ export class UserDashboard implements OnInit {
   allTournamentMatches: any[] = [];
 
   @ViewChild('upcomingMatchesBody') upcomingMatchesBody?: ElementRef<HTMLDivElement>;
+  @ViewChild('historyMatchesBody') historyMatchesBody?: ElementRef<HTMLDivElement>;
+
+  private scrollPersistTimer: ReturnType<typeof setTimeout> | null = null;
+  private readonly scrollDebounceMs = 150;
 
   constructor(
     private matchService: MatchService,
@@ -234,6 +238,7 @@ export class UserDashboard implements OnInit {
       }
       return match;
     });
+    this.scheduleHistoryScrollRestore();
   }
 
   loadUpcomingMatches() {
@@ -249,7 +254,7 @@ export class UserDashboard implements OnInit {
         this.upcomingMatches.forEach(match => {
           match.userPick = this.userPicks[match.id];
         });
-        setTimeout(() => this.scrollUpcomingToBottom(), 150);
+        this.scheduleUpcomingScrollRestore();
       },
       error: () => {
         this.upcomingMatches = [];
@@ -257,11 +262,103 @@ export class UserDashboard implements OnInit {
     });
   }
 
-  /** Scroll upcoming matches table to bottom so latest matches are in view. */
-  scrollUpcomingToBottom(): void {
-    const el = this.upcomingMatchesBody?.nativeElement;
-    if (el) {
-      el.scrollTop = el.scrollHeight;
+  ngOnDestroy(): void {
+    if (this.scrollPersistTimer != null) {
+      clearTimeout(this.scrollPersistTimer);
+      this.scrollPersistTimer = null;
+    }
+    this.flushScrollPositionsToStorage();
+  }
+
+  @HostListener('document:visibilitychange')
+  onDocumentVisibilityChange(): void {
+    if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
+      this.flushScrollPositionsToStorage();
+    }
+  }
+
+  /** Persist vertical scroll for upcoming / history tables (desktop + mobile touch scroll). */
+  onDashboardTableScroll(kind: 'upcoming' | 'history', event: Event): void {
+    const el = event.target as HTMLElement;
+    if (this.scrollPersistTimer != null) {
+      clearTimeout(this.scrollPersistTimer);
+    }
+    this.scrollPersistTimer = setTimeout(() => {
+      this.scrollPersistTimer = null;
+      this.writeStoredScroll(kind, el.scrollTop);
+    }, this.scrollDebounceMs);
+  }
+
+  private scrollStorageKey(kind: 'upcoming' | 'history'): string | null {
+    const tid = this.selectedTournamentId;
+    const u = (this.user?.username ?? 'user').trim() || 'user';
+    if (tid == null) return null;
+    return `fantacyPool.dashboardScroll.v1.${encodeURIComponent(u)}.${tid}.${kind}`;
+  }
+
+  private readStoredScroll(kind: 'upcoming' | 'history'): number | null {
+    const k = this.scrollStorageKey(kind);
+    if (!k) return null;
+    try {
+      const v = localStorage.getItem(k);
+      if (v == null) return null;
+      const n = Number(v);
+      return Number.isFinite(n) && n >= 0 ? n : null;
+    } catch {
+      return null;
+    }
+  }
+
+  private writeStoredScroll(kind: 'upcoming' | 'history', top: number): void {
+    const k = this.scrollStorageKey(kind);
+    if (!k) return;
+    try {
+      localStorage.setItem(k, String(Math.round(top)));
+    } catch {
+      /* quota / private mode */
+    }
+  }
+
+  private flushScrollPositionsToStorage(): void {
+    const u = this.upcomingMatchesBody?.nativeElement;
+    const h = this.historyMatchesBody?.nativeElement;
+    if (u) this.writeStoredScroll('upcoming', u.scrollTop);
+    if (h) this.writeStoredScroll('history', h.scrollTop);
+  }
+
+  private scheduleUpcomingScrollRestore(): void {
+    setTimeout(() => this.restoreScrollWithRetry('upcoming'), 0);
+  }
+
+  private scheduleHistoryScrollRestore(): void {
+    setTimeout(() => this.restoreScrollWithRetry('history'), 0);
+  }
+
+  /**
+   * Restore saved scrollTop, or default upcoming to bottom when nothing stored (latest matches).
+   */
+  private restoreScrollWithRetry(kind: 'upcoming' | 'history', attempt = 0): void {
+    const el =
+      kind === 'upcoming'
+        ? this.upcomingMatchesBody?.nativeElement
+        : this.historyMatchesBody?.nativeElement;
+    if (!el) return;
+
+    const maxScroll = Math.max(0, el.scrollHeight - el.clientHeight);
+    if (maxScroll <= 0 && attempt < 8) {
+      setTimeout(() => this.restoreScrollWithRetry(kind, attempt + 1), 50);
+      return;
+    }
+
+    const stored = this.readStoredScroll(kind);
+    if (stored != null) {
+      el.scrollTop = Math.min(stored, maxScroll);
+      return;
+    }
+    if (kind === 'upcoming') {
+      el.scrollTop = maxScroll;
+    } else {
+      el.scrollTop = 0;
     }
   }
 
