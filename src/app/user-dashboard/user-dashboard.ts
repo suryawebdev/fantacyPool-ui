@@ -10,7 +10,12 @@ import { WelcomeMessageService } from '../welcome-message.service';
 import { TournamentService } from '../tournament.service';
 import { SelectedTournamentService } from '../selected-tournament.service';
 import { Tournament } from '../models/tournament.model';
-import { isNoResultMatch } from '../match-outcome';
+import { isNoResultMatch, matchHasDeclaredOutcome, userPickMatchesWinner } from '../match-outcome';
+import {
+  funnyBannerSubtitle,
+  funnyWinEmojiBand,
+  funnyWinLineForMatch
+} from '../win-fun.util';
 
 @Component({
   selector: 'app-user-dashboard',
@@ -39,6 +44,13 @@ export class UserDashboard implements OnInit {
   loadingTournaments = false;
   /** All matches in the selected tournament */
   allTournamentMatches: any[] = [];
+
+  /** Funny congrats when new wins are announced (dismiss persists match ids in localStorage). */
+  showWinFunBanner = false;
+  winFunBannerMatches: { id: number; teamA: string; teamB: string; winnerLabel: string; quip: string; emojis: string }[] =
+    [];
+
+  private static readonly WIN_FUN_SEEN_KEY = 'fantacyPool.winFunBannerSeenMatchIds';
 
   @ViewChild('upcomingMatchesBody') upcomingMatchesBody?: ElementRef<HTMLDivElement>;
 
@@ -108,6 +120,8 @@ export class UserDashboard implements OnInit {
       this.totalPoints = 0;
       this.userRank = null;
       this.allTournamentMatches = [];
+      this.showWinFunBanner = false;
+      this.winFunBannerMatches = [];
       return;
     }
     this.loadLeaderboardRank();
@@ -170,6 +184,8 @@ export class UserDashboard implements OnInit {
       this.totalPoints = 0;
       this.userHistory = [];
       this.allTournamentMatches = [];
+      this.showWinFunBanner = false;
+      this.winFunBannerMatches = [];
     });
   }
 
@@ -226,7 +242,10 @@ export class UserDashboard implements OnInit {
 
   /** Keep history picks in sync with `/api/predictions/mine`, especially for undecided matches. */
   private applyUserPicksToHistory(): void {
-    if (!this.userHistory?.length) return;
+    if (!this.userHistory?.length) {
+      this.refreshWinFunBanner();
+      return;
+    }
     this.userHistory = this.userHistory.map((match: any) => {
       const pick = this.userPicks[match.id];
       if (pick != null && pick !== '') {
@@ -234,6 +253,74 @@ export class UserDashboard implements OnInit {
       }
       return match;
     });
+    this.refreshWinFunBanner();
+  }
+
+  private readWinFunSeenIds(): Set<number> {
+    try {
+      const raw = localStorage.getItem(UserDashboard.WIN_FUN_SEEN_KEY);
+      if (!raw) return new Set();
+      const arr = JSON.parse(raw) as number[];
+      return new Set(arr.filter((n) => Number.isFinite(n)));
+    } catch {
+      return new Set();
+    }
+  }
+
+  private saveWinFunSeenIds(ids: Set<number>): void {
+    localStorage.setItem(UserDashboard.WIN_FUN_SEEN_KEY, JSON.stringify([...ids]));
+  }
+
+  private refreshWinFunBanner(): void {
+    if (!this.userHistory?.length) {
+      this.showWinFunBanner = false;
+      this.winFunBannerMatches = [];
+      return;
+    }
+    const seen = this.readWinFunSeenIds();
+    const wins = this.userHistory.filter(
+      (m) => matchHasDeclaredOutcome(m) && !isNoResultMatch(m) && userPickMatchesWinner(m)
+    );
+    const fresh = wins.filter((m) => m.id != null && !seen.has(Number(m.id)));
+    this.winFunBannerMatches = fresh.map((m) => {
+      const id = Number(m.id);
+      return {
+        id,
+        teamA: m.teamA,
+        teamB: m.teamB,
+        winnerLabel: this.getWinnerName(m),
+        quip: funnyWinLineForMatch(id),
+        emojis: funnyWinEmojiBand(id)
+      };
+    });
+    this.showWinFunBanner = this.winFunBannerMatches.length > 0;
+  }
+
+  dismissWinFunBanner(): void {
+    const seen = this.readWinFunSeenIds();
+    for (const m of this.winFunBannerMatches) {
+      seen.add(m.id);
+    }
+    this.saveWinFunSeenIds(seen);
+    this.showWinFunBanner = false;
+    this.winFunBannerMatches = [];
+  }
+
+  /** Use for history table: robust pick vs winner. */
+  isWinningPick(match: any): boolean {
+    return userPickMatchesWinner(match);
+  }
+
+  getFunnyLineForMatch(matchId: number): string {
+    return funnyWinLineForMatch(matchId);
+  }
+
+  getFunnyEmojisForMatch(matchId: number): string {
+    return funnyWinEmojiBand(matchId);
+  }
+
+  getWinFunBannerSubtitle(): string {
+    return funnyBannerSubtitle(this.winFunBannerMatches.length);
   }
 
   loadUpcomingMatches() {
@@ -305,3 +392,4 @@ export class UserDashboard implements OnInit {
     return isNoResultMatch(match);
   }
 }
+

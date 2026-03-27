@@ -38,6 +38,29 @@
     </div>
   </div>
 
+  @if (showWinFunBanner && winFunBannerMatches.length > 0) {
+    <div class="win-fun-banner" role="status" aria-live="polite">
+      <div class="win-fun-banner-inner">
+        <div class="win-fun-banner-mascot" aria-hidden="true">🎭</div>
+        <div class="win-fun-banner-copy">
+          <h2 class="win-fun-banner-title">You called it!</h2>
+          <p class="win-fun-banner-sub">{{ getWinFunBannerSubtitle() }}</p>
+          <ul class="win-fun-banner-list">
+            @for (m of winFunBannerMatches; track m.id) {
+              <li>
+                <span class="win-fun-emojis" aria-hidden="true">{{ m.emojis }}</span>
+                <span class="win-fun-matchline"><strong>{{ m.teamA }}</strong> vs <strong>{{ m.teamB }}</strong></span>
+                <span class="win-fun-quip">“{{ m.quip }}”</span>
+                <span class="win-fun-winner">Winner: {{ m.winnerLabel }}</span>
+              </li>
+            }
+          </ul>
+        </div>
+        <button type="button" class="win-fun-dismiss" (click)="dismissWinFunBanner()" aria-label="Dismiss">×</button>
+      </div>
+    </div>
+  }
+
   <!-- Upcoming Matches Section -->
   <div class="matches-section" *ngIf="selectedTournamentId != null">
     <h2 class="section-title">Upcoming Matches</h2>
@@ -143,7 +166,7 @@
         <table class="matches-table matches-table-body">
           <tbody>
             @for (match of userHistory; track match.id; let i = $index) {
-            <tr class="match-row">
+            <tr class="match-row" [class.match-row-win-fun]="isWinningPick(match) && match.winner && !isMatchNoResult(match)">
               <td>{{ i + 1 }}</td>
               <td>{{ match.teamA }}</td>
               <td>{{ match.teamB }}</td>
@@ -181,8 +204,12 @@
                   <span class="result-nr-muted">NR (0)</span>
                   }
                 } @else if (match.winner) {
-                  @if (match.userPick === match.winner) {
-                  <span class="result-correct">✓ Correct</span>
+                  @if (isWinningPick(match)) {
+                  <div class="win-fun-cell">
+                    <span class="result-correct win-fun-pop">✓ Nailed it</span>
+                    <span class="win-fun-mini-emoji" aria-hidden="true">{{ getFunnyEmojisForMatch(match.id) }}</span>
+                    <span class="win-fun-mini-line">“{{ getFunnyLineForMatch(match.id) }}”</span>
+                  </div>
                   } @else {
                   <span class="result-wrong">✗ Wrong</span>
                   }

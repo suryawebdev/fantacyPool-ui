@@ -142,6 +142,140 @@
     font-weight: 700;
 }
 
+/* Funny win banner (new wins after winner announced) */
+.win-fun-banner {
+  margin: 0 0 1.5rem 0;
+  border-radius: var(--radius-lg);
+  border: 2px dashed color-mix(in srgb, var(--primary-accent) 40%, var(--border-color));
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--warning-color) 15%, var(--card-bg)) 0%,
+    var(--card-bg) 45%,
+    color-mix(in srgb, var(--success-color) 12%, var(--card-bg)) 100%
+  );
+  box-shadow: var(--shadow-medium);
+  animation: win-fun-banner-in 0.6s cubic-bezier(0.34, 1.25, 0.64, 1) 1;
+}
+
+@keyframes win-fun-banner-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) rotate(-0.5deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotate(0);
+  }
+}
+
+.win-fun-banner-inner {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.25rem 1rem 1.25rem 1.35rem;
+}
+
+.win-fun-banner-mascot {
+  font-size: 2.5rem;
+  line-height: 1;
+  flex-shrink: 0;
+  animation: win-fun-mascot 2.5s ease-in-out infinite;
+}
+
+@keyframes win-fun-mascot {
+  0%,
+  100% {
+    transform: rotate(-6deg) scale(1);
+  }
+  50% {
+    transform: rotate(6deg) scale(1.05);
+  }
+}
+
+.win-fun-banner-copy {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+}
+
+.win-fun-banner-title {
+  margin: 0 0 0.35rem 0;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--primary-text);
+  letter-spacing: -0.02em;
+}
+
+.win-fun-banner-sub {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.95rem;
+  color: var(--secondary-text);
+  line-height: 1.4;
+}
+
+.win-fun-banner-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: var(--primary-text);
+}
+
+.win-fun-banner-list li {
+  margin-bottom: 0.65rem;
+}
+
+.win-fun-emojis {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.15rem 0;
+  font-size: 1rem;
+  letter-spacing: 0.06em;
+}
+
+.win-fun-matchline {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.92rem;
+}
+
+.win-fun-quip {
+  display: block;
+  margin-top: 0.2rem;
+  font-style: italic;
+  color: var(--secondary-text);
+  font-size: 0.85rem;
+}
+
+.win-fun-winner {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.82rem;
+  color: var(--success-color);
+  font-weight: 600;
+}
+
+.win-fun-dismiss {
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  margin: -0.2rem -0.2rem 0 0;
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--secondary-text);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.win-fun-dismiss:hover {
+  background: var(--secondary-bg);
+  color: var(--primary-text);
+}
+
 /* Matches Section */
 .matches-section {
     background: var(--card-bg);
@@ -376,6 +510,67 @@
     color: var(--muted-text);
     font-weight: 600;
     font-size: 0.9rem;
+}
+
+.match-row-win-fun {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--success-color) 8%, transparent) 0%,
+    transparent 28%
+  ) !important;
+}
+
+.win-fun-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  max-width: 14rem;
+}
+
+.win-fun-pop {
+  display: inline-block;
+  animation: win-fun-pop 0.55s cubic-bezier(0.34, 1.4, 0.64, 1) 1;
+}
+
+@keyframes win-fun-pop {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.win-fun-mini-emoji {
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  animation: win-fun-wiggle 2.5s ease-in-out infinite;
+}
+
+@keyframes win-fun-wiggle {
+  0%,
+  100% {
+    transform: rotate(-2deg);
+  }
+  50% {
+    transform: rotate(3deg);
+  }
+}
+
+.win-fun-mini-line {
+  font-size: 0.72rem;
+  line-height: 1.25;
+  font-style: italic;
+  color: var(--secondary-text);
+  opacity: 0.95;
 }
 
 .winner-badge.nr-winner {
