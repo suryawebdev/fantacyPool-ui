@@ -164,6 +164,7 @@ export class UserDashboard implements OnInit {
       
       // Merge picked matches with all tournament matches
       this.userHistory = this.mergePickedWithAllMatches(pickedMatches);
+      this.applyUserPicksToHistory();
     }).catch((err) => {
       console.error('Error fetching user data:', err);
       this.totalPoints = 0;
@@ -174,8 +175,13 @@ export class UserDashboard implements OnInit {
 
   /** Merge picked matches with all tournament matches. Show NR for matches not picked. */
   private mergePickedWithAllMatches(pickedMatches: any[]): any[] {
-    // Create a map of picked matches by ID for quick lookup
-    const pickedMatchMap = new Map(pickedMatches.map(m => [m.matchId, m]));
+    // Create a map of picked matches by ID for quick lookup.
+    // Backend may return either matchId or id in history rows.
+    const pickedMatchMap = new Map(
+      pickedMatches
+        .map((m: any) => [m.matchId ?? m.id, m] as const)
+        .filter(([id]) => id != null)
+    );
     
     // For each tournament match, use picked data if available, otherwise mark as NR
     const mergedMatches = this.allTournamentMatches.map(tournamentMatch => {
@@ -183,12 +189,12 @@ export class UserDashboard implements OnInit {
       
       if (pickedMatch) {
         // User picked this match - use the picked match data (includes userPick)
-        return pickedMatch;
+        return { ...tournamentMatch, ...pickedMatch, isNoPick: !pickedMatch.userPick };
       } else {
         // User didn't pick this match - create entry with NR
         return {
           ...tournamentMatch,
-          userPick: null, // No pick from user
+          userPick: this.userPicks[tournamentMatch.id] ?? null, // fallback from /mine
           isNoPick: true  // Mark as no pick
         };
       }
@@ -210,10 +216,23 @@ export class UserDashboard implements OnInit {
         this.upcomingMatches.forEach(match => {
           match.userPick = this.userPicks[match.id];
         });
+        this.applyUserPicksToHistory();
       },
       error: (err) => {
         console.error('Error fetching user picks:', err);
       }
+    });
+  }
+
+  /** Keep history picks in sync with `/api/predictions/mine`, especially for undecided matches. */
+  private applyUserPicksToHistory(): void {
+    if (!this.userHistory?.length) return;
+    this.userHistory = this.userHistory.map((match: any) => {
+      const pick = this.userPicks[match.id];
+      if (pick != null && pick !== '') {
+        return { ...match, userPick: pick, isNoPick: false };
+      }
+      return match;
     });
   }
 

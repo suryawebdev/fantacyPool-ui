@@ -33,6 +33,8 @@ export class Leaderboard implements OnInit {
   historyLoadError: Record<string, string> = {};
   /** All matches in the selected tournament */
   allTournamentMatches: any[] = [];
+  /** Current logged-in user's picks by matchId (used as fallback in own history row). */
+  currentUserPicks: Record<number, string> = {};
 
   constructor(
     private tournamentService: TournamentService,
@@ -44,7 +46,24 @@ export class Leaderboard implements OnInit {
 
   ngOnInit(): void {
     this.currentUser = this.authService.getUserDetails() || {};
+    this.loadCurrentUserPicks();
     this.loadTournaments();
+  }
+
+  private loadCurrentUserPicks(): void {
+    this.matchService.getUserPicks().subscribe({
+      next: (picks) => {
+        this.currentUserPicks = {};
+        (picks || []).forEach((pick: any) => {
+          if (pick?.matchId != null && pick?.team) {
+            this.currentUserPicks[pick.matchId] = pick.team;
+          }
+        });
+      },
+      error: () => {
+        this.currentUserPicks = {};
+      }
+    });
   }
 
   /** Admin can see all tournaments' leaderboards; regular users see only enrolled. */
@@ -164,7 +183,7 @@ export class Leaderboard implements OnInit {
         const pickedMatches = data.matches ?? [];
         
         // Merge picked matches with all tournament matches
-        const enrichedMatches = this.mergePickedWithAllMatches(pickedMatches);
+        const enrichedMatches = this.mergePickedWithAllMatches(pickedMatches, username);
         
         this.userHistoryCache[username] = { totalPoints: data.totalPoints ?? 0, matches: enrichedMatches };
         this.loadingHistoryForUser = null;
@@ -177,23 +196,36 @@ export class Leaderboard implements OnInit {
   }
 
   /** Merge picked matches with all tournament matches. Show NR for matches not picked. */
-  private mergePickedWithAllMatches(pickedMatches: any[]): any[] {
-    // Create a map of picked matches by ID for quick lookup
-    const pickedMatchMap = new Map(pickedMatches.map(m => [m.matchId, m]));
+  private mergePickedWithAllMatches(pickedMatches: any[], username: string): any[] {
+    // Backend may send id or matchId; normalize both.
+    const pickedMatchMap = new Map(
+      pickedMatches
+        .map((m: any) => [m.matchId ?? m.id, m] as const)
+        .filter(([id]) => id != null)
+    );
     
-    // For each tournament match, use picked data if available, otherwise mark as NR
+    const isCurrentUserRow = username === this.currentUser?.username;
+    // For each tournament match, use picked data if available, otherwise mark as NP.
     const mergedMatches = this.allTournamentMatches.map(tournamentMatch => {
       const pickedMatch = pickedMatchMap.get(tournamentMatch.id);
+      const fallbackPick = isCurrentUserRow ? this.currentUserPicks[tournamentMatch.id] : null;
       
       if (pickedMatch) {
-        // User picked this match - use the picked match data (includes userPick)
-        return pickedMatch;
-      } else {
-        // User didn't pick this match - create entry with NR
+        const normalizedPick = pickedMatch.userPick ?? pickedMatch.team ?? pickedMatch.pick ?? fallbackPick ?? null;
         return {
           ...tournamentMatch,
-          userPick: null, // No pick from user
-          isNoPick: true  // Mark as no pick
+          ...pickedMatch,
+          id: pickedMatch.id ?? pickedMatch.matchId ?? tournamentMatch.id,
+          matchId: pickedMatch.matchId ?? tournamentMatch.id,
+          userPick: normalizedPick,
+          isNoPick: !normalizedPick
+        };
+      } else {
+        // User didn't pick this match in history payload.
+        return {
+          ...tournamentMatch,
+          userPick: fallbackPick ?? null,
+          isNoPick: !fallbackPick
         };
       }
     });
