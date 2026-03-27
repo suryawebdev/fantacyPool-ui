@@ -70,7 +70,13 @@
                     } @else if (historyLoadError[user.username]) {
                       <p class="history-error">{{ historyLoadError[user.username] }}</p>
                     } @else if (getHistoryForUser(user.username).length === 0) {
-                      <p class="history-empty">No match history for this tournament.</p>
+                      <p class="history-empty">
+                        @if (!hasPastCutoffMatchesInTournament()) {
+                          History lists only matches after the pick lock time.
+                        } @else {
+                          No match history for this tournament.
+                        }
+                      </p>
                     } @else {
                       <div class="history-table-wrap history-table-scroll">
                         <table class="history-table">

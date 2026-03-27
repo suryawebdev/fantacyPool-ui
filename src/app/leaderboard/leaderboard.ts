@@ -195,7 +195,15 @@ export class Leaderboard implements OnInit {
     });
   }
 
-  /** Merge picked matches with all tournament matches. Show NR for matches not picked. */
+  /** Pick lock = stored `startDateTime` (same as dashboard). */
+  private isMatchPastCutoff(match: { startDateTime?: string }): boolean {
+    if (!match?.startDateTime) return false;
+    const t = new Date(match.startDateTime).getTime();
+    if (Number.isNaN(t)) return false;
+    return t <= Date.now();
+  }
+
+  /** Merge picked matches with tournament matches that are past pick lock only. Show NP for matches not picked. */
   private mergePickedWithAllMatches(pickedMatches: any[], username: string): any[] {
     // Backend may send id or matchId; normalize both.
     const pickedMatchMap = new Map(
@@ -205,8 +213,9 @@ export class Leaderboard implements OnInit {
     );
     
     const isCurrentUserRow = username === this.currentUser?.username;
-    // For each tournament match, use picked data if available, otherwise mark as NP.
-    const mergedMatches = this.allTournamentMatches.map(tournamentMatch => {
+    const matchesPastCutoff = this.allTournamentMatches.filter((m) => this.isMatchPastCutoff(m));
+    // For each tournament match past cutoff, use picked data if available, otherwise mark as NP.
+    const mergedMatches = matchesPastCutoff.map(tournamentMatch => {
       const pickedMatch = pickedMatchMap.get(tournamentMatch.id);
       const fallbackPick = isCurrentUserRow ? this.currentUserPicks[tournamentMatch.id] : null;
       
@@ -239,6 +248,11 @@ export class Leaderboard implements OnInit {
   getHistoryForUser(username: string): any[] {
     const cached = this.userHistoryCache[username];
     return cached?.matches ?? [];
+  }
+
+  /** True if the selected tournament has at least one match whose pick lock has passed. */
+  hasPastCutoffMatchesInTournament(): boolean {
+    return this.allTournamentMatches.some((m) => this.isMatchPastCutoff(m));
   }
 
   /** Display name for pick/winner: supports team name or legacy "A"/"B". */
