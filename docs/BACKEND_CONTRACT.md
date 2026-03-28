@@ -2,6 +2,8 @@
 
 Base URL: `environment.apiUrl` (e.g. `http://localhost:8080`). All paths below are relative to that. Auth: JWT where required (see existing auth interceptor).
 
+**Match `startDateTime` (pick lock):** The UI treats values **without** a timezone suffix (`Z` or `±hh:mm`) as **America/Chicago** (CST/CDT) wall-clock times so pick locking is consistent worldwide. Prefer returning full **ISO-8601 with offset or `Z`** from the API if the instant is stored in UTC.
+
 ---
 
 ## Required for core app

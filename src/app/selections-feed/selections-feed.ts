@@ -10,6 +10,7 @@ import { AuthService } from '../auth.service';
 import { ChangeDetectorRef } from '@angular/core';
 import { Tournament } from '../models/tournament.model';
 import { SelectedTournamentService } from '../selected-tournament.service';
+import { compareMatchStartDesc, isPickLockPassed } from '../match-pick-lock.util';
 
 export interface LiveFeedConfig {
   enabled: boolean;
@@ -141,9 +142,9 @@ export class SelectionsFeed implements OnInit {
     this.loadingMatchSelections = true;
     this.matchService.getMatchesByTournament(this.matchTournamentId).subscribe({
       next: (matches) => {
-        const now = new Date().getTime();
-        this.startedMatches = (matches ?? []).filter((m: any) => new Date(m.startDateTime).getTime() <= now);
-        this.startedMatches.sort((a: any, b: any) => new Date(b.startDateTime).getTime() - new Date(a.startDateTime).getTime());
+        const now = Date.now();
+        this.startedMatches = (matches ?? []).filter((m: any) => isPickLockPassed(m.startDateTime, now));
+        this.startedMatches.sort((a: any, b: any) => compareMatchStartDesc(a, b));
         this.matchSelections = {};
         this.matchSelectionsLoaded = {};
         const firstMatch = this.startedMatches[0];
@@ -197,10 +198,9 @@ export class SelectionsFeed implements OnInit {
     return this.matchSelections[matchId] ?? [];
   }
 
-  /** True if match start (cutoff) time has passed, so picks can be revealed. */
+  /** True if pick lock has passed (America/Chicago for naive datetimes). */
   isMatchPastCutoff(match: any): boolean {
-    if (!match?.startDateTime) return false;
-    return match.startDateTime < Date.now();
+    return isPickLockPassed(match?.startDateTime);
   }
 
   getUserDisplayName(entry: any): string {

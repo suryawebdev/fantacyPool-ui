@@ -7,6 +7,8 @@
  *   (Venue is ignored by the API; team names are uppercased.)
  * **Bulk import:** `startDateTime` sent to the API is **45 minutes before** the schedule time in the JSON
  * (pick lock = stored `startDateTime`; the JSON time is the nominal match start / schedule).
+ * **Pick lock (UI):** naive `yyyy-MM-ddTHH:mm` from the API is interpreted as **America/Chicago** wall time so
+ * all users share the same cutoff; ISO strings with `Z` or offset are absolute instants.
  */
 
 const BULK_SCHEDULE_OFFSET_MINUTES = 45;

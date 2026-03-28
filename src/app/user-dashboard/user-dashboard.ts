@@ -11,6 +11,7 @@ import { TournamentService } from '../tournament.service';
 import { SelectedTournamentService } from '../selected-tournament.service';
 import { Tournament } from '../models/tournament.model';
 import { isNoResultMatch } from '../match-outcome';
+import { compareMatchStartAsc, isPickLockPassed } from '../match-pick-lock.util';
 
 @Component({
   selector: 'app-user-dashboard',
@@ -205,9 +206,7 @@ export class UserDashboard implements OnInit, OnDestroy {
     });
     
     // Sort by date
-    return mergedMatches.sort((a, b) => 
-      new Date(a.startDateTime).getTime() - new Date(b.startDateTime).getTime()
-    );
+    return mergedMatches.sort((a, b) => compareMatchStartAsc(a, b));
   }
 
   loadUserPicks() {
@@ -248,9 +247,7 @@ export class UserDashboard implements OnInit, OnDestroy {
     }
     this.matchService.getMatchesByTournament(this.selectedTournamentId).subscribe({
       next: (matches) => {
-        this.upcomingMatches = (matches || []).sort((a: any, b: any) =>
-          new Date(a.startDateTime).getTime() - new Date(b.startDateTime).getTime()
-        );
+        this.upcomingMatches = (matches || []).sort((a: any, b: any) => compareMatchStartAsc(a, b));
         this.upcomingMatches.forEach(match => {
           match.userPick = this.userPicks[match.id];
         });
@@ -362,8 +359,9 @@ export class UserDashboard implements OnInit, OnDestroy {
     }
   }
 
+  /** Pick lock uses America/Chicago for naive API datetimes so all zones share the same cutoff. */
   isMatchStarted(match: any): boolean {
-    return new Date(match.startDateTime) <= new Date();
+    return isPickLockPassed(match.startDateTime);
   }
 
   selectTeam(match: any, teamName: string) {

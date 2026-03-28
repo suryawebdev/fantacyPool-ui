@@ -8,6 +8,7 @@ import { MatchService } from '../match.service';
 import { Router } from '@angular/router';
 import { Tournament } from '../models/tournament.model';
 import { isNoResultMatch } from '../match-outcome';
+import { compareMatchStartAsc, isPickLockPassed } from '../match-pick-lock.util';
 
 @Component({
   selector: 'app-leaderboard',
@@ -195,12 +196,9 @@ export class Leaderboard implements OnInit {
     });
   }
 
-  /** Pick lock = stored `startDateTime` (same as dashboard). */
+  /** Pick lock = stored `startDateTime`; naive strings = America/Chicago (same as dashboard). */
   private isMatchPastCutoff(match: { startDateTime?: string }): boolean {
-    if (!match?.startDateTime) return false;
-    const t = new Date(match.startDateTime).getTime();
-    if (Number.isNaN(t)) return false;
-    return t <= Date.now();
+    return isPickLockPassed(match.startDateTime);
   }
 
   /** Merge picked matches with tournament matches that are past pick lock only. Show NP for matches not picked. */
@@ -239,10 +237,7 @@ export class Leaderboard implements OnInit {
       }
     });
     
-    // Sort by date
-    return mergedMatches.sort((a, b) => 
-      new Date(a.startDateTime).getTime() - new Date(b.startDateTime).getTime()
-    );
+    return mergedMatches.sort((a, b) => compareMatchStartAsc(a, b));
   }
 
   getHistoryForUser(username: string): any[] {
