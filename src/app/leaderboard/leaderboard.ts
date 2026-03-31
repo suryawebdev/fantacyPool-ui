@@ -9,6 +9,8 @@ import { Router } from '@angular/router';
 import { Tournament } from '../models/tournament.model';
 import { isNoResultMatch } from '../match-outcome';
 import { compareMatchStartAsc, isPickLockPassed } from '../match-pick-lock.util';
+import { computeLeaderboardWithRanks } from '../leaderboard-rank.util';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-leaderboard',
@@ -36,6 +38,8 @@ export class Leaderboard implements OnInit {
   allTournamentMatches: any[] = [];
   /** Current logged-in user's picks by matchId (used as fallback in own history row). */
   currentUserPicks: Record<number, string> = {};
+  /** MatchId -> username -> locked selection (from /matches/:id/selections). */
+  matchSelectionsByUsername: Record<number, Record<string, any>> = {};
 
   constructor(
     private tournamentService: TournamentService,
@@ -98,35 +102,6 @@ export class Leaderboard implements OnInit {
     this.loadLeaderboard();
   }
 
-  /** Normalize points from various backend field names. */
-  private normalizeLeaderboardEntry(entry: any): any {
-    const points = entry.totalPoints ?? entry.points ?? entry.score ?? entry.totalScore ?? 0;
-    return { ...entry, displayPoints: Number(points) };
-  }
-
-  /**
-   * Sort by points descending, assign competition rank (ties share the same rank),
-   * and row numbers (#) 1..n in display order.
-   */
-  private computeLeaderboardWithRanks(raw: any[]): any[] {
-    const withPoints = raw.map((u: any) => this.normalizeLeaderboardEntry(u));
-    const sorted = [...withPoints].sort((a, b) => b.displayPoints - a.displayPoints);
-    let rank = 1;
-    let previousPoints: number | null = null;
-    
-    return sorted.map((entry, index) => {
-      const rowNumber = index + 1;
-      // Only increment rank when points differ from previous entry
-      if (previousPoints !== null && entry.displayPoints < previousPoints) {
-        // Count how many unique point values we've seen to determine correct rank
-        const uniquePointsBefore = new Set(sorted.slice(0, index).map(e => e.displayPoints)).size;
-        rank = uniquePointsBefore + 1;
-      }
-      previousPoints = entry.displayPoints;
-      return { ...entry, displayRank: rank, rowNumber };
-    });
-  }
-
   loadLeaderboard() {
     if (this.selectedTournamentId == null) {
       this.leaderboard = [];
@@ -144,7 +119,7 @@ export class Leaderboard implements OnInit {
       this.matchService.getMatchesByTournament(this.selectedTournamentId).toPromise()
     ]).then(([leaderboardData, matchesData]) => {
       const raw = (leaderboardData || []).filter((u: any) => u.enabled !== false);
-      this.leaderboard = this.computeLeaderboardWithRanks(raw);
+      this.leaderboard = computeLeaderboardWithRanks(raw);
       this.allTournamentMatches = matchesData || [];
       this.loadingLeaderboard = false;
     }).catch((err) => {
@@ -179,21 +154,44 @@ export class Leaderboard implements OnInit {
     this.loadingHistoryForUser = username;
     this.historyLoadError[username] = '';
     const tid = this.selectedTournamentId ?? undefined;
-    this.matchService.getUserHistoryByUsername(username, tid).subscribe({
-      next: (data) => {
+    firstValueFrom(this.matchService.getUserHistoryByUsername(username, tid))
+      .then(async (data) => {
+        const matchesPastCutoff = this.allTournamentMatches.filter((m) => this.isMatchPastCutoff(m));
+        await this.loadSelectionsForMatches(matchesPastCutoff);
+
         const pickedMatches = data.matches ?? [];
-        
-        // Merge picked matches with all tournament matches
         const enrichedMatches = this.mergePickedWithAllMatches(pickedMatches, username);
-        
+
         this.userHistoryCache[username] = { totalPoints: data.totalPoints ?? 0, matches: enrichedMatches };
         this.loadingHistoryForUser = null;
-      },
-      error: () => {
+      })
+      .catch(() => {
         this.historyLoadError[username] = 'Could not load history.';
         this.loadingHistoryForUser = null;
-      }
-    });
+      });
+  }
+
+  private async loadSelectionsForMatches(matches: any[]): Promise<void> {
+    const pending = (matches ?? [])
+      .map((m: any) => Number(m?.id))
+      .filter((id) => !Number.isNaN(id) && this.matchSelectionsByUsername[id] == null)
+      .map(async (matchId) => {
+        try {
+          const list = await firstValueFrom(this.matchService.getSelectionsByMatch(matchId));
+          const byUsername: Record<string, any> = {};
+          (list ?? []).forEach((entry: any) => {
+            const username = entry?.username != null ? String(entry.username) : null;
+            if (username) {
+              byUsername[username] = entry;
+            }
+          });
+          this.matchSelectionsByUsername[matchId] = byUsername;
+        } catch {
+          this.matchSelectionsByUsername[matchId] = {};
+        }
+      });
+
+    await Promise.all(pending);
   }
 
   /** Pick lock = stored `startDateTime`; naive strings = America/Chicago (same as dashboard). */
@@ -215,10 +213,13 @@ export class Leaderboard implements OnInit {
     // For each tournament match past cutoff, use picked data if available, otherwise mark as NP.
     const mergedMatches = matchesPastCutoff.map(tournamentMatch => {
       const pickedMatch = pickedMatchMap.get(tournamentMatch.id);
+      const selectionEntry = this.matchSelectionsByUsername[tournamentMatch.id]?.[username] ?? null;
       const fallbackPick = isCurrentUserRow ? this.currentUserPicks[tournamentMatch.id] : null;
+      const selectionPick = selectionEntry?.team ?? selectionEntry?.userPick ?? selectionEntry?.pick ?? null;
       
       if (pickedMatch) {
-        const normalizedPick = pickedMatch.userPick ?? pickedMatch.team ?? pickedMatch.pick ?? fallbackPick ?? null;
+        const normalizedPick =
+          pickedMatch.userPick ?? pickedMatch.team ?? pickedMatch.pick ?? selectionPick ?? fallbackPick ?? null;
         return {
           ...tournamentMatch,
           ...pickedMatch,
@@ -231,8 +232,8 @@ export class Leaderboard implements OnInit {
         // User didn't pick this match in history payload.
         return {
           ...tournamentMatch,
-          userPick: fallbackPick ?? null,
-          isNoPick: !fallbackPick
+          userPick: selectionPick ?? fallbackPick ?? null,
+          isNoPick: !(selectionPick ?? fallbackPick)
         };
       }
     });

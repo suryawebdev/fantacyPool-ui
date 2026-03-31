@@ -34,13 +34,21 @@
                     }
                   } @else {
                     <ul class="match-picks-list">
-                      @for (entry of getMatchSelectionsList(match.id); track entry.userId || entry.username) {
+                      @for (row of getMatchPickRows(match.id); track row.user?.userId || row.user?.id || row.user?.username) {
                         <li class="match-pick-item">
-                          <span class="pick-user">{{ getUserDisplayName(entry) }}</span>
-                          <span class="pick-team">{{ getTeamDisplayName(match, entry.team) }}</span>
-                          @if (entry.correct === true) {
+                          <span class="pick-user">{{ getUserDisplayName(row.user) }}</span>
+                          @if (row.selection) {
+                            <span class="pick-team">{{ getTeamDisplayName(match, row.selection.team) }}</span>
+                          } @else {
+                            <span class="pick-team pick-team--none">—</span>
+                          }
+                          @if (!row.selection) {
+                            <span class="pick-result nopick">No pick</span>
+                          } @else if (isPickOutcomePending(match)) {
+                            <span class="pick-result pending">Pending</span>
+                          } @else if (row.selection.correct === true) {
                             <span class="pick-result correct">✓ Correct</span>
-                          } @else if (entry && entry.correct === false) {
+                          } @else if (row.selection && row.selection.correct === false) {
                             <span class="pick-result wrong">✗ Wrong</span>
                           }
                         </li>

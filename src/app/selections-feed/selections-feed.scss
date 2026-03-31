@@ -258,12 +258,26 @@
   font-weight: 600;
 }
 
+.pick-team.pick-team--none {
+  color: var(--secondary-text, #888);
+  font-weight: 500;
+}
+
 .pick-result.correct {
   color: var(--success-color);
 }
 
 .pick-result.wrong {
   color: var(--danger-color);
+}
+
+.pick-result.pending {
+  color: var(--secondary-text, #888);
+  font-style: italic;
+}
+
+.pick-result.nopick {
+  color: var(--secondary-text, #888);
 }
 
 .feed-subtitle {

@@ -10,7 +10,7 @@ import { adminGuard } from './admin.guard';
 import { UserDashboard } from './user-dashboard/user-dashboard';
 import { Leaderboard } from './leaderboard/leaderboard';
 import { SelectionsFeed } from './selections-feed/selections-feed';
-import { Analytics } from './analytics/analytics';
+import { Analytics } from './analytics';
 import { analyticsFeatureGuard } from './analytics-feature.guard';
 import { TournamentManagement } from './tournament-management/tournament-management';
 import { guestGuard } from './guest.guard';

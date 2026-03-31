@@ -12,6 +12,7 @@ import { SelectedTournamentService } from '../selected-tournament.service';
 import { Tournament } from '../models/tournament.model';
 import { isNoResultMatch } from '../match-outcome';
 import { compareMatchStartAsc, isPickLockPassed } from '../match-pick-lock.util';
+import { computeLeaderboardWithRanks } from '../leaderboard-rank.util';
 
 @Component({
   selector: 'app-user-dashboard',
@@ -140,14 +141,13 @@ export class UserDashboard implements OnInit, OnDestroy {
     }
     this.tournamentService.getTournamentLeaderboard(this.selectedTournamentId).subscribe({
       next: (list: any[]) => {
-        const arr = list || [];
-        const index = arr.findIndex((u: any) => u.username === this.user?.username);
-        if (index >= 0) {
-          const entry = arr[index];
-          this.userRank = entry?.rank != null ? entry.rank : index + 1;
-        } else {
-          this.userRank = null;
-        }
+        const raw = (list || []).filter((u: any) => u?.enabled !== false);
+
+        // Always compute client-side rank so ties match the Leaderboard UI (1,1,3...).
+        // Backend rank/position may be sequential and would be inconsistent with the UI.
+        const ranked = computeLeaderboardWithRanks(raw);
+        const me = ranked.find((u: any) => u?.username === this.user?.username);
+        this.userRank = me?.displayRank ?? null;
       },
       error: () => {
         this.userRank = null;

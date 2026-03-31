@@ -11,6 +11,7 @@ import { ChangeDetectorRef } from '@angular/core';
 import { Tournament } from '../models/tournament.model';
 import { SelectedTournamentService } from '../selected-tournament.service';
 import { compareMatchStartDesc, isPickLockPassed } from '../match-pick-lock.util';
+import { matchHasDeclaredOutcome } from '../match-outcome';
 
 export interface LiveFeedConfig {
   enabled: boolean;
@@ -35,6 +36,8 @@ export class SelectionsFeed implements OnInit {
   matchTournaments: Tournament[] = [];
   matchTournamentId: number | null = null;
   startedMatches: any[] = [];
+  /** Roster for selected tournament (for showing "No pick"). */
+  tournamentParticipants: any[] = [];
   matchSelections: { [matchId: number]: any[] } = {};
   matchSelectionsLoaded: { [matchId: number]: boolean } = {};
   loadingMatchSelections = false;
@@ -135,12 +138,27 @@ export class SelectionsFeed implements OnInit {
   loadStartedMatches(): void {
     if (this.matchTournamentId == null) {
       this.startedMatches = [];
+      this.tournamentParticipants = [];
       this.matchSelections = {};
       this.expandedMatchId = null;
       return;
     }
     this.loadingMatchSelections = true;
-    this.matchService.getMatchesByTournament(this.matchTournamentId).subscribe({
+    const tid = this.matchTournamentId;
+
+    // Load roster in parallel; used to show "No pick".
+    this.tournamentService.getTournamentParticipants(tid).subscribe({
+      next: (list) => {
+        this.tournamentParticipants = list ?? [];
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.tournamentParticipants = [];
+        this.cdr.detectChanges();
+      }
+    });
+
+    this.matchService.getMatchesByTournament(tid).subscribe({
       next: (matches) => {
         const now = Date.now();
         this.startedMatches = (matches ?? []).filter((m: any) => isPickLockPassed(m.startDateTime, now));
@@ -198,6 +216,39 @@ export class SelectionsFeed implements OnInit {
     return this.matchSelections[matchId] ?? [];
   }
 
+  /**
+   * For UI: show a row per participant; if no selection exists, mark as "No pick".
+   * Falls back to only selection rows when participants API isn't available.
+   */
+  getMatchPickRows(matchId: number): Array<{ user: any; selection: any | null }> {
+    const selections = this.getMatchSelectionsList(matchId) ?? [];
+    const byUserId = new Map<number, any>();
+    const byUsername = new Map<string, any>();
+
+    selections.forEach((s: any) => {
+      const uid = s?.userId != null ? Number(s.userId) : null;
+      if (uid != null && !Number.isNaN(uid)) byUserId.set(uid, s);
+      const un = s?.username != null ? String(s.username) : null;
+      if (un) byUsername.set(un, s);
+    });
+
+    const participants = this.tournamentParticipants ?? [];
+    if (participants.length === 0) {
+      return selections.map((s: any) => ({ user: s, selection: s }));
+    }
+
+    const rows = participants.map((p: any) => {
+      const uid = p?.userId != null ? Number(p.userId) : (p?.id != null ? Number(p.id) : null);
+      const uname = p?.username != null ? String(p.username) : null;
+      const sel = (uid != null && byUserId.get(uid)) || (uname ? byUsername.get(uname) : null) || null;
+      const user = sel ?? p;
+      return { user, selection: sel };
+    });
+
+    rows.sort((a, b) => this.getUserDisplayName(a.user).localeCompare(this.getUserDisplayName(b.user)));
+    return rows;
+  }
+
   /** True if pick lock has passed (America/Chicago for naive datetimes). */
   isMatchPastCutoff(match: any): boolean {
     return isPickLockPassed(match?.startDateTime);
@@ -212,5 +263,10 @@ export class SelectionsFeed implements OnInit {
     if (!team) return '';
     if (team === 'A' || team === 'B') return match?.['team' + team] ?? team;
     return team;
+  }
+
+  /** Outcome not final yet — show pending, not wrong. */
+  isPickOutcomePending(match: any): boolean {
+    return !matchHasDeclaredOutcome(match);
   }
 }

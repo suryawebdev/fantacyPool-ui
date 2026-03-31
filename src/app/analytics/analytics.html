@@ -65,6 +65,8 @@
             <p class="pool-unavailable-text">Pool analytics will appear here when the backend supports it.</p>
             <p class="pool-unavailable-hint">Backend: <code>GET /api/tournaments/:id/pool-analytics</code></p>
           </div>
+        } @else if (poolNoMatchesPastCutoff) {
+          <p class="no-data">No matches past pick lock yet.</p>
         } @else if (!hasPoolAggregates && poolMatchStats.length === 0) {
           <p class="no-data">No pool data for this tournament yet.</p>
         } @else {
@@ -116,18 +118,22 @@
                 </label>
               </div>
               @if (showPickDistributionByMatch) {
-              @for (match of poolMatchStats; track match.matchId) {
-                <div class="pool-match-card">
-                  <h4 class="pool-match-title">{{ match.teamA }} vs {{ match.teamB }}</h4>
-                  <div class="pool-picks-list">
-                    @for (entry of getPoolPicksList(match.picks); track entry.team) {
-                      <div class="pool-pick-row">
-                        <span class="pool-pick-team">{{ entry.team }}</span>
-                        <span class="pool-pick-count">{{ entry.count }} pick{{ entry.count !== 1 ? 's' : '' }}</span>
-                      </div>
-                    }
+              @if (getPoolMatchStatsPastCutoff().length === 0) {
+                <p class="no-data">No matches past pick lock yet.</p>
+              } @else {
+                @for (match of getPoolMatchStatsPastCutoff(); track match.matchId) {
+                  <div class="pool-match-card">
+                    <h4 class="pool-match-title">{{ match.teamA }} vs {{ match.teamB }}</h4>
+                    <div class="pool-picks-list">
+                      @for (entry of getPoolPicksList(match.picks); track entry.team) {
+                        <div class="pool-pick-row">
+                          <span class="pool-pick-team">{{ entry.team }}</span>
+                          <span class="pool-pick-count">{{ entry.count }} pick{{ entry.count !== 1 ? 's' : '' }}</span>
+                        </div>
+                      }
+                    </div>
                   </div>
-                </div>
+                }
               }
               }
             }
