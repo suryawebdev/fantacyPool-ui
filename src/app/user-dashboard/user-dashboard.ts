@@ -143,7 +143,7 @@ export class UserDashboard implements OnInit, OnDestroy {
       next: (list: any[]) => {
         const raw = (list || []).filter((u: any) => u?.enabled !== false);
 
-        // Always compute client-side rank so ties match the Leaderboard UI (1,1,3...).
+        // Always compute client-side rank so ties match the Leaderboard UI (1,1,2...).
         // Backend rank/position may be sequential and would be inconsistent with the UI.
         const ranked = computeLeaderboardWithRanks(raw);
         const me = ranked.find((u: any) => u?.username === this.user?.username);

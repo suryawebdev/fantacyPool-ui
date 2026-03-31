@@ -12,10 +12,10 @@ export function normalizeLeaderboardEntry(entry: any): any {
 }
 
 /**
- * Sort by points descending, assign competition rank (ties share the same rank),
+ * Sort by points descending, assign dense rank (ties share the same rank),
  * and row numbers (#) 1..n in display order.
  *
- * Example points: [10, 10, 8, 7, 7] => ranks [1, 1, 3, 4, 4]
+ * Example points: [10, 10, 8, 7, 7] => ranks [1, 1, 2, 3, 3]
  */
 export function computeLeaderboardWithRanks(raw: any[]): RankedLeaderboardEntry[] {
   const withPoints = (raw ?? []).map((u: any) => normalizeLeaderboardEntry(u));
@@ -27,7 +27,7 @@ export function computeLeaderboardWithRanks(raw: any[]): RankedLeaderboardEntry[
   return sorted.map((entry, index) => {
     const rowNumber = index + 1;
     if (previousPoints !== null && entry.displayPoints < previousPoints) {
-      currentRank = rowNumber; // competition ranking: 1,1,3,...
+      currentRank += 1; // dense ranking: 1,1,2,...
     }
     previousPoints = entry.displayPoints;
     return { ...entry, displayRank: currentRank, rowNumber };
