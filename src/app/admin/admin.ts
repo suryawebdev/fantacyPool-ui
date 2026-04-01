@@ -38,6 +38,8 @@ export class Admin implements OnInit {
   liveFeedEnabled = false;
   liveFeedTournamentId: number | null = null;
   liveFeedSaving = false;
+  backupPickMatchId: number | null = null;
+  backupPickTriggering = false;
 
   /** Bulk JSON import (matches tab) */
   bulkImportTournamentId: number | null = null;
@@ -145,6 +147,30 @@ export class Admin implements OnInit {
       error: () => {
         this.liveFeedSaving = false;
         this.notification.showError('Failed to update live feed');
+      }
+    });
+  }
+
+  triggerBackupPicks(): void {
+    const matchId = Number(this.backupPickMatchId);
+    if (!Number.isFinite(matchId) || matchId <= 0) {
+      this.notification.showError('Enter a valid match ID');
+      return;
+    }
+
+    this.backupPickTriggering = true;
+    this.adminService.triggerBackupPicks(matchId).subscribe({
+      next: () => {
+        this.backupPickTriggering = false;
+        this.notification.showSuccess(`Triggered backup picks for match #${matchId}`);
+      },
+      error: (err) => {
+        this.backupPickTriggering = false;
+        const message =
+          err?.error?.message ||
+          (typeof err?.error === 'string' ? err.error : null) ||
+          'Failed to trigger backup picks';
+        this.notification.showError(message);
       }
     });
   }

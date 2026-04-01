@@ -787,6 +787,30 @@
   min-width: 200px;
 }
 
+.backup-picks-section {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.backup-picks-title {
+  color: var(--text-primary);
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+}
+
+.backup-picks-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.backup-picks-input {
+  max-width: 220px;
+}
+
 /* Mobile Responsive Styles - same approach as user-dashboard: use horizontal space, no scroll */
 @media (max-width: 768px) {
   .admin-container {
@@ -1020,6 +1044,14 @@
   .livefeed-select {
     min-width: 0;
     width: 100%;
+    max-width: 100%;
+  }
+
+  .backup-picks-controls {
+    align-items: stretch;
+  }
+
+  .backup-picks-input {
     max-width: 100%;
   }
 }

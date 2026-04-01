@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../environments/environments';
 
@@ -55,5 +55,11 @@ export class AdminService {
   /** Live feed config: PUT (admin only). */
   updateLiveFeedConfig(config: { enabled: boolean; tournamentId?: number }): Observable<any> {
     return this.http.put(`${this.baseUrl}/api/admin/live-feed/config`, config);
+  }
+
+  /** Trigger backup picks for a specific match (admin only). */
+  triggerBackupPicks(matchId: number): Observable<any> {
+    const params = new HttpParams().set('matchId', String(matchId));
+    return this.http.post(`${this.baseUrl}/api/admin/backup/trigger-picks`, null, { params });
   }
 }

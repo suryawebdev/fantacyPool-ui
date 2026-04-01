@@ -409,6 +409,30 @@
           </label>
         </div>
       </div>
+
+      <div class="backup-picks-section">
+        <h3 class="backup-picks-title">Trigger backup picks</h3>
+        <p class="section-desc">Run the admin backup-picks endpoint for a specific match ID.</p>
+        <div class="backup-picks-controls">
+          <label for="backup-picks-match-id" class="livefeed-label">Match ID</label>
+          <input
+            id="backup-picks-match-id"
+            type="number"
+            min="1"
+            class="livefeed-select backup-picks-input"
+            [(ngModel)]="backupPickMatchId"
+            placeholder="Enter match ID"
+          />
+          <button
+            type="button"
+            class="action-btn winner-btn"
+            (click)="triggerBackupPicks()"
+            [disabled]="backupPickTriggering"
+          >
+            {{ backupPickTriggering ? 'Triggering…' : 'Trigger backup picks' }}
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
