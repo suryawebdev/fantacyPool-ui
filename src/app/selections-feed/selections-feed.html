@@ -33,27 +33,27 @@
                       <p class="no-data">Picks will be revealed after cutoff time.</p>
                     }
                   } @else {
-                    <ul class="match-picks-list">
-                      @for (row of getMatchPickRows(match.id); track row.user?.userId || row.user?.id || row.user?.username) {
-                        <li class="match-pick-item">
-                          <span class="pick-user">{{ getUserDisplayName(row.user) }}</span>
-                          @if (row.selection) {
-                            <span class="pick-team">{{ getTeamDisplayName(match, row.selection.team) }}</span>
-                          } @else {
-                            <span class="pick-team pick-team--none">—</span>
+                    @for (group of getMatchPickRowsByTeam(match.id, match); track group.label) {
+                      <div class="team-group">
+                        <div class="team-group-header">{{ group.label }}</div>
+                        <ul class="match-picks-list">
+                          @for (row of group.rows; track row.user?.userId || row.user?.id || row.user?.username) {
+                            <li class="match-pick-item">
+                              <span class="pick-user">{{ getUserDisplayName(row.user) }}</span>
+                              @if (!row.selection) {
+                                <span class="pick-result nopick">No pick</span>
+                              } @else if (isPickOutcomePending(match)) {
+                                <span class="pick-result pending">Pending</span>
+                              } @else if (row.selection.correct === true) {
+                                <span class="pick-result correct">✓ Correct</span>
+                              } @else if (row.selection.correct === false) {
+                                <span class="pick-result wrong">✗ Wrong</span>
+                              }
+                            </li>
                           }
-                          @if (!row.selection) {
-                            <span class="pick-result nopick">No pick</span>
-                          } @else if (isPickOutcomePending(match)) {
-                            <span class="pick-result pending">Pending</span>
-                          } @else if (row.selection.correct === true) {
-                            <span class="pick-result correct">✓ Correct</span>
-                          } @else if (row.selection && row.selection.correct === false) {
-                            <span class="pick-result wrong">✗ Wrong</span>
-                          }
-                        </li>
-                      }
-                    </ul>
+                        </ul>
+                      </div>
+                    }
                   }
                 </div>
               }

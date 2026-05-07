@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TournamentService } from '../tournament.service';
@@ -11,6 +11,7 @@ import { isNoResultMatch } from '../match-outcome';
 import { compareMatchStartAsc, isPickLockPassed } from '../match-pick-lock.util';
 import { computeLeaderboardWithRanks } from '../leaderboard-rank.util';
 import { firstValueFrom } from 'rxjs';
+import { TableScrollPersistenceService } from '../table-scroll-persistence.service';
 
 @Component({
   selector: 'app-leaderboard',
@@ -18,7 +19,7 @@ import { firstValueFrom } from 'rxjs';
   templateUrl: './leaderboard.html',
   styleUrl: './leaderboard.scss'
 })
-export class Leaderboard implements OnInit {
+export class Leaderboard implements OnInit, OnDestroy {
   leaderboard: any[] = [];
   currentUser: any = {};
   myTournaments: Tournament[] = [];
@@ -38,21 +39,38 @@ export class Leaderboard implements OnInit {
   allTournamentMatches: any[] = [];
   /** Current logged-in user's picks by matchId (used as fallback in own history row). */
   currentUserPicks: Record<number, string> = {};
-  /** MatchId -> username -> locked selection (from /matches/:id/selections). */
-  matchSelectionsByUsername: Record<number, Record<string, any>> = {};
+
+  private readonly lbScrollDebounceMs = 150;
+  private lbScrollTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
   constructor(
     private tournamentService: TournamentService,
     private authService: AuthService,
     private selectedTournamentService: SelectedTournamentService,
     private matchService: MatchService,
-    private router: Router
+    private router: Router,
+    private tableScroll: TableScrollPersistenceService
   ) {}
 
   ngOnInit(): void {
     this.currentUser = this.authService.getUserDetails() || {};
     this.loadCurrentUserPicks();
     this.loadTournaments();
+  }
+
+  ngOnDestroy(): void {
+    for (const t of this.lbScrollTimers.values()) {
+      clearTimeout(t);
+    }
+    this.lbScrollTimers.clear();
+    this.flushAllLeaderboardHistoryScrolls();
+  }
+
+  @HostListener('document:visibilitychange')
+  onDocumentVisibilityChange(): void {
+    if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
+      this.flushAllLeaderboardHistoryScrolls();
+    }
   }
 
   private loadCurrentUserPicks(): void {
@@ -142,11 +160,15 @@ export class Leaderboard implements OnInit {
     const username = user?.username;
     if (!username) return;
     if (this.expandedUsernames.has(username)) {
+      this.flushLeaderboardHistoryScroll(username);
       this.expandedUsernames.delete(username);
       return;
     }
     this.expandedUsernames.add(username);
-    if (this.userHistoryCache[username] != null) return;
+    if (this.userHistoryCache[username] != null) {
+      setTimeout(() => this.scheduleLeaderboardHistoryScrollRestore(username), 0);
+      return;
+    }
     this.loadUserHistory(username);
   }
 
@@ -155,15 +177,14 @@ export class Leaderboard implements OnInit {
     this.historyLoadError[username] = '';
     const tid = this.selectedTournamentId ?? undefined;
     firstValueFrom(this.matchService.getUserHistoryByUsername(username, tid))
-      .then(async (data) => {
-        const matchesPastCutoff = this.allTournamentMatches.filter((m) => this.isMatchPastCutoff(m));
-        await this.loadSelectionsForMatches(matchesPastCutoff);
-
+      .then((data) => {
         const pickedMatches = data.matches ?? [];
         const enrichedMatches = this.mergePickedWithAllMatches(pickedMatches, username);
 
         this.userHistoryCache[username] = { totalPoints: data.totalPoints ?? 0, matches: enrichedMatches };
         this.loadingHistoryForUser = null;
+        setTimeout(() => this.scheduleLeaderboardHistoryScrollRestore(username), 0);
+        setTimeout(() => this.scheduleLeaderboardHistoryScrollRestore(username), 120);
       })
       .catch(() => {
         this.historyLoadError[username] = 'Could not load history.';
@@ -171,27 +192,61 @@ export class Leaderboard implements OnInit {
       });
   }
 
-  private async loadSelectionsForMatches(matches: any[]): Promise<void> {
-    const pending = (matches ?? [])
-      .map((m: any) => Number(m?.id))
-      .filter((id) => !Number.isNaN(id) && this.matchSelectionsByUsername[id] == null)
-      .map(async (matchId) => {
-        try {
-          const list = await firstValueFrom(this.matchService.getSelectionsByMatch(matchId));
-          const byUsername: Record<string, any> = {};
-          (list ?? []).forEach((entry: any) => {
-            const username = entry?.username != null ? String(entry.username) : null;
-            if (username) {
-              byUsername[username] = entry;
-            }
-          });
-          this.matchSelectionsByUsername[matchId] = byUsername;
-        } catch {
-          this.matchSelectionsByUsername[matchId] = {};
-        }
-      });
+  onLeaderboardHistoryScroll(historyUsername: string, event: Event): void {
+    const el = event.currentTarget as HTMLElement;
+    const key = this.leaderboardHistoryScrollKey(historyUsername);
+    const prev = this.lbScrollTimers.get(historyUsername);
+    if (prev != null) clearTimeout(prev);
+    const timer = setTimeout(() => {
+      this.lbScrollTimers.delete(historyUsername);
+      this.tableScroll.write(key, el.scrollTop);
+    }, this.lbScrollDebounceMs);
+    this.lbScrollTimers.set(historyUsername, timer);
+  }
 
-    await Promise.all(pending);
+  private leaderboardHistoryScrollKey(historyUsername: string): string | null {
+    return this.tableScroll.storageKey({
+      area: 'leaderboard',
+      viewerUsername: this.currentUser?.username ?? 'user',
+      tournamentId: this.selectedTournamentId,
+      tableId: 'history',
+      suffix: historyUsername
+    });
+  }
+
+  private findLeaderboardHistoryScrollEl(historyUsername: string): HTMLElement | null {
+    const nodes = document.querySelectorAll('[data-lbh-user]');
+    for (const node of Array.from(nodes)) {
+      if (node.getAttribute('data-lbh-user') === historyUsername) {
+        return node as HTMLElement;
+      }
+    }
+    return null;
+  }
+
+  private scheduleLeaderboardHistoryScrollRestore(historyUsername: string): void {
+    const el = this.findLeaderboardHistoryScrollEl(historyUsername);
+    const key = this.leaderboardHistoryScrollKey(historyUsername);
+    this.tableScroll.restoreScroll(el, key, { defaultToTop: true });
+  }
+
+  private flushLeaderboardHistoryScroll(historyUsername: string): void {
+    const el = this.findLeaderboardHistoryScrollEl(historyUsername);
+    const key = this.leaderboardHistoryScrollKey(historyUsername);
+    if (el && key) {
+      this.tableScroll.write(key, el.scrollTop);
+    }
+  }
+
+  private flushAllLeaderboardHistoryScrolls(): void {
+    document.querySelectorAll('[data-lbh-user]').forEach((node) => {
+      const el = node as HTMLElement;
+      const u = el.getAttribute('data-lbh-user');
+      if (u) {
+        const key = this.leaderboardHistoryScrollKey(u);
+        this.tableScroll.write(key, el.scrollTop);
+      }
+    });
   }
 
   /** Pick lock = stored `startDateTime`; naive strings = America/Chicago (same as dashboard). */
@@ -207,19 +262,17 @@ export class Leaderboard implements OnInit {
         .map((m: any) => [m.matchId ?? m.id, m] as const)
         .filter(([id]) => id != null)
     );
-    
+
     const isCurrentUserRow = username === this.currentUser?.username;
     const matchesPastCutoff = this.allTournamentMatches.filter((m) => this.isMatchPastCutoff(m));
     // For each tournament match past cutoff, use picked data if available, otherwise mark as NP.
     const mergedMatches = matchesPastCutoff.map(tournamentMatch => {
       const pickedMatch = pickedMatchMap.get(tournamentMatch.id);
-      const selectionEntry = this.matchSelectionsByUsername[tournamentMatch.id]?.[username] ?? null;
+      // fallbackPick is only available for the currently logged-in user's own row
       const fallbackPick = isCurrentUserRow ? this.currentUserPicks[tournamentMatch.id] : null;
-      const selectionPick = selectionEntry?.team ?? selectionEntry?.userPick ?? selectionEntry?.pick ?? null;
-      
+
       if (pickedMatch) {
-        const normalizedPick =
-          pickedMatch.userPick ?? pickedMatch.team ?? pickedMatch.pick ?? selectionPick ?? fallbackPick ?? null;
+        const normalizedPick = pickedMatch.userPick ?? pickedMatch.team ?? pickedMatch.pick ?? fallbackPick ?? null;
         return {
           ...tournamentMatch,
           ...pickedMatch,
@@ -229,15 +282,15 @@ export class Leaderboard implements OnInit {
           isNoPick: !normalizedPick
         };
       } else {
-        // User didn't pick this match in history payload.
+        // User didn't pick this match.
         return {
           ...tournamentMatch,
-          userPick: selectionPick ?? fallbackPick ?? null,
-          isNoPick: !(selectionPick ?? fallbackPick)
+          userPick: fallbackPick ?? null,
+          isNoPick: !fallbackPick
         };
       }
     });
-    
+
     return mergedMatches.sort((a, b) => compareMatchStartAsc(a, b));
   }
 

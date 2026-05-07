@@ -13,6 +13,7 @@ import { Tournament } from '../models/tournament.model';
 import { isNoResultMatch } from '../match-outcome';
 import { compareMatchStartAsc, isPickLockPassed } from '../match-pick-lock.util';
 import { computeLeaderboardWithRanks } from '../leaderboard-rank.util';
+import { TableScrollPersistenceService } from '../table-scroll-persistence.service';
 
 @Component({
   selector: 'app-user-dashboard',
@@ -55,7 +56,8 @@ export class UserDashboard implements OnInit, OnDestroy {
     // private webSocketService: WebSocketService,
     private welcomeMessageService: WelcomeMessageService,
     private tournamentService: TournamentService,
-    private selectedTournamentService: SelectedTournamentService
+    private selectedTournamentService: SelectedTournamentService,
+    private tableScroll: TableScrollPersistenceService
   ) {}
 
   ngOnInit() {
@@ -170,6 +172,9 @@ export class UserDashboard implements OnInit, OnDestroy {
       // Merge picked matches with all tournament matches
       this.userHistory = this.mergePickedWithAllMatches(pickedMatches);
       this.applyUserPicksToHistory();
+      if (this.userHistory.length > 0) {
+        this.scheduleHistoryScrollRestore();
+      }
     }).catch((err) => {
       console.error('Error fetching user data:', err);
       this.totalPoints = 0;
@@ -282,45 +287,25 @@ export class UserDashboard implements OnInit, OnDestroy {
     }
     this.scrollPersistTimer = setTimeout(() => {
       this.scrollPersistTimer = null;
-      this.writeStoredScroll(kind, el.scrollTop);
+      const key = this.dashboardScrollKey(kind);
+      this.tableScroll.write(key, el.scrollTop);
     }, this.scrollDebounceMs);
   }
 
-  private scrollStorageKey(kind: 'upcoming' | 'history'): string | null {
-    const tid = this.selectedTournamentId;
-    const u = (this.user?.username ?? 'user').trim() || 'user';
-    if (tid == null) return null;
-    return `fantacyPool.dashboardScroll.v1.${encodeURIComponent(u)}.${tid}.${kind}`;
-  }
-
-  private readStoredScroll(kind: 'upcoming' | 'history'): number | null {
-    const k = this.scrollStorageKey(kind);
-    if (!k) return null;
-    try {
-      const v = localStorage.getItem(k);
-      if (v == null) return null;
-      const n = Number(v);
-      return Number.isFinite(n) && n >= 0 ? n : null;
-    } catch {
-      return null;
-    }
-  }
-
-  private writeStoredScroll(kind: 'upcoming' | 'history', top: number): void {
-    const k = this.scrollStorageKey(kind);
-    if (!k) return;
-    try {
-      localStorage.setItem(k, String(Math.round(top)));
-    } catch {
-      /* quota / private mode */
-    }
+  private dashboardScrollKey(kind: 'upcoming' | 'history'): string | null {
+    return this.tableScroll.storageKey({
+      area: 'dashboard',
+      viewerUsername: this.user?.username ?? 'user',
+      tournamentId: this.selectedTournamentId,
+      tableId: kind
+    });
   }
 
   private flushScrollPositionsToStorage(): void {
     const u = this.upcomingMatchesBody?.nativeElement;
     const h = this.historyMatchesBody?.nativeElement;
-    if (u) this.writeStoredScroll('upcoming', u.scrollTop);
-    if (h) this.writeStoredScroll('history', h.scrollTop);
+    if (u) this.tableScroll.write(this.dashboardScrollKey('upcoming'), u.scrollTop);
+    if (h) this.tableScroll.write(this.dashboardScrollKey('history'), h.scrollTop);
   }
 
   private scheduleUpcomingScrollRestore(): void {
@@ -334,29 +319,17 @@ export class UserDashboard implements OnInit, OnDestroy {
   /**
    * Restore saved scrollTop, or default upcoming to bottom when nothing stored (latest matches).
    */
-  private restoreScrollWithRetry(kind: 'upcoming' | 'history', attempt = 0): void {
+  private restoreScrollWithRetry(kind: 'upcoming' | 'history'): void {
     const el =
       kind === 'upcoming'
         ? this.upcomingMatchesBody?.nativeElement
         : this.historyMatchesBody?.nativeElement;
     if (!el) return;
-
-    const maxScroll = Math.max(0, el.scrollHeight - el.clientHeight);
-    if (maxScroll <= 0 && attempt < 8) {
-      setTimeout(() => this.restoreScrollWithRetry(kind, attempt + 1), 50);
-      return;
-    }
-
-    const stored = this.readStoredScroll(kind);
-    if (stored != null) {
-      el.scrollTop = Math.min(stored, maxScroll);
-      return;
-    }
-    if (kind === 'upcoming') {
-      el.scrollTop = maxScroll;
-    } else {
-      el.scrollTop = 0;
-    }
+    const key = this.dashboardScrollKey(kind);
+    this.tableScroll.restoreScroll(el, key, {
+      defaultToBottom: kind === 'upcoming',
+      defaultToTop: kind === 'history'
+    });
   }
 
   /** Pick lock uses America/Chicago for naive API datetimes so all zones share the same cutoff. */

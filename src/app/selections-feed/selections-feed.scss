@@ -230,6 +230,27 @@
   border-top: 1px solid var(--border-color);
 }
 
+.team-group {
+  margin-bottom: 0.75rem;
+}
+
+.team-group:last-child {
+  margin-bottom: 0;
+}
+
+.team-group-header {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--primary-accent);
+  padding: 0.25rem 0.5rem;
+  margin-bottom: 0.25rem;
+  border-left: 3px solid var(--primary-accent);
+  background: rgba(var(--primary-accent-rgb, 255, 140, 66), 0.07);
+  border-radius: 0 var(--radius-sm, 4px) var(--radius-sm, 4px) 0;
+}
+
 .match-picks-list {
   list-style: none;
   padding: 0;

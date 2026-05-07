@@ -216,6 +216,23 @@ export class SelectionsFeed implements OnInit {
     return this.matchSelections[matchId] ?? [];
   }
 
+  /** Groups pick rows by the team chosen, with a "No Pick" bucket at the end. */
+  getMatchPickRowsByTeam(matchId: number, match: any): Array<{ label: string; rows: Array<{ user: any; selection: any | null }> }> {
+    const rows = this.getMatchPickRows(matchId);
+    const teamALabel = match?.teamA ?? 'Team A';
+    const teamBLabel = match?.teamB ?? 'Team B';
+
+    const teamARows = rows.filter(r => r.selection && (r.selection.team === 'A' || r.selection.team === teamALabel));
+    const teamBRows = rows.filter(r => r.selection && (r.selection.team === 'B' || r.selection.team === teamBLabel));
+    const noPickRows = rows.filter(r => !r.selection);
+
+    const groups: Array<{ label: string; rows: Array<{ user: any; selection: any | null }> }> = [];
+    if (teamARows.length > 0) groups.push({ label: teamALabel, rows: teamARows });
+    if (teamBRows.length > 0) groups.push({ label: teamBLabel, rows: teamBRows });
+    if (noPickRows.length > 0) groups.push({ label: 'No Pick', rows: noPickRows });
+    return groups;
+  }
+
   /**
    * For UI: show a row per participant; if no selection exists, mark as "No pick".
    * Falls back to only selection rows when participants API isn't available.

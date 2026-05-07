@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
@@ -15,6 +15,8 @@ import {
   type ParsedBulkRow
 } from '../match-bulk-import.util';
 import { firstValueFrom } from 'rxjs';
+import { AuthService } from '../auth.service';
+import { TableScrollPersistenceService } from '../table-scroll-persistence.service';
 
 @Component({
   selector: 'app-admin',
@@ -23,7 +25,7 @@ import { firstValueFrom } from 'rxjs';
   templateUrl: './admin.html',
   styleUrl: './admin.scss'
 })
-export class Admin implements OnInit {
+export class Admin implements OnInit, OnDestroy {
   matchForm: FormGroup;
   matches: any[] = [];
   tournaments: Tournament[] = [];
@@ -40,6 +42,9 @@ export class Admin implements OnInit {
   liveFeedSaving = false;
   backupPickMatchId: number | null = null;
   backupPickTriggering = false;
+
+  private readonly adminMatchesScrollDebounceMs = 150;
+  private adminMatchesScrollTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
   /** Bulk JSON import (matches tab) */
   bulkImportTournamentId: number | null = null;
@@ -64,7 +69,9 @@ export class Admin implements OnInit {
     private matchService: MatchService,
     private tournamentService: TournamentService,
     private adminService: AdminService,
-    private notification: NotificationService
+    private notification: NotificationService,
+    private authService: AuthService,
+    private tableScroll: TableScrollPersistenceService
   ) {
     this.matchForm = this.fb.group({
       teamA: ['', Validators.required],
@@ -81,10 +88,27 @@ export class Admin implements OnInit {
     this.loadPendingUsers();
   }
 
+  ngOnDestroy(): void {
+    for (const t of this.adminMatchesScrollTimers.values()) {
+      clearTimeout(t);
+    }
+    this.adminMatchesScrollTimers.clear();
+    this.flushAdminMatchesScrollPositions();
+  }
+
+  @HostListener('document:visibilitychange')
+  onDocumentVisibilityChange(): void {
+    if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
+      this.flushAdminMatchesScrollPositions();
+    }
+  }
+
   setActiveTab(tab: 'matches' | 'tournaments' | 'approvals' | 'livefeed') {
     this.activeTab = tab;
     if (tab === 'matches') {
       this.loadTournaments();
+      setTimeout(() => this.restoreAdminMatchesAllScrolls(), 0);
+      setTimeout(() => this.restoreAdminMatchesAllScrolls(), 120);
     }
     if (tab === 'approvals') {
       this.loadPendingUsers();
@@ -258,11 +282,60 @@ export class Admin implements OnInit {
             }
           }
         });
+        setTimeout(() => this.restoreAdminMatchesAllScrolls(), 0);
+        setTimeout(() => this.restoreAdminMatchesAllScrolls(), 120);
       },
       error: (error) => {
         console.error('Error loading matches:', error);
       }
     })
+  }
+
+  onAdminMatchesTournamentScroll(tournamentId: number | null | undefined, event: Event): void {
+    const el = event.currentTarget as HTMLElement;
+    const mapKey = tournamentId == null ? 'none' : String(tournamentId);
+    const prev = this.adminMatchesScrollTimers.get(mapKey);
+    if (prev != null) clearTimeout(prev);
+    const timer = setTimeout(() => {
+      this.adminMatchesScrollTimers.delete(mapKey);
+      this.tableScroll.write(this.adminMatchesScrollKey(tournamentId), el.scrollTop);
+    }, this.adminMatchesScrollDebounceMs);
+    this.adminMatchesScrollTimers.set(mapKey, timer);
+  }
+
+  private adminScrollViewer(): string {
+    return (this.authService.getUserDetails()?.username ?? 'admin').trim() || 'admin';
+  }
+
+  /** `tournamentId` null → storage id 0 (no tournament group). */
+  private adminMatchesScrollKey(tournamentId: number | null | undefined): string | null {
+    const tid = tournamentId == null ? 0 : Number(tournamentId);
+    return this.tableScroll.storageKey({
+      area: 'admin',
+      viewerUsername: this.adminScrollViewer(),
+      tournamentId: tid,
+      tableId: 'matchesByTournament'
+    });
+  }
+
+  private restoreAdminMatchesAllScrolls(): void {
+    if (this.activeTab !== 'matches') return;
+    document.querySelectorAll('[data-admin-matches-tid]').forEach((node) => {
+      const el = node as HTMLElement;
+      const raw = el.getAttribute('data-admin-matches-tid');
+      const tournamentId = raw === 'none' || raw == null ? null : Number(raw);
+      const key = this.adminMatchesScrollKey(tournamentId);
+      this.tableScroll.restoreScroll(el, key, { defaultToTop: true });
+    });
+  }
+
+  private flushAdminMatchesScrollPositions(): void {
+    document.querySelectorAll('[data-admin-matches-tid]').forEach((node) => {
+      const el = node as HTMLElement;
+      const raw = el.getAttribute('data-admin-matches-tid');
+      const tournamentId = raw === 'none' || raw == null ? null : Number(raw);
+      this.tableScroll.write(this.adminMatchesScrollKey(tournamentId), el.scrollTop);
+    });
   }
 
   loadTournaments() {

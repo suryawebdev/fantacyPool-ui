@@ -261,8 +261,8 @@
         @for (group of getMatchesGroupedByTournament(); track group.tournamentId ?? 0) {
           <div class="tournament-matches-block">
             <h3 class="tournament-block-title">{{ group.tournamentName }}</h3>
-            <div class="table-container">
-              <table class="matches-table">
+            <div class="admin-matches-table-scroll-wrap">
+              <table class="matches-table admin-matches-table-header">
                 <thead>
                   <tr>
                     <th>Teams</th>
@@ -272,40 +272,50 @@
                     <th>Actions</th>
                   </tr>
                 </thead>
-                <tbody>
-                  @for (match of group.matches; track match.id) {
-                    <tr class="match-row">
-                      <td class="teams-cell">
-                        <strong>{{ match.teamA }}</strong> vs <strong>{{ match.teamB }}</strong>
-                      </td>
-                      <td>{{ match.startDateTime | date:'short' }}</td>
-                      <td>
-                        <span class="status-badge status-{{ match.status?.toLowerCase() }}">
-                          {{ match.status }}
-                        </span>
-                      </td>
-                      <td>
-                        @if (showNoResultBadge(match)) {
-                          <span class="winner-badge nr-badge">NR</span>
-                        } @else if (match.winner) {
-                          <span class="winner-badge">{{ match.winner }}</span>
-                        } @else {
-                          <span class="no-winner">No winner set</span>
-                        }
-                      </td>
-                      <td class="actions-cell">
-                        <button (click)="startEdit(match)" class="action-btn edit-btn">Edit</button>
-                        <button (click)="deleteMatch(match.id)" class="action-btn delete-btn">Delete</button>
-                        @if (!matchHasOutcome(match)) {
-                          <button (click)="setWinner(match, match.teamA)" class="action-btn winner-btn">{{ match.teamA }} Wins</button>
-                          <button (click)="setWinner(match, match.teamB)" class="action-btn winner-btn">{{ match.teamB }} Wins</button>
-                          <button type="button" (click)="setNoResult(match)" class="action-btn nr-btn">NR</button>
-                        }
-                      </td>
-                    </tr>
-                  }
-                </tbody>
               </table>
+              <div
+                class="admin-matches-table-body-scroll"
+                [attr.data-admin-matches-tid]="group.tournamentId == null ? 'none' : ('' + group.tournamentId)"
+                (scroll)="onAdminMatchesTournamentScroll(group.tournamentId, $event)"
+                role="region"
+                [attr.aria-label]="'Matches for ' + group.tournamentName"
+              >
+                <table class="matches-table admin-matches-table-body">
+                  <tbody>
+                    @for (match of group.matches; track match.id) {
+                      <tr class="match-row">
+                        <td class="teams-cell">
+                          <strong>{{ match.teamA }}</strong> vs <strong>{{ match.teamB }}</strong>
+                        </td>
+                        <td>{{ match.startDateTime | date:'short' }}</td>
+                        <td>
+                          <span class="status-badge status-{{ match.status?.toLowerCase() }}">
+                            {{ match.status }}
+                          </span>
+                        </td>
+                        <td>
+                          @if (showNoResultBadge(match)) {
+                            <span class="winner-badge nr-badge">NR</span>
+                          } @else if (match.winner) {
+                            <span class="winner-badge">{{ match.winner }}</span>
+                          } @else {
+                            <span class="no-winner">No winner set</span>
+                          }
+                        </td>
+                        <td class="actions-cell">
+                          <button (click)="startEdit(match)" class="action-btn edit-btn">Edit</button>
+                          <button (click)="deleteMatch(match.id)" class="action-btn delete-btn">Delete</button>
+                          @if (!matchHasOutcome(match)) {
+                            <button (click)="setWinner(match, match.teamA)" class="action-btn winner-btn">{{ match.teamA }} Wins</button>
+                            <button (click)="setWinner(match, match.teamB)" class="action-btn winner-btn">{{ match.teamB }} Wins</button>
+                            <button type="button" (click)="setNoResult(match)" class="action-btn nr-btn">NR</button>
+                          }
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         }

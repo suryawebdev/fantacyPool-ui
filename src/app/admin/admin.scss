@@ -452,6 +452,51 @@
   border-bottom: 2px solid var(--border-color);
 }
 
+/* Fixed header + vertical scroll for “All matches by tournament” (per block).
+   Do not use flex: 1 1 0 on the body without a definite parent height — it collapses to 0. */
+.admin-matches-table-scroll-wrap {
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-light);
+  background: var(--card-bg);
+}
+
+.admin-matches-table-scroll-wrap .admin-matches-table-header {
+  flex: 0 0 auto;
+  table-layout: fixed;
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0;
+  border-radius: 0;
+  box-shadow: none;
+  border: none;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.admin-matches-table-scroll-wrap .admin-matches-table-body-scroll {
+  flex: 0 1 auto;
+  max-height: min(480px, 55vh);
+  overflow-y: auto;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  touch-action: pan-x pan-y;
+}
+
+.admin-matches-table-scroll-wrap .admin-matches-table-body {
+  table-layout: fixed;
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0;
+  border-radius: 0;
+  box-shadow: none;
+  border: none;
+  overflow: visible;
+}
+
 .section-title {
   color: var(--text-primary);
   font-size: 1.8rem;
@@ -948,6 +993,14 @@
     max-width: 100%;
     margin: 0;
     padding: 0;
+  }
+
+  .admin-matches-table-scroll-wrap {
+    max-width: 100%;
+  }
+
+  .admin-matches-table-scroll-wrap .admin-matches-table-body-scroll {
+    max-height: min(360px, 50vh);
   }
 
   /* Admin matches table: Teams, Date, Status, Winner, Actions */

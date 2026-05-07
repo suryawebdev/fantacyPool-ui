@@ -8,7 +8,7 @@ import { TournamentService } from '../tournament.service';
 import { SelectedTournamentService } from '../selected-tournament.service';
 import { Tournament } from '../models/tournament.model';
 import { isNoResultMatch } from '../match-outcome';
-import { compareMatchStartAsc, isPickLockPassed } from '../match-pick-lock.util';
+import { compareMatchStartAsc, compareMatchStartDesc, isPickLockPassed } from '../match-pick-lock.util';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
@@ -299,10 +299,16 @@ export class Analytics implements OnInit {
 
   getPoolMatchStatsPastCutoff(): Array<{ matchId: number; teamA: string; teamB: string; picks: Record<string, number> }> {
     const now = Date.now();
-    return (this.poolMatchStats ?? []).filter((m) => {
+    const filtered = (this.poolMatchStats ?? []).filter((m) => {
       const dt = this.tournamentMatchStartById?.[Number(m.matchId)];
       return isPickLockPassed(dt, now);
     });
+    return filtered.slice().sort((a, b) =>
+      compareMatchStartDesc(
+        { startDateTime: this.tournamentMatchStartById?.[Number(a.matchId)] },
+        { startDateTime: this.tournamentMatchStartById?.[Number(b.matchId)] }
+      )
+    );
   }
 
   loadAnalytics(): void {

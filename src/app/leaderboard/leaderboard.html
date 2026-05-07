@@ -78,7 +78,11 @@
                         }
                       </p>
                     } @else {
-                      <div class="history-table-wrap history-table-scroll">
+                      <div
+                        class="history-table-wrap history-table-scroll"
+                        [attr.data-lbh-user]="user.username"
+                        (scroll)="onLeaderboardHistoryScroll(user.username, $event)"
+                      >
                         <table class="history-table">
                           <thead>
                             <tr>
